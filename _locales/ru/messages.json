@@ -1,0 +1,173 @@
+{
+    "actTitle": {
+        "message": "Настройки GViK"
+    },
+    "audio": {
+        "message": "Аудио"
+    },
+    "audio_add_bit": {
+        "message": "Отображать битрейт"
+    },
+    "audio_add_but": {
+        "message": "Добавлять кнопку скачивания"
+    },
+    "audio_auto_hide_bit": {
+        "message": "Автоматически скрывать аудиозаписи, битрейт у которых, меньше "
+    },
+    "audio_auto_load_bit": {
+        "message": "Автоматически подгружать битрейт"
+    },
+    "audio_auto_sort_bit": {
+        "message": "Автоматически сортировать аудиозаписи по битрейту."
+    },
+    "audio_bitrate_audio": {
+        "message": "Отображать битрейт при наведении на аудиозапись"
+    },
+    "audio_bitrate_downloadBtn": {
+        "message": "Отображать битрейт при наведении на кнопку скачивания"
+    },
+    "audio_bitrate_playBtn": {
+        "message": "Отображать битрейт при наведении на кнопку воспроизведения аудиозаписи"
+    },
+    "audio_download_enable": {
+        "message": "Скачивание аудио и отображение битрейта"
+    },
+    "audio_download_fromCache": {
+        "message": "Скачивать из кэша"
+    },
+    "audio_download_saveAs": {
+        "message": "Открывать диалог сохранения \"Сохранить как...\""
+    },
+    "audio_faster": {
+        "message": "Уменьшить подвисания при листании страницы вниз в аудиозаписях (Отключает возможность сортировать свои аудиозаписи)"
+    },
+    "audio_file_size": {
+        "message": "Показывать вес аудиофайла при отображении битрейта"
+    },
+    "audio_loader_disable": {
+        "message": "Отключить индикатор загрузки при отображении битрейта."
+    },
+    "audio_normal_name": {
+        "message": "Скачивать с нормальными именами"
+    },
+    "audio_out_hide": {
+        "message": "Прятать битрейт, если курсор не на аудиозаписи"
+    },
+    "bitrateAll": {
+        "message": "Битрейт"
+    },
+    "common": {
+        "message": "Общее"
+    },
+    "common_remove_status": {
+        "message": "Удалять кнопку транслирования аудиозаписей в статус."
+    },
+    "common_set_offline": {
+        "message": "Попробовать оставаться в offline. (Online будет видно на странице профиля)."
+    },
+    "common_set_online": {
+        "message": "Оставаться в online."
+    },
+    "default_settings": {
+        "message": "Настройки по-умолчанию"
+    },
+    "enable_sidebar": {
+        "message": "Включить сайдбар."
+    },
+    "error": {
+        "message": "Неизвестная ошибка!"
+    },
+    "extDescription": {
+        "message": "Расширение для https://vk.com/"
+    },
+    "go_out_from_a_group": {
+        "message": "Выйти из группы"
+    },
+    "group_exit": {
+        "message": "Быстрый выход из групп. <span class=\"labelx green\">Требуется доступ к VK API</span>"
+    },
+    "im_mark_read": {
+        "message": "Не помечать сообщения как прочитанные (Только в диалогах)"
+    },
+    "im_send_notify": {
+        "message": "Не отправлять уведомление о наборе текста. (Только в диалогах)"
+    },
+    "lastfm": {
+        "message": "Last.Fm"
+    },
+    "lastfm_enable": {
+        "message": "Включить Last.fm <span class=\"labelx green\">Требуется доступ к Last.fm API</span>"
+    },
+    "links": {
+        "message": "Ссылки"
+    },
+    "mark_red_vote": {
+        "message": "Выделять красным цветом тип голосования"
+    },
+    "message": {
+        "message": "Сообщения"
+    },
+    "not_fave": {
+        "message": "У Вас нет закладок!"
+    },
+    "other": {
+        "message": "Другое"
+    },
+    "remove_ads": {
+        "message": "Удалять рекламу"
+    },
+    "remove_white_heart": {
+        "message": "Удалять белое сердце в просмотрщике фотографий"
+    },
+    "saved_msg": {
+        "message": "Сохранено"
+    },
+    "sidebar": {
+        "message": "Сайдбар"
+    },
+    "sidebar_audio": {
+        "message": "Отображать аудиозаписи"
+    },
+    "sidebar_enable_anim": {
+        "message": "Включить анимацию"
+    },
+    "sidebar_faves": {
+        "message": "Отображать закладки."
+    },
+    "sidebar_friends": {
+        "message": "Отображать друзей."
+    },
+    "sidebar_hide_offline": {
+        "message": "Показывать только online пользователей."
+    },
+    "sidebar_open_ajax": {
+        "message": "Открывать ссылки в текущей вкладке"
+    },
+    "sidebar_open_cur": {
+        "message": "Открывать ссылки в текущей вкладке с перезагрузкой страницы"
+    },
+    "sidebar_open_newTab": {
+        "message": "Открывать ссылки в новой вкладке"
+    },
+    "start_scrobble": {
+        "message": "Скробблить с"
+    },
+    "system_enable_qicksett": {
+        "message": "Показывать кнопку быстрых настроек в адресной строке."
+    },
+    "video": {
+        "message": "Видео"
+    },
+    "video_download_enable": {
+        "message": "Включить скачивание видеозаписей"
+    },
+    "vkapi": {
+        "message": "VK API"
+    },
+    "vkapi_offline": {
+        "message": "Бессрочный токен."
+    },
+    "common_state_onlineChange": {
+        "message": "Управлять состоянием онлайна <span class=\"labelx green\">Требуется доступ к VK API</span>"
+    }
+}

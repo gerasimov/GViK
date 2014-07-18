@@ -1,0 +1,30 @@
+/**
+ * @author Gerasimov Ruslan
+ * @email gerasimow.ruslan@gmail.com
+ * Copyright 2013 Gerasimov Ruslan. All rights reserved.
+ */
+
+"use strict";
+
+chrome[ CONFIG.sender ].onConnect.addListener( function( port ) {
+
+    port.onMessage.addListener( function( data ) {
+        var params = data.params,
+            method = methods[ params.method ];
+
+        params.tabId = port.sender.tab.id;
+
+        method && method( data.data, params, function() {
+            port.postMessage( {
+                arg: core.toArray( arguments ),
+                callback: params.callback
+            } );
+        }, function() {
+            port.postMessage( {
+                arg: core.toArray( arguments ),
+                callback: params.error
+            } );
+        } );
+    } );
+
+} );

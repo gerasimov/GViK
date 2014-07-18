@@ -1,0 +1,581 @@
+/* @author Gerasimov Ruslan */
+
+/* SCROBBLE */
+
+.gvik-scrobble {
+    padding: 0px 2px;
+    margin: 1px 1px;
+    font-size: 18px;
+    height: 18px;
+    float: left;
+    -webkit-transition: color 100ms ease;
+    cursor: pointer;
+    color: rgba(127, 150, 172, 0.5);
+}
+.gvik-scrobble.mp {
+    position: absolute;
+    right: 0px;
+    overflow: hidden;
+    height: 16px;
+    width: 25px;
+}
+.gvik-scrobble.scrobbled {} .gvik-scrobble.errors {
+    color: gray!important;
+}
+.gvik-scrobble.errors:after {
+    content: '!';
+}
+#gp:not(.head) .wrap.active .gvik-scrobble {
+    color: rgba(255, 255, 255, 0.4);
+}
+#gp:not(.head) .wrap.active .gvik-scrobble.on {
+    color: rgba(255, 255, 255, 1);
+}
+#gp:not(.head) .wrap.active .gvik-scrobble.scrobbled {
+    width: 13px;
+    height: 10px;
+    background-position: 0 -540px;
+}
+#gp:not(.head) .wrap.active .gvik-scrobble.errors {
+    width: 18px;
+    height: 10px;
+    background-position: 0 -360px;
+}
+.gvik-like {
+    float: left;
+    cursor: pointer;
+    margin: 1px 1px;
+    padding: 1px 2px;
+    font-size: 16px;
+    height: 16px;
+    color: rgba(127, 150, 172, 0.56);
+}
+.gvik-like.on, .gvik-scrobble.on {
+    color: #507494;
+}
+#pd.gvik .info {
+    width: 390px !important;
+}
+#pd.add.gvik .info {
+    width: 370px !important;
+}
+#pd.gvik .duration {
+    margin: 0 15px 0 0 !important;
+}
+#ac.gvik .ac_wrap {
+    padding: 0px 5px;
+}
+#ac.add.gvik .info {
+    width: 370px !important;
+}
+#ac.gvik .info {
+    width: 390px !important;
+}
+#ac.gvik .ac_name {
+    max-width: 275px !important;
+}
+.audio[data-gvik].scrobbled {
+    background-color: rgb(255, 242, 189);
+}
+/* DOWNLOAD AND BITRATE AUDIO */
+
+.gvik-download {
+    visibility: hidden;
+    float: right;
+    width: 13px;
+    height: 13px;
+}
+#audio.new .audio[data-gvik] .gvik-download {
+    margin: 6px 6px 6px 0;
+    padding: 4px;
+}
+.audio[data-gvik].over .gvik-download {
+    visibility: visible;
+}
+.audio[data-gvik].have_btn .gvik-download {
+    visibility: visible;
+}
+.gvik-bitrate {
+    font-size: 10px;
+    float: left;
+    margin: 0 0 0 8px;
+    color: #8795a5;
+}
+#audio.new .wall_module .audio .title_wrap {
+    max-width: 290px;
+}
+#audio.new .audio[data-gvik] .gvik-bitrate {
+    padding: 10px 3px 9px;
+}
+.audio[data-gvik] .actions {
+    min-width: 98px;
+}
+.gvik-bitrate.loader {
+    width: 32px;
+    height: 8px;
+    background: url("chrome-extension://__MSG_@@extension_id__/img/loader.gif") no-repeat 50% 50%;
+}
+#audios_list .wall_module .gvik-bitrate, #audios_list .wall_module .gvik-download, #pad_playlist .wall_module .gvik-bitrate, #pad_playlist .wall_module .gvik-download {
+    padding: 0 !important;
+}
+#pad_playlist .audio.current[data-gvik] .gvik-bitrate, #audio.new .audio.current[data-gvik] .gvik-bitrate {
+    color: white;
+}
+#pad_playlist .audio[data-gvik] .actions {
+    margin: 0;
+    padding: 0;
+}
+#pad_playlist .audio[data-gvik] .gvik-bitrate, #pad_playlist .audio[data-gvik] .gvik-download {
+    margin: 7px 0 7px 0;
+    padding: 4px;
+}
+#pad_playlist .audio[data-gvik*="_size_"] .gvik-bitrate, #pad_playlist .audio[data-gvik*="_size_"] .gvik-download {
+    margin: 7px 0 0 -15px;
+    padding: 4px;
+}
+#search_content .audio[data-gvik] .gvik-bitrate, #search_content .audio[data-gvik] .gvik-download {
+    margin: 8px;
+}
+#pad_search_list .audio[data-gvik] .gvik-bitrate, #pad_search_list .audio[data-gvik] .gvik-download {
+    padding: 10px;
+}
+.gvik-download > a > div {
+    width: 11px;
+    height: 13px;
+    -webkit-transition: opacity .2s ease-in;
+    opacity: .5;
+    background: url("chrome-extension://__MSG_@@extension_id__/img/sprite.png") 2px 2px no-repeat;
+}
+.audio:not(:hover) .gvik-download {
+    display: none;
+}
+.audio.current[data-gvik] .gvik-download > a > div {
+    background-position: 0 -57px;
+}
+.audios_module .audio[data-gvik] .gvik-bitrate {
+    padding: 8px 2px;
+}
+div[class^=post_media] .audio.current[data-gvik] .gvik-download > a > div {
+    background-position: 0 0;
+}
+.results .audio.current[data-gvik] .gvik-download > a > div {
+    background-position: 0 0;
+}
+.audio[data-gvik] .gvik-download > a > div:hover {
+    -webkit-transition: opacity .2s ease-in;
+    opacity: 1;
+}
+.audio[data-gvik] .actions a {
+    display: initial;
+    width: 0 !important;
+    padding: 0 !important;
+}
+.post_media .audio[data-gvik] .actions {
+    visibility: visible !important;
+}
+.post_media .audio[data-gvik] .gvik-bitrate, .post_media .audio[data-gvik] .gvik-download {
+    margin-top: 8px;
+}
+#audio.new .audio[data-gvik] .actions {
+    right: 0;
+    padding: 0;
+}
+#pad_playlist_panel .wall_module .audio .title_wrap {
+    max-width: 290px;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik] .gvik-bitrate {
+    display: none;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik].over .gvik-bitrate {
+    display: block;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik="_bit_"].over .title_wrap, body[data-gvik-options*="_hide-bit_"] .audio[data-gvik="_bit_"] .title_wrap {
+    width: -webkit-calc(100% - 95px) !important;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik="_bit__size_"].over .title_wrap, body[data-gvik-options*="_hide-bit_"] .audio[data-gvik="_bit__size_"] .title_wrap {
+    width: -webkit-calc(100% - 150px) !important;
+}
+.audio[data-gvik="_but_"] .title_wrap {
+    width: -webkit-calc(100% - 85px) !important;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik="_bit__but_"].over .title_wrap, body[data-gvik-options*="_hide-bit_"] .audio[data-gvik="_bit__but_"] .title_wrap {
+    width: -webkit-calc(100% - 125px) !important;
+}
+body:not([data-gvik-options*="_hide-bit_"]) .audio[data-gvik="_bit__but__size_"].over .title_wrap, body[data-gvik-options*="_hide-bit_"] .audio[data-gvik="_bit__but__size_"] .title_wrap {
+    width: -webkit-calc(100% - 150px) !important;
+}
+#results .audio[data-gvik] .title_wrap {
+    max-width: 360px;
+}
+.narrow_column .gvik-download {
+    margin: 8px;
+}
+.narrow_column .audio[data-gvik] .title_wrap {
+    max-width: 116px !important;
+}
+.audio.over[data-gvik] .duration {
+    display: none !important;
+    color: rgb(135, 149, 165);
+}
+#gp.gvik, #gp.gvik #gp_back {
+    width: 174px !important;
+}
+#gp.gvik #gp_info {
+    width: 136px !important;
+}
+.gvik-none {
+    display: none;
+}
+/* ANIM HIDE/SHOW */
+
+.gvik-hide {
+    visibility: hidden;
+    -webkit-transition: opacity 350ms ease, visibilty 360 ease;
+    opacity: 0;
+}
+.gvik-show {
+    visibility: visible;
+    -webkit-transition: visibility 350ms ease, opacity 360ms ease;
+    opacity: 1;
+}
+/* EXIT FROM GROUPS */
+
+.gvik-exit-group {
+    visibility: hidden;
+    float: right;
+    width: 11px;
+    height: 11px;
+    cursor: pointer;
+    -webkit-transition: all 200ms ease;
+    transition: all 200ms ease;
+    opacity: 0;
+    background: url(chrome-extension://__MSG_@@extension_id__/img/sprite.png) 0 -179px no-repeat;
+}
+.group_list_row:hover .gvik-exit-group {
+    visibility: visible;
+    opacity: .5;
+}
+.group_list_row:hover .gvik-exit-group:hover {
+    opacity: 1;
+}
+/* OPTIONS */
+
+body:not([data-gvik-options*="_hide-status_"]) #ac_status {
+    display: none !important;
+}
+body:not([data-gvik-options*="_hide-status_"]) #pd_status {
+    display: none !important;
+}
+body:not([data-gvik-options*="_ads_"]) #left_ads {
+    display: none !important;
+}
+body:not([data-gvik-options*="_heart_"]) #pv_hh {
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+}
+body:not([data-gvik-options*="_mark-red_"]) .page_media_poll_desc {
+    font-weight: bold !important;
+    float: left !important;
+    padding-right: 5px !important;
+    padding-left: 0 !important;
+    color: red !important;
+}
+/* SIDEBAR */
+
+#gvik-sidebar {
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    right: 0;
+    width: 190px;
+    /* height: 100%;
+    */
+    height: auto;
+    max-height: 100%;
+    -webkit-user-select: none;
+    -webkit-transform: translate3d(100%, 0, 0);
+    color: rgb(96, 115, 135);
+    border: 1px solid rgb(225, 229, 231);
+    background: rgb(252, 253, 255);
+}
+#gvik-sidebar.large {
+    width: 390px;
+}
+#gvik-sidebar.anim {
+    -webkit-transition: all .2s ease;
+}
+#gvik-sidebar.show {
+    -webkit-transform: translate3d(0%, 0, 0);
+}
+.gvik-switcher {
+    position: absolute;
+    top: 0;
+    width: 15px;
+    min-height: 30px;
+    cursor: pointer;
+    font-size: 15px;
+    overflow: hidden;
+    -webkit-transform: translate3d(-16px, 0, 0);
+    border: 1px solid rgb(225, 229, 231);
+    border-right: 0;
+    background: rgb(252, 253, 255);
+}
+#gvik-sidebar.anim .gvik-switcher {
+    -webkit-transition: -webkit-transform .1s linear, width .1s linear;
+}
+.gvik-switcher:hover {
+    width: 30px;
+    -webkit-transform: translate3d(-31px, 0, 0);
+}
+.gvik-switcher:after {
+    position: absolute;
+    width: 20px;
+    height: 100%;
+    content: " ";
+    -webkit-transform: translate3d(-20px, 0, 0);
+}
+.gvik-switcher:before {
+    margin-top: 5px;
+}
+#gvik-wrap {
+    overflow: auto;
+    width: 100%;
+    height: auto;
+    min-height: 60px;
+    background: rgb(252, 253, 255) url("chrome-extension://__MSG_@@extension_id__/img/progress.gif") no-repeat 50% 50%;
+}
+#gvik-sidebar.anim .tabCont {
+    -webkit-transition: opacity 450ms ease;
+}
+#gvik-wrap .tabCont {
+    position: relative;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-height: 65px;
+    opacity: 0;
+    background-color: rgb(252, 253, 255);
+}
+#gvik-wrap .tabCont.loaded {
+    -webkit-transition: opacity 400ms ease;
+    opacity: 1;
+}
+#gvik-sidebar .tabCont div.item {
+    cursor: pointer;
+}
+#gvik-sidebar .tabCont div.item:hover {
+    background: #edf1f5;
+}
+#gvik-sidebar div > .item-cont {
+    overflow: hidden;
+    height: 50px;
+}
+#gvik-sidebar div > .item-cont .img-cont {
+    display: inline-block;
+    float: left;
+}
+#gvik-sidebar div > .item-cont .label-cont {
+    display: inline-block;
+    float: left;
+    max-width: 90px;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+#gvik-sidebar.large div > .item-cont .label-cont {
+    max-width: 290px;
+}
+#gvik-sidebar .label-cont > .label {
+    display: inline-block;
+    float: left;
+    overflow: hidden;
+    width: 120px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#gvik-sidebar.large .label-cont > .label {
+    width: 320px;
+}
+#gvik-sidebar .img {
+    width: 50px;
+    height: 50px;
+    background: url("chrome-extension://__MSG_@@extension_id__/img/noavatar.gif") no-repeat;
+    background-size: cover;
+}
+#gvik-sidebar div a {
+    text-decoration: none;
+}
+/* SIDEBAR VK */
+
+#gvik-sidebar.hide-offline .tabCont.vk > div.item[data-online="0"] {
+    display: none;
+}
+#gvik-sidebar .tabCont.vk .status {
+    display: inline-block;
+    float: right;
+    width: 11px;
+    height: 11px;
+    margin-top: 5px;
+    margin-right: 2px;
+}
+#gvik-sidebar .tabCont.vk.hidden-offline div[data-online="0"] {
+    display: none;
+}
+#gvik-sidebar .tabCont.vk div[data-online="1"] .status {
+    background: url("chrome-extension://__MSG_@@extension_id__/img/misc.png") 2px -46px no-repeat;
+}
+#gvik-sidebar .tabCont.vk div[data-online="2"] .status {
+    background: url("chrome-extension://__MSG_@@extension_id__/img/misc.png") 0 -128px no-repeat;
+}
+#gvik-sidebar .tabCont.vk div .status-text {
+    font-size: .95em;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #999999;
+}
+/* SIDEBAR LAST.FM */
+
+.gvik-switcher.lastfm {
+    background: rgb(252, 253, 255) url(chrome-extension://__MSG_@@extension_id__/img/sprite.png) 7px -230px no-repeat;
+}
+#gvik-sidebar .tags {
+    width: 85%;
+    min-height: 30px;
+    margin: 4px auto;
+}
+#gvik-sidebar.large .tags {
+    width: 200px;
+}
+#gvik-lastfm .cover {
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+#gvik-lastfm .cover > img {
+    visibility: hidden;
+}
+/* #gvik-lastfm.loader
+{
+    background: url('chrome-extension://__MSG_@@extension_id__/img/progress.gif') no-repeat 50% 50%;
+} */
+
+#gvik-lastfm .duration {
+    font-size: .8em;
+    display: inline-block;
+    float: left;
+    margin: 3px 1px;
+    color: gray;
+}
+#gvik-lastfm .tag {
+    font-size: .9em;
+    line-height: 20px;
+    display: inline-block;
+    margin: 1px;
+    padding: 0 3px;
+    text-transform: lowercase;
+    color: #ffffff;
+    border-radius: 3px;
+    background-color: #0187c5;
+    box-shadow: rgba(0, 0, 0, .2) 0 -1px 0 inset, rgba(0, 0, 0, .1) 0 1px 4px;
+    text-shadow: 0 -1px 1px rgba(0, 0, 0, .3);
+}
+#gvik-lastfm .tag a {
+    line-height: 22px;
+    display: block;
+    color: white;
+}
+#gvik-lastfm .item-cont.active {
+    background-color: #5f7fa2;
+}
+#gvik-lastfm .tabs {
+    height: auto;
+}
+#gvik-lastfm .tabs > .tab {
+    font-size: 11px;
+    line-height: 25px;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0 3px;
+    cursor: pointer;
+    -webkit-transition: background 500ms ease;
+    color: #2b587a;
+    border: 0;
+    background: transparent;
+    -webkit-appearance: none;
+}
+#gvik-lastfm .tabs > .tab:focus {
+    outline: 0;
+}
+#gvik-lastfm .tabs > .tab:checked {
+    background: rgba(225, 231, 237, .74);
+}
+#gvik-lastfm .tabs > .tab:after {
+    content: attr(data-label);
+}
+#gvik-lastfm .tracks {
+    margin-top: 5px;
+}
+#gvik-lastfm .artistInfo .label {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 5px;
+    opacity: 1;
+}
+#gvik-lastfm.searchandplay .item .img-cont:after {
+    top: 0;
+    left: 0;
+    display: block;
+    visibility: hidden;
+    width: 50px;
+    height: 50px;
+    margin-top: -50px;
+    content: "";
+    -webkit-transition: opacity 200ms ease, visibility 250ms ease;
+    -o-transition: opacity 200ms ease, visibility 250ms ease;
+    transition: opacity 200ms ease, visibility 250ms ease;
+    opacity: 0;
+    background: url("chrome-extension://__MSG_@@extension_id__/img/playBtn.png") 50% 50% rgba(0, 0, 0, .8) no-repeat;
+}
+#gvik-lastfm.searchandplay .item:hover .img-cont:after {
+    visibility: visible;
+    opacity: .6;
+}
+#gvik-lastfm.searchandplay .item:hover .img-cont:hover:after {
+    opacity: 1;
+}
+.style-scrollbar::-webkit-scrollbar {
+    width: 7px;
+}
+.style-scrollbar::-webkit-scrollbar-track {
+    margin: 1px;
+}
+.style-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #dae1e8;
+}
+.gvik-search-popup {
+    position: absolute;
+    z-index: 30;
+    width: 301px;
+    height: auto;
+    min-height: 30px;
+    margin-top: 24px;
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 0 0 5px 5px;
+    background: white;
+    box-shadow: 0 1px 1px rgba(150, 150, 150, .44);
+}
+.gvik-search-popup .item {
+    line-height: 30px;
+    height: 30px;
+    padding: 3px;
+}
+.gvik-search-popup .item:hover {
+    cursor: pointer;
+    background: rgb(237, 241, 245);
+}

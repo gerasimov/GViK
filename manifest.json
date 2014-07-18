@@ -1,0 +1,96 @@
+{
+    "author": "Gerasimov Ruslan",
+    "background": {
+        "persistent": true,
+        "scripts": [
+            "engine/core.js",
+            "engine/api/support.js",
+            "engine/api/methods.js",
+            "engine/api/background.api.js",
+            "system/background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "css": [
+                "font/gvik.css",
+                "system/contentStyle.css"
+            ],
+            "js": [
+                "engine/core.js",
+                "engine/dom.js",
+                "engine/api/support.js",
+                "engine/api/methods.js",
+                "system/contentScript.js",
+                "engine/api/content.api.js"
+            ],
+            "matches": [
+                "*://vk.com/*"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://ssl.google-analytics.com;  img-src *; object-src 'self'",
+    "default_locale": "ru",
+    "description": "__MSG_extDescription__",
+    "icons": {
+        "128": "icon128.png",
+        "16": "icon16.png",
+        "48": "icon48.png"
+    },
+    "manifest_version": 2,
+    "name": "GViK",
+    "options_page": "options/index.html?act=options",
+    "page_action": {
+        "default_icon": "img/Settings.png",
+        "default_popup": "options/index.html?act=popup",
+        "default_title": "__MSG_actTitle__"
+    },
+    "permissions": [
+        "tabs",
+        "downloads",
+        "storage",
+        "nativeMessaging",
+        "*://*.vk.com/*",
+        "*://*.audioscrobbler.com/*",
+        "*://*.vk.me/*"
+    ],
+    "version": "1.0.6.4",
+    "web_accessible_resources": [
+        "js/init.js",
+
+        "engine/core.js",
+        "engine/api/chrome.js",
+        "engine/dom.js",
+
+        "js/lib/lib.js",
+        "js/lib/md5.js",
+        "js/lib/jquery.js",
+
+        "js/plugin/vkapi.js",
+        "js/plugin/api.lastfm.js",
+        "js/plugin/lastfm.js",
+
+        "js/plugin/search.js",
+
+        "js/plugin/sidebar.js",
+        "js/plugin/friends.sidebar.js",
+        "js/plugin/lastfm.sidebar.js",
+
+        "js/common.js",
+
+        "manifest.json",
+        "configs.json",
+
+        "img/darr.gif",
+        "img/loader.gif",
+        "img/progress.gif",
+        "img/album.png",
+        "img/misc.png",
+        "img/sprite.png",
+        "img/playBtn.png",
+        "img/remove.gif",
+        "font/gvik.woff",
+        "font/gvik.svg"
+    ]
+}
