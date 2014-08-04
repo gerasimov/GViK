@@ -250,10 +250,6 @@
         ajax: ajax
     };
 
-    if ( gl.IS_GVIK ) {
-        gl.Add( 'core', core );
-    } else {
-        gl.core = core;
-    }
+    gl.IS_GVIK ? gl.Add( 'core', core ) : ( gl.core = core );
 
 }( window.gvik || window ) );

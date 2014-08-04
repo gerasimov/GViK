@@ -529,4 +529,15 @@
 
     gvik.chrome.ga( 'send', 'event', 'vk', 'init' );
 
+
+    gvik.event.DOMLoad( function() {
+        document.body.setAttribute( 'data-gvik-os', gvik.OS );
+    } );
+
+    gvik.event.on( 'Win', 0, function() {} );
+
+    gvik.event.on( 'Linux', 0, function() {
+
+    } );
+
 }() );

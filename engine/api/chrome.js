@@ -336,12 +336,6 @@
     }
 
 
-    if ( gvik.IS_GVIK ) {
-        gvik.Add( 'chrome', _chrome );
-    } else {
-        gvik.chrome = _chrome;
-    }
-
-
+    gvik.IS_GVIK ? gvik.Add( 'chrome', _chrome ) : ( gvik.chrome = _chrome );
 
 }( window.gvik || window ) );

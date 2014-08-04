@@ -19,10 +19,17 @@
         this.IS_GVIK = true;
     }
 
+    var _modules = {
+
+    };
+
     GViK.prototype.Add = function( key, val ) {
+
+
 
         if ( typeof key === 'string' ) {
             this[ key ] = typeof val === 'function' ? val() : val;
+            _modules[ key ] = true;
             return;
         }
 
@@ -30,8 +37,34 @@
 
         for ( i in key ) {
             c = key[ i ];
+            _modules[ i ] = true;
             this[ i ] = typeof c === 'function' ? c() : c;
         }
+    };
+
+
+
+    GViK.prototype.Check = function( obj, modulename, fn ) {
+
+        if ( typeof obj === 'function' ) {
+            return obj.call( this, this );
+        }
+
+        if ( typeof modulename === 'function' )
+            return modulename.call( this, this, _modules );
+
+        for ( var i in modulename )
+            if ( !_modules[ modulename[ i ] ] ) {
+                return;
+            }
+
+        for ( var i in obj ) {
+            if ( !this.GetConfig( i, obj[ i ] ) )
+                return;
+        }
+
+        fn.call( this, this, _modules );
+
     };
 
     window.gvik = new GViK();
@@ -49,6 +82,9 @@
     gvik.VERSION = MANIFEST.version;
     gvik.VERSION_INT = gvik.VERSION.replace( /\./g, '' );
     gvik.AUTHOR = MANIFEST.author;
+
+
+    gvik.OS = navigator.platform.match( /^[a-z]+/i ).pop();
 
     gvik.CONFIGS = {};
 
@@ -168,7 +204,9 @@
         gvik.UNIQ_ID = window.vk.id;
 
         gvik.Define( scripts.api, function() {
-            gvik.Define( scripts.other, null, true );
+            gvik.Define( scripts.other, function() {
+                gvik.event.trigger( gvik.OS );
+            }, true );
         } );
     };
 

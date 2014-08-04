@@ -13,7 +13,6 @@ var appPath = chrome.extension.getURL( '' ),
 
     mainElement = dom.create( 'script', {
         prop: {
-            async: true,
             src: [ appPath, 'js/init.js?', manifest.version ].join( '' )
         },
         events: {

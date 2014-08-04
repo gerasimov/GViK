@@ -50,12 +50,11 @@
         "tabs",
         "downloads",
         "storage",
-        "nativeMessaging",
         "*://*.vk.com/*",
         "*://*.audioscrobbler.com/*",
         "*://*.vk.me/*"
     ],
-    "version": "1.0.6.4",
+    "version": "1.0.7.2",
     "web_accessible_resources": [
         "js/init.js",
 
@@ -65,8 +64,6 @@
 
         "js/lib/lib.js",
         "js/lib/md5.js",
-        "js/lib/jquery.js",
-
         "js/plugin/vkapi.js",
         "js/plugin/api.lastfm.js",
         "js/plugin/lastfm.js",

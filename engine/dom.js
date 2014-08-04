@@ -3,37 +3,39 @@
  * @email gerasimow.ruslan@gmail.com
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
-"use strict";;
-(function(gvik) {
+
+"use strict";
+
+( function( gvik ) {
     var core = gvik.core;
 
-    function setAttr(element, attName, attVal) {
-        switch (arguments.length) {
+    function setAttr( element, attName, attVal ) {
+        switch ( arguments.length ) {
             case 3:
-                element.setAttribute(attName, attVal);
+                element.setAttribute( attName, attVal );
                 break;
             case 2:
-                if (core.isPlainObject(attName)) {
-                    core.each(attName, function(v, k) {
-                        element.setAttribute(k, v);
-                    });
+                if ( core.isPlainObject( attName ) ) {
+                    core.each( attName, function( v, k ) {
+                        element.setAttribute( k, v );
+                    } );
                 }
                 break;
         }
         return element;
     }
 
-    function setStyle(element, stName, stVal) {
+    function setStyle( element, stName, stVal ) {
         var style = element.style;
-        switch (arguments.length) {
+        switch ( arguments.length ) {
             case 3:
-                style.setProperty(stName, stVal);
+                style.setProperty( stName, stVal );
                 break;
             case 2:
-                if (core.isPlainObject(stName)) {
-                    core.each(stName, function(v, k) {
-                        style.setProperty(k, v);
-                    });
+                if ( core.isPlainObject( stName ) ) {
+                    core.each( stName, function( v, k ) {
+                        style.setProperty( k, v );
+                    } );
                 }
                 break;
         }
@@ -43,168 +45,168 @@
         expando = 'gvik-' + Date.now(),
         elEvId = 1;
 
-    function _addEvent(element, evId, evName) {
-        element.addEventListener(evName, function() {
-            var _ev = eventsContainer[evId][evName],
+    function _addEvent( element, evId, evName ) {
+        element.addEventListener( evName, function() {
+            var _ev = eventsContainer[ evId ][ evName ],
                 i = 0,
                 l = _ev.length;
-            for (; i < l; i++) {
-                _ev[i].apply(this, arguments);
+            for ( ; i < l; i++ ) {
+                _ev[ i ].apply( this, arguments );
             }
-        }, false);
+        }, false );
         return element;
     }
 
-    function setEvent(element, evName, evVal) {
-        if (arguments.length === 2) {
-            core.each(evName, function(v, k) {
-                setEvent(element, k, v);
-            });
+    function setEvent( element, evName, evVal ) {
+        if ( arguments.length === 2 ) {
+            core.each( evName, function( v, k ) {
+                setEvent( element, k, v );
+            } );
             return element;
         }
-        var evId = element[expando];
-        if (!evId) {
-            element[expando] = (evId = elEvId++);
-            eventsContainer[evId] = {};
+        var evId = element[ expando ];
+        if ( !evId ) {
+            element[ expando ] = ( evId = elEvId++ );
+            eventsContainer[ evId ] = {};
         }
-        if (eventsContainer[evId][evName] === undefined) {
-            eventsContainer[evId][evName] = [];
-            _addEvent(element, evId, evName)
+        if ( eventsContainer[ evId ][ evName ] === undefined ) {
+            eventsContainer[ evId ][ evName ] = [];
+            _addEvent( element, evId, evName )
         }
-        eventsContainer[evId][evName].push(evVal);
+        eventsContainer[ evId ][ evName ].push( evVal );
         return element;
     }
 
-    function trigger(el, eventName) {
-        var evid = el[expando];
-        if (evid) {
-            core.each(eventsContainer[evid][eventName], function(ev) {
-                ev.call(el);
-            });
+    function trigger( el, eventName ) {
+        var evid = el[ expando ];
+        if ( evid ) {
+            core.each( eventsContainer[ evid ][ eventName ], function( ev ) {
+                ev.call( el );
+            } );
         }
     }
 
-    function parents(pNode, selector) {
+    function parents( pNode, selector ) {
         var ret = [];
-        for (;
-            (pNode = pNode.parentNode) && pNode.nodeType === 1;) {
-            if (pNode.webkitMatchesSelector(selector)) {
-                ret.push(pNode);
+        for ( ;
+            ( pNode = pNode.parentNode ) && pNode.nodeType === 1; ) {
+            if ( pNode.webkitMatchesSelector( selector ) ) {
+                ret.push( pNode );
             }
         }
         return ret;
     }
 
-    function parent(pNode, selector) {
-        for (;
-            (pNode = pNode.parentNode) && pNode.nodeType === 1;) {
-            if (pNode.webkitMatchesSelector(selector)) {
+    function parent( pNode, selector ) {
+        for ( ;
+            ( pNode = pNode.parentNode ) && pNode.nodeType === 1; ) {
+            if ( pNode.webkitMatchesSelector( selector ) ) {
                 return pNode;
             }
         }
     }
 
-    function empty(pNode) {
+    function empty( pNode ) {
         var child;
-        while (child = pNode.firstChild) {
-            pNode.removeChild(child);
+        while ( child = pNode.firstChild ) {
+            pNode.removeChild( child );
         }
     }
 
-    function clone(element, cloneEvent) {
-        var cloneElement = element.cloneNode(true);
-        if (cloneEvent) {
-            var id = element[expando];
-            if (id === undefined) {
+    function clone( element, cloneEvent ) {
+        var cloneElement = element.cloneNode( true );
+        if ( cloneEvent ) {
+            var id = element[ expando ];
+            if ( id === undefined ) {
                 return cloneElement;
             }
-            cloneElement[expando] = id;
-            core.each(Object.keys(eventsContainer[id]), function(v) {
-                _addEvent(cloneElement, id, v)
-            })
+            cloneElement[ expando ] = id;
+            core.each( Object.keys( eventsContainer[ id ] ), function( v ) {
+                _addEvent( cloneElement, id, v )
+            } )
         }
         return cloneElement;
     }
 
-    function setDelegate(parentEl, selector, evName, evVal) {
-        switch (arguments.length) {
+    function setDelegate( parentEl, selector, evName, evVal ) {
+        switch ( arguments.length ) {
             case 2:
-                core.each(selector, function(v, k) {
-                    core.each(v, function(ev, evn) {
-                        setDelegate(parentEl, k, evn, ev);
-                    })
-                });
+                core.each( selector, function( v, k ) {
+                    core.each( v, function( ev, evn ) {
+                        setDelegate( parentEl, k, evn, ev );
+                    } )
+                } );
                 break;
             case 3:
-                core.each(evName, function(v, k) {
-                    setDelegate(parentEl, selector, k, v);
-                });
+                core.each( evName, function( v, k ) {
+                    setDelegate( parentEl, selector, k, v );
+                } );
                 break;
             case 4:
-                setEvent(parentEl, evName, function(ev) {
-                    if (ev._canceled) {
+                setEvent( parentEl, evName, function( ev ) {
+                    if ( ev._canceled ) {
                         return;
                     }
                     var curEl = ev.target || ev.srcElement,
-                        prnt = curEl.webkitMatchesSelector(selector) ? curEl : parent(curEl, selector, parentEl);
-                    if (prnt) {
-                        return evVal.call(prnt, prnt, ev, curEl);
+                        prnt = curEl.webkitMatchesSelector( selector ) ? curEl : parent( curEl, selector, parentEl );
+                    if ( prnt ) {
+                        return evVal.call( prnt, prnt, ev, curEl );
                     }
-                })
+                } )
         }
         return parentEl;
     }
 
-    function setData(element, datName, datVal) {
-        switch (arguments.length) {
+    function setData( element, datName, datVal ) {
+        switch ( arguments.length ) {
             case 3:
-                element.setAttribute('data-' + datName, datVal);
+                element.setAttribute( 'data-' + datName, datVal );
                 break;
             case 2:
-                if (core.isPlainObject(datName)) {
-                    core.each(datName, function(v, k) {
-                        element.setAttribute('data-' + k, v);
-                    });
+                if ( core.isPlainObject( datName ) ) {
+                    core.each( datName, function( v, k ) {
+                        element.setAttribute( 'data-' + k, v );
+                    } );
                 }
                 break;
         }
         return element;
     }
 
-    function setProp(element, propName, propVal) {
-        switch (arguments.length) {
+    function setProp( element, propName, propVal ) {
+        switch ( arguments.length ) {
             case 3:
-                element[propName] = attVal;
+                element[ propName ] = attVal;
                 break;
             case 2:
-                if (core.isPlainObject(propName)) {
-                    core.each(propName, function(v, k) {
-                        element[k] = v;
-                    });
+                if ( core.isPlainObject( propName ) ) {
+                    core.each( propName, function( v, k ) {
+                        element[ k ] = v;
+                    } );
                 }
                 break;
         }
         return element;
     }
 
-    function append(element, arr) {
+    function append( element, arr ) {
         var i = 0,
-            isarr = Array.isArray(arr),
-            arg = isarr ? arr : Array.prototype.slice.call(arguments, 1),
+            isarr = Array.isArray( arr ),
+            arg = isarr ? arr : Array.prototype.slice.call( arguments, 1 ),
             l = arg.length;
         var df = document.createDocumentFragment();
-        for (; i < l; i++) {
-            if (arg[i]) df.appendChild(arg[i]);
+        for ( ; i < l; i++ ) {
+            if ( arg[ i ] ) df.appendChild( arg[ i ] );
         }
-        element.appendChild(df);
+        element.appendChild( df );
         return element;
     }
 
-    function after(el, targ) {
+    function after( el, targ ) {
         var next,
             parentNode = el.parentNode;
-        if (next = el.nextElementSibling) parentNode.insertBefore(targ, next);
-        else parentNode.appendChild(targ);
+        if ( next = el.nextElementSibling ) parentNode.insertBefore( targ, next );
+        else parentNode.appendChild( targ );
     }
     var assaciateFn = {
         style: setStyle,
@@ -216,38 +218,38 @@
         events: setEvent
     };
 
-    function create(tagName, data) {
-        var element = document.createElement(tagName),
+    function create( tagName, data ) {
+        var element = document.createElement( tagName ),
             f;
-        core.each(Object.keys(data || {}), function(v) {
-            if ((f = assaciateFn[v])) {
-                f(element, data[v]);
+        core.each( Object.keys( data || {} ), function( v ) {
+            if ( ( f = assaciateFn[ v ] ) ) {
+                f( element, data[ v ] );
             }
-        }, true);
+        }, true );
         return element;
     }
 
-    function addClass(el, clas) {
-        return clas.split(' ').forEach(function(_className) {
-            el.classList.add(_className);
-        });
+    function addClass( el, clas ) {
+        return clas.split( ' ' ).forEach( function( _className ) {
+            el.classList.add( _className );
+        } );
     }
 
 
-    function hasClass(el, clas) {
-        return clas.split(' ')
-            .map(function(_className) {
-                return el.classList.contains(_className);
-            })
-            .every(function(hasclass) {
+    function hasClass( el, clas ) {
+        return clas.split( ' ' )
+            .map( function( _className ) {
+                return el.classList.contains( _className );
+            } )
+            .every( function( hasclass ) {
                 return hasclass;
-            });
+            } );
     }
 
-    function removeClass(el, clas) {
-        return clas.split(' ').forEach(function(_className) {
-            el.classList.remove(_className);
-        });
+    function removeClass( el, clas ) {
+        return clas.split( ' ' ).forEach( function( _className ) {
+            el.classList.remove( _className );
+        } );
     }
 
     var dom = {
@@ -269,9 +271,7 @@
         after: after,
         empty: empty
     };
-    if (gvik.IS_GVIK) {
-        gvik.Add('dom', dom)
-    } else {
-        gvik.dom = dom;
-    }
-}(window.gvik || window));
+
+    gvik.IS_GVIK ? gvik.Add( 'dom', dom ) : ( gvik.dom = dom );
+
+}( window.gvik || window ) );
