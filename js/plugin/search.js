@@ -5,22 +5,20 @@
  *
  */
 
-;
-( function() {
-
+gvik.Check( {}, [ 'vkapi' ], function( gvik ) {
 
     function vkcall( method, data, suc, err ) {
         gvik.vkapi.call( method, data, suc, err );
     }
 
 
-    function audioSearch( artist, title, dur, callback, opt ) {
+    function audioSearch( data, callback, opt ) {
         vkcall( 'audio.search', {
-            q: [ artist, title ].join( ' - ' ),
+            q: data.q || [ data.artist, data.title ].join( ' - ' ),
             count: 150,
             sort: 2
         }, function( res ) {
-            find( artist, title, res.items, dur, callback, opt );
+            find( data, res.items, callback, opt );
         } )
     }
 
@@ -79,14 +77,15 @@
     }
 
 
-    function searchInArray( arr, arrAT, fn ) {
+    function searchInArray( arr, data, fn ) {
         var res = [];
 
         gvik.core.each( arr, function( audio ) {
-            if ( fn( audio.artist, arrAT[ 0 ] ) && fn( audio.title, arrAT[ 1 ] ) ) {
+            if ( fn( audio.artist, data.artist ) &&
+                fn( audio.title, data.title ) ) {
                 res.push( {
                     audio: audio,
-                    dur: Math.abs( audio.duration - arrAT[ 2 ] )
+                    dur: Math.abs( audio.duration - data.dur )
                 } );
             }
         }, true );
@@ -94,13 +93,17 @@
         return res;
     }
 
-    function find( artist, title, arr, dur, callback, opt ) {
+    function find( data, arr, callback, opt ) {
 
         var audioMap;
 
-        if ( !( audioMap = searchInArray( arr, [ artist, title, dur ], _eq ) ).length &&
-            !( audioMap = searchInArray( arr, [ artist, title, dur ], _eq2 ) ).length ) {
-            return callback( arr[ 0 ] );
+        if ( !data.q && ( data.artist && data.title ) ) {
+            if ( !( audioMap = searchInArray( arr, data, _eq ) ).length &&
+                !( audioMap = searchInArray( arr, data, _eq2 ) ).length ) {
+                return callback( arr );
+            }
+        } else {
+            audioMap = arr;
         }
 
         opt.maxbit ?
@@ -112,4 +115,4 @@
         audioSearch: audioSearch
     } )
 
-}() )
+} );

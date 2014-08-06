@@ -10,26 +10,24 @@
             "system/background.js"
         ]
     },
-    "content_scripts": [
-        {
-            "css": [
-                "font/gvik.css",
-                "system/contentStyle.css"
-            ],
-            "js": [
-                "engine/core.js",
-                "engine/dom.js",
-                "engine/api/support.js",
-                "engine/api/methods.js",
-                "system/contentScript.js",
-                "engine/api/content.api.js"
-            ],
-            "matches": [
-                "*://vk.com/*"
-            ],
-            "run_at": "document_start"
-        }
-    ],
+    "content_scripts": [ {
+        "css": [
+            "font/gvik.css",
+            "system/contentStyle.css"
+        ],
+        "js": [
+            "engine/core.js",
+            "engine/dom.js",
+            "engine/api/support.js",
+            "engine/api/methods.js",
+            "system/contentScript.js",
+            "engine/api/content.api.js"
+        ],
+        "matches": [
+            "*://vk.com/*"
+        ],
+        "run_at": "document_start"
+    } ],
     "content_security_policy": "script-src 'self' https://www.google-analytics.com https://ssl.google-analytics.com;  img-src *; object-src 'self'",
     "default_locale": "ru",
     "description": "__MSG_extDescription__",
@@ -69,6 +67,7 @@
         "js/plugin/lastfm.js",
 
         "js/plugin/search.js",
+        "js/plugin/audio.launcher.js",
 
         "js/plugin/sidebar.js",
         "js/plugin/friends.sidebar.js",
