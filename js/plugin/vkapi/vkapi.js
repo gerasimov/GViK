@@ -4,7 +4,7 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-gvik.Add( 'vkapi', function( gvik ) {
+GViKModule.Check( {}, [], function( gvik ) {
 
     "use strict";
 
@@ -211,8 +211,8 @@ gvik.Add( 'vkapi', function( gvik ) {
         }
     };
 
+    GViKModule.Add( {
+        vkapi: new VKAPI
+    } );
 
-
-    return new VKAPI;
-
-}( window.gvik ) );
+} );

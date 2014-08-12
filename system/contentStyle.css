@@ -715,7 +715,8 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
     padding: 0 3px;
 
     cursor: pointer;
-    -webkit-transition: background 500ms ease;
+    /*    -webkit-transition: background 500ms ease;
+*/
 
     color: #2b587a;
     border: 0;
@@ -791,31 +792,54 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
     border-radius: 8px;
     background: #dae1e8;
 }
-.gvik-search-popup
+
+.gvik-launcher-layer
 {
-    position: absolute;
-    z-index: 30;
+    position: fixed;
+    z-index: 23;
+    top: 0;
+    left: 0;
 
-    width: 301px;
-    height: auto;
-    min-height: 30px;
-    margin-top: 24px;
+    display: none;
+    overflow: hidden;
 
-    border: 1px solid rgb(221, 221, 221);
-    border-radius: 0 0 5px 5px;
-    background: white;
-    box-shadow: 0 1px 1px rgba(150, 150, 150, .44);
+    width: 100%;
+    height: 100%;
+    padding: 0;
+
+    background: transparent;
 }
-.gvik-search-popup .item
-{
-    line-height: 30px;
 
+.gvik-launcher-input-cont
+{
+    position: relative;
+
+    width: 510px;
+    height: 50px;
+    margin: 0 auto;
+    padding: 5px;
+
+    background: rgba(40, 59, 68, .890196);
+}
+.gvik-launcher-layer.show
+{
+    display: block;
+}
+
+.gvik-launcher-input
+{
+    font-size: 2em!important;
+
+    width: 470px;
     height: 30px;
-    padding: 3px;
-}
-.gvik-search-popup .item:hover
-{
-    cursor: pointer;
+    margin: 10px;
+    padding: 0 10px;
 
-    background: rgb(237, 241, 245);
+    border: 0;
+    background: white;
+}
+
+.gvik-launcher-result
+{
+
 }

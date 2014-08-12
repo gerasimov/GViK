@@ -6,7 +6,10 @@
 
 "use strict";
 
-( function( gvik ) {
+
+GViKModule.Check( {
+
+}, [], function( gvik ) {
     var core = gvik.core;
 
     function setAttr( element, attName, attVal ) {
@@ -252,6 +255,8 @@
         } );
     }
 
+
+
     var dom = {
         create: create,
         hasClass: hasClass,
@@ -272,6 +277,6 @@
         empty: empty
     };
 
-    gvik.IS_GVIK ? gvik.Add( 'dom', dom ) : ( gvik.dom = dom );
+    gvik.IS_GVIK ? GViKModule.Add( 'dom', dom ) : ( gvik.dom = dom );
 
-}( window.gvik || window ) );
+} );

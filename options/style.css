@@ -155,6 +155,10 @@ button, input[type="button"] {
 button:hover, input[type="button"]:hover {
     background: #35c09b;
 }
+.donate-cont {
+    padding: 5px;
+    float: right;
+}
 .donate-label {
     padding: 5px;
     color: rgb(192, 187, 187);

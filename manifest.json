@@ -3,6 +3,7 @@
     "background": {
         "persistent": true,
         "scripts": [
+            "engine/migrate.js",
             "engine/core.js",
             "engine/api/support.js",
             "engine/api/methods.js",
@@ -16,6 +17,7 @@
             "system/contentStyle.css"
         ],
         "js": [
+            "engine/migrate.js",
             "engine/core.js",
             "engine/dom.js",
             "engine/api/support.js",
@@ -60,18 +62,23 @@
         "engine/api/chrome.js",
         "engine/dom.js",
 
+        "js/lib/mousetrap.js",
         "js/lib/lib.js",
         "js/lib/md5.js",
-        "js/plugin/vkapi.js",
-        "js/plugin/api.lastfm.js",
-        "js/plugin/lastfm.js",
 
-        "js/plugin/search.js",
-        "js/plugin/audio.launcher.js",
+        "js/plugin/lastfm/api.js",
+        "js/plugin/lastfm/scrobbler.js",
 
-        "js/plugin/sidebar.js",
-        "js/plugin/friends.sidebar.js",
-        "js/plugin/lastfm.sidebar.js",
+
+        "js/plugin/vkapi/vkapi.js",
+        "js/plugin/vkapi/search.js",
+
+        "js/plugin/launcher/launcher.js",
+        "js/plugin/launcher/audio.js",
+
+        "js/plugin/sidebar/sidebar.js",
+        "js/plugin/sidebar/friends.js",
+        "js/plugin/sidebar/lastfm.js",
 
         "js/common.js",
 

@@ -56,7 +56,7 @@ function restore( setts ) {
                 ischeckedpropreg.test( elem.type ) ?
                 ( elem.checked = optVal ) :
                 ( elem.value = optVal );
-            console.log( optName, optVal )
+            if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( optName, optVal )
         } );
     } );
 }

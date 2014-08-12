@@ -4,10 +4,11 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-"use strict";
 
-;
-( function( gvik ) {
+GViKModule.Check( {}, [], function( gvik ) {
+
+    "use strict";
+
 
     var
 
@@ -75,7 +76,9 @@
             function() {
                 var args = core.toArray( arguments );
                 args.unshift( 'defaultFn' );
-                console.log.apply( console, args );
+                if ( gvik.DEBUG ) {
+                    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log.apply( console, args );
+                }
             }
         ],
         defaultFn = 0;
@@ -206,7 +209,7 @@
 
 
     _chrome.globalFn( 'updateSettings', function( opt ) {
-        console.log( opt );
+        if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( opt );
     } );
 
 
@@ -336,6 +339,6 @@
     }
 
 
-    gvik.IS_GVIK ? gvik.Add( 'chrome', _chrome ) : ( gvik.chrome = _chrome );
+    gvik.IS_GVIK ? GViKModule.Add( 'chrome', _chrome ) : ( gvik.chrome = _chrome );
 
-}( window.gvik || window ) );
+} );

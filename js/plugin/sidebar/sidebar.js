@@ -4,9 +4,11 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-gvik.Add( 'sidebar', function( gvik ) {
+GViKModule.Check( {}, [], function( gvik ) {
 
     "use strict";
+
+    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( gvik, gvik.GetConfig )
 
 
     var _shown = false,
@@ -39,10 +41,7 @@ gvik.Add( 'sidebar', function( gvik ) {
 
     gvik.dom.append( sidebarEl, [ wrap, switcher ] );
 
-    gvik.event.on( 'DOMLoad', function() {
-        document.body.appendChild( sidebarEl );
-    } );
-
+    gvik.dom.appendBody( sidebarEl );
 
     gvik.event.resize( function( s ) {
         wrap.style[ 'max-height' ] = s.h + 'px';
@@ -169,6 +168,9 @@ gvik.Add( 'sidebar', function( gvik ) {
 
     gvik.dom.setEvent( switcher, 'click', sidebar.toggle.bind( sidebar ) );
 
-    return sidebar;
 
-}( window.gvik || window ) );
+    GViKModule.Add( {
+        sidebar: sidebar
+    } );
+
+} );

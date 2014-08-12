@@ -5,7 +5,11 @@
  */
 
 
-gvik.Add( 'lastfm', function( gvik ) {
+GViKModule.Check( {
+    'lastfm': 'enable'
+}, [], function( gvik ) {
+
+    "use strict";
 
 
     var lastfmAPI = gvik.lastfmAPI,
@@ -323,7 +327,7 @@ gvik.Add( 'lastfm', function( gvik ) {
 
                 callback && callback.call( this );
             }.bind( this ), function( err ) {
-                console.log( 2 )
+                if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( 2 )
                 this._setErrorState( true, ( err && err.message ) || gvik.chrome.lang( 'error' ) )
             }.bind( this ) );
 
@@ -384,7 +388,8 @@ gvik.Add( 'lastfm', function( gvik ) {
         }
     };
 
+    GViKModule.Add( {
+        lastfm: new LastFM
+    } )
 
-    return new LastFM;
-
-}( window.gvik ) );
+} );

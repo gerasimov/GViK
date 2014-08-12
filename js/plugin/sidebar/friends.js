@@ -8,11 +8,10 @@
 
 "use strict";
 
-gvik.Check( {
+GViKModule.Check( {
         'sidebar': 'friendsfaves-module'
     }, [
-        'sidebar',
-        'vkapi'
+        'sidebar'
     ],
     function( gvik ) {
 

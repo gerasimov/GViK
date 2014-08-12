@@ -5,14 +5,13 @@
  */
 
 
-gvik.Check( {
+GViKModule.Check( {
         'sidebar': 'lastfm-module'
     }, [
         'lastfm',
         'sidebar'
     ],
-    function() {
-
+    function( gvik, modules, seckey ) {
 
         var nameArtist,
             nameTrack,
@@ -31,6 +30,7 @@ gvik.Check( {
             locked = false,
 
             cnfg = gvik.GetConfig( 'sidebar' );
+
 
 
         function lfapiCall( method, data, callback, error ) {
@@ -375,6 +375,7 @@ gvik.Check( {
                 nameArtist = data.artist;
                 nameTrack = data.title;
 
+
                 var cart = data.artist.toLowerCase()
                     .split( /\s+/g )
                     .join( '' ),
@@ -442,7 +443,7 @@ gvik.Check( {
 
                 var _audioEl = gvik.dom.parent( el, '.gvikLastfm' );
 
-                gvik.audioLauncher.search( {
+                gvik.launcher.search( {
                     artist: nameArtist,
                     title: _audioEl.getAttribute( 'data-trackname' ),
                     dur: _audioEl.getAttribute( 'data-duration' )

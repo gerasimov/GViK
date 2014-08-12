@@ -17,62 +17,23 @@
         this.APP_PATH = sessionStorage.apppath;
         this.APP_ID = sessionStorage.appid;
         this.IS_GVIK = true;
+
+        this.DEBUG = true;
     }
 
-    var _modules = {
 
-    };
+    var gvik = new GViK();
 
-    GViK.prototype.Add = function( key, val ) {
-
-
-
-        if ( typeof key === 'string' ) {
-            this[ key ] = typeof val === 'function' ? val() : val;
-            _modules[ key ] = true;
-            return;
-        }
-
-        var i, c;
-
-        for ( i in key ) {
-            c = key[ i ];
-            _modules[ i ] = true;
-            this[ i ] = typeof c === 'function' ? c() : c;
-        }
-    };
-
-
-
-    GViK.prototype.Check = function( obj, modulename, fn ) {
-
-        if ( typeof obj === 'function' ) {
-            return obj.call( this, this );
-        }
-
-        if ( typeof modulename === 'function' )
-            return modulename.call( this, this, _modules );
-
-        for ( var i in modulename )
-            if ( !_modules[ modulename[ i ] ] ) {
-                return;
-            }
-
-        for ( var i in obj ) {
-            if ( !this.GetConfig( i, obj[ i ] ) )
-                return;
-        }
-
-        fn.call( this, this, _modules );
-
-    };
-
-    window.gvik = new GViK();
+    var _modules = {};
 
     var MANIFEST = JSON.parse( sessionStorage.manifest ),
         CONFIGS = JSON.parse( sessionStorage.options ),
         DEFAULT_CONFIGS = JSON.parse( sessionStorage.configs ),
-        files = MANIFEST.web_accessible_resources;
+        files = MANIFEST.web_accessible_resources,
+
+
+        rmodulename = /js\/plugin\/([^\/]+)\/.+\.js$/,
+        rmodulename2 = /\/([^\/]+)\.js$/;
 
     // remove init.js
     files.shift();
@@ -101,7 +62,7 @@
         }
     }
 
-    gvik.GetConfig = function( namespace, options ) {
+    GViK.prototype.GetConfig = function( namespace, options ) {
         var val = gvik.CONFIGS[ namespace ];
 
         if ( !options ) {
@@ -119,24 +80,35 @@
         return val ? val[ options ] : null;
     };
 
-    var rmodule = /([\w]+)\.js$/,
 
-        getmodulename = function( fileName ) {
-            var res = fileName.match( rmodule )
-            return res ? res[ 1 ] : null;
-        };
+    GViK.prototype.get = function() {
+        return _modules;
+    }
 
-    var isdisabledmodule = function( fileName ) {
-        return gvik.GetConfig( getmodulename( fileName ), 'enable' ) === false;
-    };
+    var getModuleName = function( fileName ) {
+            var res = fileName.match( rmodulename ) || fileName.match( rmodulename2 );
+            console.log( res );
+            return res ? res.pop().replace( /\//g, '.' ) : 'null';
+        },
 
-    var findExt = function( fls, ext ) {
-        return fls.filter( function( c ) {
-            return ( c.length - ext.length ) === c.indexOf( ext )
-        } )
-    };
+        isdisabledmodule = function( fileName ) {
+            var moduleName = getModuleName( fileName ),
+                result = gvik.GetConfig( moduleName, 'enable' );
 
-    var issys = /^(?:js\/lib\/|engine\/)/,
+            if ( result !== false ) {
+                _modules[ moduleName ] = true;
+            }
+
+            return result === false;
+        },
+
+        findExt = function( fls, ext ) {
+            return fls.filter( function( c ) {
+                return ( c.length - ext.length ) === c.indexOf( ext )
+            } )
+        },
+
+        issys = /^(?:js\/lib\/|engine\/)/,
 
         scripts = ( function() {
             var fileList = findExt( files, '.js' ),
@@ -159,7 +131,7 @@
         }() );
 
 
-    gvik.Define = function( _scripts, callback, userScr ) {
+    GViK.prototype.Define = function( _scripts, callback, userScr ) {
         _scripts = Array.isArray( _scripts ) ? _scripts : [ _scripts ];
 
         var fileName,
@@ -191,6 +163,64 @@
     };
 
 
+    function GViKModule() {
+
+
+        this.Check = function( obj, modulename, fn ) {
+
+            if ( typeof obj === 'function' ) {
+                return obj.call( gvik, gvik, _modules, SECKEY );
+            }
+
+            if ( typeof modulename === 'function' ) {
+                return modulename.call( gvik, gvik, _modules, SECKEY );
+            }
+
+            for ( var i in modulename ) {
+                if ( !_modules[ modulename[ i ] ] ) {
+                    return;
+                }
+            }
+
+            for ( var i in obj ) {
+                if ( !gvik.GetConfig( i, obj[ i ] ) )
+                    return;
+            }
+
+            fn.call( gvik, gvik, _modules, SECKEY );
+
+        };
+
+
+        this.Add = function( key, val ) {
+
+            if ( typeof key === 'string' ) {
+                GViK.prototype[ key ] = typeof val === 'function' ? val.call( gvik ) : val;
+                //_modules[ key ] = true;
+                return;
+            }
+
+            var i, c;
+
+            for ( i in key ) {
+                c = key[ i ];
+                //_modules[ i ] = true;
+                GViK.prototype[ i ] = typeof c === 'function' ? c.call( gvik ) : c;
+            }
+        };
+    }
+
+    var SECKEY = Date.now().toString() + Math.random().toString();
+
+
+
+    window.GViKModule = new GViKModule();
+
+    if ( gvik.DEBUG ) {
+        window.gvik = new GViK();
+    }
+
+
     var init = function() {
 
         if ( window.vk == undefined ) {
@@ -211,5 +241,7 @@
     };
 
     init();
+
+
 
 }() );

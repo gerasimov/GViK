@@ -9,10 +9,10 @@
 
 
 
-( function() {
+GViKModule.Check( {}, [], function( gvik ) {
 
     gvik.event.on( 'disconnect', null, function() {
-        console.log( 'disconnected GViK! Please reload VK pages!' )
+        if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( 'disconnected GViK! Please reload VK pages!' )
     } );
 
     gvik.event.DOMLoad( function() {
@@ -540,4 +540,4 @@
 
     } );
 
-}() );
+} );

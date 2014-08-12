@@ -1,8 +1,11 @@
-gvik.Check( {
+/**
+ *
+ *
+ *
+ */
 
-	}, [
-		'search',
-		'vkapi'
+GViKModule.Check( {}, [
+		'launcher'
 	],
 
 	function( gvik ) {
@@ -76,21 +79,15 @@ gvik.Check( {
 			] );
 		}
 
+		var trackContainer = gvik.dom.create( 'div', {
+			style: {
+				display: 'none'
+			}
+		} );
 
-		function AudioLauncher() {
-			this.trackContainer = gvik.dom.create( 'div', {
-				styles: {
-					display: 'none'
-				}
-			} );
-			this._cache = {};
+		gvik.dom.appendBody( trackContainer );
 
-			gvik.event.DOMLoad( function() {
-				document.body.appendChild( this.trackContainer );
-			}.bind( this ) )
-		}
-
-		AudioLauncher.prototype.search = function( searchData ) {
+		gvik.launcher.add( 'search', function( searchData ) {
 
 			gvik.search.audioSearch( searchData, function( result ) {
 
@@ -107,18 +104,21 @@ gvik.Check( {
 					return;
 
 
-
 				var audio = audioData.audio || audioData,
 
-				audioHTML = drawAudio( audio );
+					audioHTML = drawAudio( audio );
 
-				this.trackContainer.innerHTML += audioHTML;
+				trackContainer.innerHTML += audioHTML;
 
 				window.playAudioNew( audio.owner_id + '_' + audio.id );
 
 			}.bind( this ), {} );
-		};
+		} );
 
-		gvik.Add( 'audioLauncher', new AudioLauncher );
+		gvik.launcher.on( 'LAUNCHER_enter', function( q ) {
+			this.search( {
+				q: q
+			} )
+		} );
 
 	} );

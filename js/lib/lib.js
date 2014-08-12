@@ -3,12 +3,15 @@
  * @email gerasimow.ruslan@gmail.com
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
-;
-( function( gvik ) {
+GViKModule.Check( {}, [], function( gvik ) {
+
+    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( gvik )
 
     "use strict";
 
     var core = gvik.core;
+
+
 
     var decoder = document.createElement( 'textarea' ),
 
@@ -17,7 +20,7 @@
             return new RegExp( i + '\\&(?:[a-z]{2,7}|\\#x?[0-9a-z]{2,6})\\;', 'ig' )
         };
 
-    gvik.Add( 'util', {
+    GViKModule.Add( 'util', {
         unes: function( str ) {
             var noSpecialChar = [],
                 after,
@@ -85,7 +88,7 @@
         };
     }
 
-    gvik.Add( {
+    GViKModule.Add( {
         local: getStorage( 'localStorage' ),
         session: getStorage( 'sessionStorage' )
     } );
@@ -219,13 +222,28 @@
         run( 'resize', makeSize() )
     };
 
-    gvik.Add( {
+    GViKModule.Add( {
         event: new MyEvent
     } );
 
+    var elements = [];
 
+    gvik.event.DOMLoad( function() {
+        var body = document.body;
 
-}( window.gvik ) );
+        core.each( elements, function( el ) {
+            body.appendChild( el );
+        } );
+
+        elements.length = 0;
+    } )
+
+    gvik.dom.appendBody = function appendBody( el ) {
+        var body = document.body;
+        body ? body.appendChild( el ) : elements.push( el );
+    }
+
+} );
 
 /**
  * @author Gerasimov Ruslan
@@ -234,7 +252,10 @@
  */
 
 
-( function( gvik ) {
+GViKModule.Check( {}, [], function( gvik ) {
+
+
+    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( gvik )
 
     "use strict";
 
@@ -249,6 +270,7 @@
             'settings_panel': 'settings'
         },
         core = gvik.core;
+    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( core )
 
 
     core.each( events, function( val, key ) {
@@ -308,9 +330,4 @@
         }
     }
 
-
-
-
-
-
-}( window.gvik ) );
+} );

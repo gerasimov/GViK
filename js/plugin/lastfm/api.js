@@ -1,6 +1,13 @@
-"use strict";
+/**
+ *
+ *
+ *
+ *
+ */
 
-gvik.Add( 'lastfmAPI', function() {
+GViKModule.Check( {}, [], function( gvik ) {
+
+    "use strict";
 
     function LastFMAPI() {
 
@@ -198,5 +205,8 @@ gvik.Add( 'lastfmAPI', function() {
     };
 
 
-    return new LastFMAPI();
-} )
+    GViKModule.Add( {
+        lastfmAPI: new LastFMAPI
+    } )
+
+} );

@@ -6,7 +6,7 @@
 
 "use strict";
 
-( function( gl ) {
+GViKModule.Check( {}, [], function( gl ) {
 
     var arrproto = Array.prototype,
         slice = arrproto.slice,
@@ -250,6 +250,6 @@
         ajax: ajax
     };
 
-    gl.IS_GVIK ? gl.Add( 'core', core ) : ( gl.core = core );
+    gl.IS_GVIK ? GViKModule.Add( 'core', core ) : ( gl.core = core );
 
-}( window.gvik || window ) );
+} );
