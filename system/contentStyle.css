@@ -103,10 +103,10 @@ body[data-gvik-os='Win'] .gvik-like
 {
     margin: 0 15px 0 0 !important;
 }
-#ac.gvik .ac_wrap
+/* #ac.gvik .ac_wrap
 {
     padding: 0 5px;
-}
+} */
 #ac.add.gvik .info
 {
     width: 370px !important;
@@ -122,6 +122,8 @@ body[data-gvik-os='Win'] .gvik-like
 .audio[data-gvik].scrobbled
 {
     background-color: rgb(255, 242, 189);
+
+    font-size: 16px;
 }
 
 /* DOWNLOAD AND BITRATE AUDIO */
@@ -133,16 +135,16 @@ body[data-gvik-os='Win'] .gvik-like
     width: 13px;
     height: 13px;
 }
-#audio.new .audio[data-gvik] .gvik-download
+#audio.new .audio[data-gvik-download] .gvik-download
 {
     margin: 6px 6px 6px 0;
     padding: 4px;
 }
-.audio[data-gvik].over .gvik-download
+.audio[data-gvik-download].over .gvik-download
 {
     visibility: visible;
 }
-.audio[data-gvik].have_btn .gvik-download
+.audio[data-gvik-download].have_btn .gvik-download
 {
     visibility: visible;
 }
@@ -160,14 +162,19 @@ body[data-gvik-os='Win'] .gvik-like
 {
     max-width: 290px;
 }
-#audio.new .audio[data-gvik] .gvik-bitrate
+#audio.new .audio[data-gvik-bitrate] .gvik-bitrate,
+#audio.new .audio[data-gvik-bitrate-filesize] .gvik-bitrate
 {
     padding: 10px 3px 9px;
 }
-.audio[data-gvik] .actions
+
+.audio[data-gvik-download] .actions,
+.audio[data-gvik-bitrate] .actions,
+.audio[data-gvik-bitrate-filesize] .actions
 {
     min-width: 98px;
 }
+
 .gvik-bitrate.loader
 {
     width: 32px;
@@ -182,35 +189,40 @@ body[data-gvik-os='Win'] .gvik-like
 {
     padding: 0 !important;
 }
-#pad_playlist .audio.current[data-gvik] .gvik-bitrate,
-#audio.new .audio.current[data-gvik] .gvik-bitrate
+
+#pad_playlist .audio.current .gvik-bitrate,
+#audio.new .audio.current .gvik-bitrate
 {
     color: white;
 }
-#pad_playlist .audio[data-gvik] .actions
+
+#pad_playlist .audio[data-gvik-download] .actions,
+#pad_playlist .audio[data-gvik-bitrate] .actions,
+#pad_playlist .audio[data-gvik-bitrate-filesize] .actions
 {
     margin: 0;
     padding: 0;
 }
-#pad_playlist .audio[data-gvik] .gvik-bitrate,
-#pad_playlist .audio[data-gvik] .gvik-download
+
+#pad_playlist .audio .gvik-bitrate,
+#pad_playlist .audio .gvik-download
 {
     margin: 7px 0 7px 0;
     padding: 4px;
 }
-#pad_playlist .audio[data-gvik*='_size_'] .gvik-bitrate,
-#pad_playlist .audio[data-gvik*='_size_'] .gvik-download
+#pad_playlist .audio[data-gvik-bitrate-filesize] .gvik-bitrate,
+#pad_playlist .audio[data-gvik-bitrate-filesize] .gvik-download
 {
     margin: 7px 0 0 -15px;
     padding: 4px;
 }
-#search_content .audio[data-gvik] .gvik-bitrate,
-#search_content .audio[data-gvik] .gvik-download
+#search_content .audio .gvik-bitrate,
+#search_content .audio .gvik-download
 {
     margin: 8px;
 }
-#pad_search_list .audio[data-gvik] .gvik-bitrate,
-#pad_search_list .audio[data-gvik] .gvik-download
+#pad_search_list .audio .gvik-bitrate,
+#pad_search_list .audio .gvik-download
 {
     padding: 10px;
 }
@@ -228,45 +240,46 @@ body[data-gvik-os='Win'] .gvik-like
 {
     display: none;
 }
-.audio.current[data-gvik] .gvik-download > a > div
+.audio.current .gvik-download > a > div
 {
     background-position: 0 -57px;
 }
-.audios_module .audio[data-gvik] .gvik-bitrate
+.audios_module .audio .gvik-bitrate
 {
     padding: 8px 2px;
 }
-div[class^=post_media] .audio.current[data-gvik] .gvik-download > a > div
+div[class^=post_media] .audio.current .gvik-download > a > div
 {
     background-position: 0 0;
 }
-.results .audio.current[data-gvik] .gvik-download > a > div
+.results .audio.current .gvik-download > a > div
 {
     background-position: 0 0;
 }
-.audio[data-gvik] .gvik-download > a > div:hover
+.audio .gvik-download > a > div:hover
 {
     -webkit-transition: opacity .2s ease-in;
 
     opacity: 1;
 }
-.audio[data-gvik] .actions a
+.audio .actions a
 {
     display: initial;
 
     width: 0 !important;
     padding: 0 !important;
 }
-.post_media .audio[data-gvik] .actions
+
+.post_media .audio .actions
 {
     visibility: visible !important;
 }
-.post_media .audio[data-gvik] .gvik-bitrate,
-.post_media .audio[data-gvik] .gvik-download
+.post_media .audio .gvik-bitrate,
+.post_media .audio .gvik-download
 {
     margin-top: 8px;
 }
-#audio.new .audio[data-gvik] .actions
+#audio.new .audio .actions
 {
     right: 0;
 
@@ -276,39 +289,54 @@ div[class^=post_media] .audio.current[data-gvik] .gvik-download > a > div
 {
     max-width: 290px;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik] .gvik-bitrate
+body:not([data-gvik-options*='_hide-bit_']) .audio .gvik-bitrate
 {
     display: none;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik].over .gvik-bitrate
+body:not([data-gvik-options*='_hide-bit_']) .audio.over .gvik-bitrate
 {
     display: block;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik='_bit_'].over .title_wrap,
-body[data-gvik-options*='_hide-bit_'] .audio[data-gvik='_bit_'] .title_wrap
+body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate].over .title_wrap,
+body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate] .title_wrap
 {
     width: -webkit-calc(100% - 95px) !important;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik='_bit__size_'].over .title_wrap,
-body[data-gvik-options*='_hide-bit_'] .audio[data-gvik='_bit__size_'] .title_wrap
+
+
+
+body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate-filesize].over .title_wrap,
+body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize] .title_wrap
 {
     width: -webkit-calc(100% - 150px) !important;
 }
-.audio[data-gvik='_but_'] .title_wrap
+
+
+
+.audio[data-gvik-download] .title_wrap
 {
     width: -webkit-calc(100% - 85px) !important;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik='_bit__but_'].over .title_wrap,
-body[data-gvik-options*='_hide-bit_'] .audio[data-gvik='_bit__but_'] .title_wrap
+
+
+
+body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate][data-gvik-download].over .title_wrap,
+body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate][data-gvik-download] .title_wrap
 {
     width: -webkit-calc(100% - 125px) !important;
 }
-body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik='_bit__but__size_'].over .title_wrap,
-body[data-gvik-options*='_hide-bit_'] .audio[data-gvik='_bit__but__size_'] .title_wrap
+
+
+
+body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate-filesize][data-gvik-download].over .title_wrap,
+body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize][data-gvik-download] .title_wrap
 {
     width: -webkit-calc(100% - 150px) !important;
 }
-#results .audio[data-gvik] .title_wrap
+
+
+
+#results .audio  .title_wrap
 {
     max-width: 360px;
 }
@@ -316,11 +344,11 @@ body[data-gvik-options*='_hide-bit_'] .audio[data-gvik='_bit__but__size_'] .titl
 {
     margin: 8px;
 }
-.narrow_column .audio[data-gvik] .title_wrap
+.narrow_column .audio .title_wrap
 {
     max-width: 116px !important;
 }
-.audio.over[data-gvik] .duration
+.audio.over  .duration
 {
     display: none !important;
 
@@ -470,6 +498,14 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
     border-right: 0;
     background: rgb(252, 253, 255);
 }
+#gvik-sidebar .gvik-switcher.additional
+{
+    display: none;
+}
+#gvik-sidebar.show .gvik-switcher.additional
+{
+    display: block;
+}
 #gvik-sidebar.anim .gvik-switcher
 {
     -webkit-transition: -webkit-transform .1s linear, width .1s linear;
@@ -541,6 +577,11 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
 
     height: 50px;
 }
+#gvik-sidebar.min div > .item-cont
+{
+    display: flex;
+    height: 25px;
+}
 #gvik-sidebar div > .item-cont .img-cont
 {
     display: inline-block;
@@ -554,6 +595,11 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
     max-width: 90px;
     margin-top: 5px;
     margin-left: 5px;
+}
+#gvik-sidebar.min div > .item-cont .label-cont
+{
+    max-width: 150px;
+    margin-left: 25px;
 }
 #gvik-sidebar.large div > .item-cont .label-cont
 {
@@ -815,11 +861,11 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
     position: relative;
 
     width: 510px;
-    height: 50px;
+    height: auto;
     margin: 0 auto;
     padding: 5px;
 
-    background: rgba(40, 59, 68, .890196);
+    background: rgba(65, 87, 109, .96);
 }
 .gvik-launcher-layer.show
 {
@@ -841,5 +887,6 @@ body:not([data-gvik-options*='_mark-red_']) .page_media_poll_desc
 
 .gvik-launcher-result
 {
-
+    height: auto;
+    min-height: 100px;
 }

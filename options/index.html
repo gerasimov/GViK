@@ -12,10 +12,9 @@
 
     <body>
         <header>
-        <div class="donate-cont">
-            <span class="donate-label">Yandex.Money:</span>
-            <span class="donate-val">410012023528604</span>
-        </div>
+            <div class="message">
+                <div id="message-txt" i18n-content="saved_msg"></div>
+            </div>
         </header>
         <div class="nav-cont">
             <div class="nav-top"></div>
@@ -314,16 +313,23 @@
     </div>
 </div> -->
         </div>
-        <footer>
-            <div class="message">
-                <div id="message-txt" i18n-content="saved_msg"></div>
-            </div>
+        <footer><div>
+                <div class="donate-cont">
+            <span class="donate-label">Yandex.Money:</span>
+            <span class="donate-val">410012023528604</span>
+        </div>
+                <div class="donate-cont">
+            <span class="donate-label">QIWI:</span>
+            <span class="donate-val">gerasimow.ruslan@gmail.com</span>
+        </div>
+        </div>
         </footer>
 </div>
 <script src="/engine/migrate.js"></script>
 <script src="/engine/core.js"></script>
 <script src="/engine/dom.js"></script>
-<script src="/js/lib/jquery.js"></script>
+<script src="/engine/events.js"></script>
+<script src="/engine/storage.js"></script>
 <script src="main.js"></script>
 </body>
 

@@ -19,7 +19,6 @@ h2.title {
     color: #5c7a99;
 }
 #content {
-    visibility: hidden;
     overflow: auto;
     max-width: 750px;
     height: 100%;
@@ -165,5 +164,5 @@ button:hover, input[type="button"]:hover {
 }
 .donate-val {
     -webkit-user-select: initial;
-    color: rgb(53, 143, 53);
+    color: rgb(63, 118, 123);
 }

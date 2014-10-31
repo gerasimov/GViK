@@ -4,76 +4,65 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-GViKModule.Check( {}, [], function( gvik ) {
+_GViK.Init( {
+    'sidebar': 'enable'
+}, [], function( gvik, require ) {
 
     "use strict";
 
-    if ( typeof gvik !== 'undefined' && gvik.DEBUG ) console.log( gvik, gvik.GetConfig )
+
+    var
+        dom = require( 'dom' ),
+        core = require( 'core' ),
+        event = require( 'event' ),
 
 
-    var _shown = false,
-        cnfg = gvik.GetConfig( 'sidebar' ),
+        _shown = false,
+        cnfg = gvik.configs.get( 'sidebar' ),
 
         anim = cnfg.get( 'animation' ) ? 'anim' : '',
 
         classSidebar = [ anim ].join( ' ' ),
 
 
-        sidebarEl = gvik.dom.create( 'div', {
+        sidebarEl = dom.create( 'div', {
             prop: {
                 id: 'gvik-sidebar',
                 className: classSidebar
             }
         } ),
 
-        switcher = gvik.dom.create( 'span', {
+        switcher = dom.create( 'span', {
             prop: {
                 'className': 'gvik-switcher'
             }
         } ),
 
-        wrap = gvik.dom.create( 'div', {
+        wrap = dom.create( 'div', {
             prop: {
                 id: 'gvik-wrap',
                 className: 'style-scrollbar'
             }
         } );
 
-    gvik.dom.append( sidebarEl, [ wrap, switcher ] );
+    dom.append( document.body,
+        dom.append( sidebarEl, [
+            wrap,
+            switcher
+        ] )
+    );
 
-    gvik.dom.appendBody( sidebarEl );
-
-    gvik.event.resize( function( s ) {
+    event.bind( 'resize', function( s ) {
         wrap.style[ 'max-height' ] = s.h + 'px';
-    } );
+    }, true );
 
 
     var ontogglestate = function() {
-            _shown ?
-                gvik.event.trigger( 'SIDEBAR_show' ) :
-                gvik.event.trigger( 'SIDEBAR_hide' );
+            event.trigger( _shown ? 'SIDEBAR_show' : 'SIDEBAR_hide' );
         },
 
         tabs = [];
 
-
-    gvik.event
-        .on( 'SIDEBAR_show', function() {
-            return _shown;
-        }, function() {
-            if ( tabs.length > 1 )
-                tabs.forEach( function( el ) {
-                    el.classList.remove( 'gvik-none' );
-                } );
-        } )
-        .on( 'SIDEBAR_hide', function() {
-            return !_shown;
-        }, function() {
-            if ( tabs.length > 1 )
-                tabs.forEach( function( el ) {
-                    el.classList.add( 'gvik-none' );
-                } );
-        } );
 
     var sidebar = {
         get shown() {
@@ -118,16 +107,16 @@ GViKModule.Check( {}, [], function( gvik ) {
 
         countPage += 1;
 
-        var nTabCont = gvik.dom.create( 'div', {
+        var nTabCont = dom.create( 'div', {
             prop: {
                 'className': [ 'tabCont', ( countPage > 2 ? 'gvik-none' : '' ) ].join( ' ' )
             }
         } );
 
 
-        var nSwitcher = gvik.dom.create( 'span', {
+        var nSwitcher = dom.create( 'span', {
             prop: {
-                className: [ 'gvik-switcher', ( _shown ? '' : 'gvik-none' ) ].join( ' ' )
+                className: [ 'gvik-switcher', 'additional', ( _shown ? '' : 'gvik-none' ) ].join( ' ' )
             },
             style: {
                 top: offset + 'px'
@@ -154,9 +143,13 @@ GViKModule.Check( {}, [], function( gvik ) {
 
         wrap.style.minHeight = nTabCont.minHeight = offset + 'px';
 
+
         sidebarEl.appendChild( nSwitcher );
         wrap.appendChild( nTabCont );
 
+        core.each( wrap.children, function( el ) {
+            el.style.minHeight = offset + 'px';
+        } );
 
         return {
             switcher: nSwitcher,
@@ -166,11 +159,9 @@ GViKModule.Check( {}, [], function( gvik ) {
         }
     };
 
-    gvik.dom.setEvent( switcher, 'click', sidebar.toggle.bind( sidebar ) );
+    dom.setEvent( switcher, 'click', sidebar.toggle.bind( sidebar ) );
 
 
-    GViKModule.Add( {
-        sidebar: sidebar
-    } );
+    _GViK.Add( 'sidebar', sidebar );
 
 } );

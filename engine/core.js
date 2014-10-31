@@ -4,9 +4,10 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-"use strict";
 
-GViKModule.Check( {}, [], function( gl ) {
+_GViK.Init( function( gvik ) {
+
+    "use strict";
 
     var arrproto = Array.prototype,
         slice = arrproto.slice,
@@ -28,11 +29,9 @@ GViKModule.Check( {}, [], function( gl ) {
                     fn( obj[ i ], i, i === ( l - 1 ) );
                 }
             }
-        } else {
-            for ( i in obj ) {
+        } else
+            for ( i in obj )
                 fn( obj[ i ], i );
-            }
-        }
 
         return obj;
     }
@@ -112,11 +111,29 @@ GViKModule.Check( {}, [], function( gl ) {
         return ret;
     }
 
+    function isString() {
+
+    }
+
+
+    function isFunction( fn ) {
+        return typeof fn === 'function';
+    }
+
+
+    function isArray() {
+
+    }
+
+    function isNumber() {
+
+    }
+
+
     function isEmpty( obj ) {
         var i;
-        for ( i in obj ) {
+        for ( i in obj )
             return false;
-        }
         return true;
     }
 
@@ -129,27 +146,17 @@ GViKModule.Check( {}, [], function( gl ) {
     }
 
     function toArray( arg ) {
-
-        var l = arg.length,
-            res = [];
-
-        if ( l === 1 ) {
-            res.push( arg[ 0 ] );
-        } else if ( l ) {
-            res = slice.call( arg );
-        }
-
-        return res;
+        return ( arg.length === 1 ) ? [ arg[ 0 ] ] : slice.call( arg );
     }
 
     function getResource( path, callback ) {
         var xhr = new XMLHttpRequest();
-        xhr.open( 'GET', gl.IS_GVIK ? ( gvik.APP_PATH + path ) : chrome.extension.getURL( path ), !!callback );
-        if ( callback ) {
-            xhr.addEventListener( 'load', function() {
-                callback( xhr.responseText );
-            }, false );
-        }
+        xhr.open( 'GET', gvik.IS_GVIK ? ( gvik.APP_PATH + path ) : chrome.extension.getURL( path ), !!callback );
+
+        if ( callback ) xhr.addEventListener( 'load', function() {
+            callback( xhr.responseText );
+        }, false );
+
         xhr.send();
         return xhr.responseText;
     };
@@ -192,15 +199,15 @@ GViKModule.Check( {}, [], function( gl ) {
 
         xhr.open( type, data.url, true );
 
-        xhr.onreadystatechange = isHead ? function() {
+        xhr.addEventListener( 'readystatechange', isHead ? function() {
             if ( xhr.readyState === XMLHttpRequest.HEADERS_RECEIVED ) {
                 if ( xhr.status >= 200 && xhr.status < 300 ) {
                     return callback( data.getheader ?
                         this.getResponseHeader( data.getheader ) :
                         this.getAllResponseHeaders() );
-                } else {
-                    return error();
                 }
+                error(xhr.status, xhr.statusText, this.getAllResponseHeaders());
+
             }
         } : function() {
             if ( xhr.readyState === XMLHttpRequest.DONE ) {
@@ -212,18 +219,18 @@ GViKModule.Check( {}, [], function( gl ) {
                         res = JSON.parse( res );
                     }
                     return callback( res );
-                } else {
-                    return error();
                 }
+                error(xhr.status, xhr.statusText, this.getAllResponseHeaders());
+
             }
-        };
+        }, false );
 
 
         if ( isPost ) {
             xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
             xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-            if ( !core.isEmpty( data.data ) ) {
-                dataArg = core.map( data.data, function( v, k ) {
+            if ( !isEmpty( data.data ) ) {
+                dataArg = map( data.data, function( v, k ) {
                     return encodeURIComponent( k ) + '=' + encodeURIComponent( v );
                 } )
                     .join( '&' )
@@ -234,22 +241,30 @@ GViKModule.Check( {}, [], function( gl ) {
         xhr.send( dataArg );
     };
 
+    function tmpl( str, obj ) {
+        return str.replace( /\<\%\=[^\>]*\>/gi, function( key ) {
+            return obj[ key.slice( 3, -1 ) ];
+        } );
+    }
 
 
-    var core = {
+
+    _GViK.Add( 'core', {
         extend: extend,
         each: each,
         filter: filter,
         map: map,
+        tmpl: tmpl,
         isPlainObject: isPlainObject,
         isEmpty: isEmpty,
+        isFunction: isFunction,
         toObject: toObject,
         toArray: toArray,
         getResource: getResource,
         define: define,
-        ajax: ajax
-    };
+        ajax: ajax,
+        isString: isString
 
-    gl.IS_GVIK ? GViKModule.Add( 'core', core ) : ( gl.core = core );
+    } );
 
 } );

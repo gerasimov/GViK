@@ -4,109 +4,122 @@
  *
  */
 
-GViKModule.Check( {}, [
-
-	],
-
-	function( gvik ) {
-
-		function Launcher() {
-
-			this.timerId;
-
-			this.show = function() {
-				gvik.dom.addClass( this.launcherLayer, 'show' );
-				clearTimeout( this.timerId );
-				this.timerId = setTimeout( function() {
-					this.launcherInput.value = '';
-					this.launcherInput.focus();
-				}.bind( this ), 0 );
-			};
-
-			this.hide = function() {
-				gvik.dom.removeClass( this.launcherLayer, 'show' );
-				clearTimeout( this.timerId );
-				this.timerId = setTimeout( function() {
-					this.launcherInput.value = '';
-					this.launcherInput.blur();
-				}.bind( this ), 0 );
-			};
-
-			this.launcherInput = gvik.dom.create( 'input', {
-				prop: {
-					className: 'gvik-launcher-input mousetrap',
-					type: 'text'
-				},
-				events: {
-					click: function( e ) {
-						e.stopPropagation();
-					}
-				}
-			} );
+_GViK.Init( function( gvik, require ) {
 
 
-			this.launcherInputCont = gvik.dom.create( 'div', {
-				prop: {
-					className: 'gvik-launcher-input-cont'
-				},
-				append: this.launcherInput
-			} );
+	var core = require( 'core' ),
+		event = require( 'event' ),
+		dom = require( 'dom' );
 
 
-			this.launcherLayer = gvik.dom.create( 'div', {
-				prop: {
-					className: 'gvik-launcher-layer'
-				},
-				append: this.launcherInputCont,
-				events: {
-					click: this.hide.bind( this )
-				}
-			} );
 
+	function Launcher() {
 
-			Mousetrap.bind( [ 'ctrl+`' ], function( e ) {
-				gvik.dom.hasClass( this.launcherLayer, 'show' ) ? this.hide() : this.show();
-				e.stopPropagation();
-				e.preventDefault();
+		this.timerId;
 
-			}.bind( this ) );
+		this.show = function() {
+			dom.addClass( this.layer, 'show' );
+			clearTimeout( this.timerId );
+			this.timerId = setTimeout( function() {
+				this.input.value = '';
+				this.input.focus();
+			}.bind( this ), 0 );
+		};
 
-			Mousetrap.bind( 'esc', this.hide.bind( this ) );
+		this.hide = function() {
+			dom.removeClass( this.layer, 'show' );
+			clearTimeout( this.timerId );
+			this.timerId = setTimeout( function() {
+				this.input.value = '';
+				this.input.blur();
+			}.bind( this ), 0 );
+		};
 
-
-			this.trigger = function( name, data ) {
-				gvik.event.trigger( name, data );
-			};
-
-			this.on = function( name, fn ) {
-				gvik.event.on( 'LAUNCHER_enter', 0, fn.bind( this ) );
+		this.input = dom.create( 'input', {
+			prop: {
+				className: 'gvik-launcher-input mousetrap',
+				type: 'text'
 			}
+		} );
 
-			this.add = function( key, fn ) {
-				Launcher.prototype[ key ] = fn;
-			};
-			this.on( 'LAUNCHER_enter', this.hide );
 
-			this.launcherInput.onkeyup = function( e ) {
-				if ( gvik.dom.hasClass( this.launcherLayer, 'gvik-hide' ) || event.keyCode != 13 ) {
-					return;
+		this.resultCont = dom.create( 'div', {
+			prop: {
+				className: 'gvik-launcher-result'
+			}
+		} );
+
+		this.inputCont = dom.create( 'div', {
+			prop: {
+				className: 'gvik-launcher-input-cont'
+			},
+			events: {
+				click: function( e ) {
+					e.stopPropagation();
 				}
+			},
+			append: [ this.input, this.resultCont ]
+		} );
 
-				var q = this.launcherInput.value.trim();
+
+		this.layer = dom.create( 'div', {
+			prop: {
+				className: 'gvik-launcher-layer'
+			},
+			append: this.inputCont,
+			events: {
+				click: this.hide.bind( this )
+			}
+		} );
 
 
-				if ( !q.length ) {
-					return;
-				}
+		gvik.Mousetrap.bind( [ 'ctrl+`' ], function( e ) {
+			dom.hasClass( this.layer, 'show' ) ? this.hide() : this.show();
+			e.stopPropagation();
+			e.preventDefault();
+		}.bind( this ) );
 
-				this.trigger( 'LAUNCHER_enter', q );
+		gvik.Mousetrap.bind( 'esc', function( e ) {
+			this.hide();
+			e.stopPropagation();
+			e.preventDefault();
+		}.bind( this ) );
 
-			}.bind( this );
 
-			gvik.dom.appendBody( this.launcherLayer );
+		this.trigger = function( name, data ) {
+			event.trigger( name, data );
+		};
 
+		this.on = function( name, fn ) {
+			event.bind( 'LAUNCHER_enter', fn.bind( this ) );
 		}
 
-		GViKModule.Add( 'launcher', new Launcher );
+		this.add = function( key, data ) {
+			Launcher.prototype[ key ] = data;
+		};
 
-	} );
+		this.on( 'LAUNCHER_enter', this.hide );
+
+		dom.setEvent( this.input, 'keyup', function( e ) {
+
+			if ( !dom.hasClass( this.layer, 'show' ) || e.keyCode != 13 ) {
+				return;
+			}
+
+			var q = this.input.value.trim();
+
+			if ( !q.length ) {
+				return;
+			}
+
+			this.trigger( 'LAUNCHER_enter', q );
+
+		}.bind( this ) );
+
+		dom.append( document.body, this.layer );
+
+	}
+
+	_GViK.Add( 'launcher', new Launcher );
+
+} );

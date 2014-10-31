@@ -4,39 +4,46 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-GViKModule.Check( {}, [], function( gvik ) {
+_GViK.Init( function( gvik, require ) {
 
     "use strict";
 
-    var VKAPI = function() {
-        this.KEY_TOKEN = "vk";
-        this.ROOT_URL = "https://api.vk.com/method/";
-        this.APP_ID = "2224353";
-        this.USER_ID = parseInt( vk.id );
+    var
+
+        core = require( 'core' ),
+        chrome = require( 'chrome' ),
+        configs = require('configs'),
+        storage = require( 'storage' ),
+
+        VKAPI = function() {
+            this.KEY_TOKEN = "vk";
+            this.ROOT_URL = "https://api.vk.com/method/";
+            this.APP_ID = "2224353";
+            this.USER_ID = gvik.UNIQ_ID;
 
 
-        this.permission = [ 'friends',
-            'groups',
-            'audio',
-            'video'
-        ];
+            this.permission = [ 'friends',
+                'groups',
+                'audio',
+                'video'
+            ];
 
-        this.isOffline = gvik.GetConfig( 'vkapi', 'offline' );
+            this.isOffline = configs.get( 'vkapi', 'offline' );
 
-        if ( this.isOffline ) {
-            this.pushPermission( 'offline' );
-        }
+            if ( this.isOffline ) {
+                this.pushPermission( 'offline' );
+            }
 
-        this.saved = [];
+            this.saved = [];
 
-    };
+        };
 
 
 
     var _fnReAuth = function( method, data, success, error ) {
 
-        gvik.local.remove( this.KEY_TOKEN );
-        gvik.chrome.local.remove( 'vk' );
+        storage.local.remove( this.KEY_TOKEN );
+        chrome.local.remove( 'vk' );
 
         this.saved.push( [ method, data, success, error ] );
         this.auth( null, null, null, false );
@@ -46,7 +53,7 @@ GViKModule.Check( {}, [], function( gvik ) {
     VKAPI.prototype = {
 
         get data() {
-            return gvik.local.getJSON( this.KEY_TOKEN ) || {};
+            return storage.local.getJson( this.KEY_TOKEN ) || {};
         },
 
         get token() {
@@ -55,13 +62,13 @@ GViKModule.Check( {}, [], function( gvik ) {
 
         _setToken: function( token ) {
 
-            gvik.local.setJSON( this.KEY_TOKEN, {
+            storage.local.setJson( this.KEY_TOKEN, {
                 token: token,
                 isOffline: this.isOffline
             } );
 
 
-            gvik.chrome.local.set( {
+            chrome.local.set( {
                 vk: {
                     token: token,
                     isOffline: this.isOffline
@@ -120,11 +127,12 @@ GViKModule.Check( {}, [], function( gvik ) {
             }
 
             data.access_token = this.token;
-            data.v = "5.21";
+            data.v = "5";
+            data.https = 1;
 
             data._nocache = Date.now();
 
-            gvik.chrome.simpleAjax( {
+            chrome.simpleAjax( {
                 type: 'POST',
                 url: this.ROOT_URL + method,
                 dataType: 'json',
@@ -157,9 +165,9 @@ GViKModule.Check( {}, [], function( gvik ) {
             var width = parseInt( screen.width / 2 ),
                 height = parseInt( screen.height / 2 );
 
-            gvik.chrome.sendRequest( "auth", {
+            chrome.sendRequest( "auth", {
                 data: {
-                    url: 'https://oauth.vk.com/authorize?' + gvik.core.map( {
+                    url: 'https://oauth.vk.com/authorize?' + core.map( {
                         client_id: 2224353,
                         scope: this.permission /* || 474367*/ ,
                         v: 5,
@@ -188,7 +196,7 @@ GViKModule.Check( {}, [], function( gvik ) {
         auth: function( force, callback, error, focus ) {
             if ( force || !this.authorized ) {
 
-                gvik.chrome.local.get( {
+                chrome.local.get( {
                     key: 'vk'
                 }, function( val ) {
 
@@ -211,8 +219,6 @@ GViKModule.Check( {}, [], function( gvik ) {
         }
     };
 
-    GViKModule.Add( {
-        vkapi: new VKAPI
-    } );
+    _GViK.Add( 'vkapi', new VKAPI );
 
 } );

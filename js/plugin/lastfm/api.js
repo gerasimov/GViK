@@ -5,50 +5,57 @@
  *
  */
 
-GViKModule.Check( {}, [], function( gvik ) {
+_GViK.Init(function(gvik, require) {
 
     "use strict";
 
+
+
+    var chrome = require('chrome'),
+        md5 = require('md5'),
+        storage = require('storage'),
+        core = require('core');
+
     function LastFMAPI() {
 
-        var token = location.href.match( /\?token\=(\w+)\#gvik_lastfm/ );
+        var token = location.href.match(/\?token\=(\w+)\#gvik_lastfm/);
 
 
-        if ( token ) {
+        if (token) {
 
             try {
-                history.pushState( {}, '', location.pathname );
-            } catch ( e ) {}
+                history.pushState({}, '', location.pathname);
+            } catch (e) {}
 
-            this.getSession( token[ 1 ], function( res ) {
+            this.getSession(token[1], function(res) {
                 var response = {
                     sk: res.session.key,
                     name: res.session.name,
                     state: true
                 };
 
-                this.setConfig( response );
+                this.setConfig(response);
 
-                gvik.chrome.sync.set( {
+                chrome.sync.set({
                     lastfm: response
-                } )
-                    .sendTabs( 'LASTFM_enablebutton' )
-                    .sendTabs( 'LASTFM_changestate', {
+                })
+                    .sendTabs('LASTFM_enablebutton')
+                    .sendTabs('LASTFM_changestate', {
                         data: true
-                    } );
+                    });
 
-            }.bind( this ) );
+            }.bind(this));
         }
 
     }
 
     LastFMAPI.prototype = {
         get data() {
-            return gvik.local.getJSON( 'lastfm' ) || {};
+            return storage.local.getJson('lastfm') || {};
         },
 
-        setConfig: function( param ) {
-            return gvik.local.setJSON( 'lastfm', gvik.core.extend( {}, this.data, param ) );
+        setConfig: function(param) {
+            return storage.local.setJson('lastfm', core.extend({}, this.data, param));
         },
 
         get sessionKey() {
@@ -76,137 +83,132 @@ GViKModule.Check( {}, [], function( gvik ) {
         },
 
         get authorized() {
-            var s = this.sessionKey,
-                n = this.name;
-            return !!( s && n );
+            return !!(this.sessionKey && this.name);
         },
 
-        getSignature: function( params ) {
-            return gvik.md5( gvik.core.map( params, function( v, k ) {
+        getSignature: function(params) {
+            return md5(core.map(params, function(v, k) {
                     return k + v
-                } )
+                })
                 .sort()
-                .join( '' ) + this.SECRET );
+                .join('') + this.SECRET);
         },
 
         _errorCode: {
             '9': function() {
-                gvik.local.remove( 'lastfm' );
-                gvik.chrome.sync.remove( 'lastfm' );
+                storage.local.remove('lastfm');
+                chrome.sync.remove('lastfm');
                 this.auth();
             },
 
             '6': function() {}
         },
 
-        call: function( method, data, _callback, _error ) {
+        call: function(method, data, _callback, _error) {
 
             data = data || {};
 
-            if ( this.sessionKey ) {
+            if (this.sessionKey) {
                 data.sk = this.sessionKey;
             }
 
-            gvik.core.extend( data, {
+            core.extend(data, {
                 lang: "ru",
                 method: method,
                 api_key: this.KEY
-            } );
+            });
 
-            data.api_sig = this.getSignature( data );
+            data.api_sig = this.getSignature(data);
             data.format = 'json';
 
 
-            gvik.chrome.simpleAjax( {
+            chrome.simpleAjax({
                     type: 'POST',
                     url: this.ROOT_URL,
                     dataType: 'json',
                     data: data
-                }, function( response ) {
+                }, function(response) {
                     var errCode = response.error,
-                        errFn = this._errorCode[ errCode ];
+                        errFn = this._errorCode[errCode];
 
-                    if ( errCode ) {
+                    if (errCode) {
                         errFn && errFn();
-                        return _error( response );
+                        return _error(response);
                     }
 
-                    _callback( response );
-                }.bind( this ), ( function() {
-                    _error.apply( this, arguments );
-                } )
-                .bind( this ) );
+                    _callback(response);
+                }.bind(this), (function() {
+                    return _error.apply(this, arguments);
+                })
+                .bind(this));
 
             return this;
         },
 
-        _call: function( method, params, callback, error, prop ) {
-            return this.call( method, params, function( res ) {
-                if ( res.hasOwnProperty( prop ) ) {
-                    callback.apply( this, arguments )
-                } else if ( typeof error === 'function' ) {
-                    error.apply( this, arguments );
+        _call: function(method, params, callback, error, prop) {
+            return this.call(method, params, function(res) {
+                if (res.hasOwnProperty(prop)) {
+                    return callback.apply(this, arguments)
                 }
-            }, error );
+
+                if (typeof error === 'function') {
+                    return error.apply(this, arguments);
+                }
+            }, error);
         },
 
-        getSession: function( token, callback, error ) {
-            return this._call( "auth.getSession", {
+        getSession: function(token, callback, error) {
+            return this._call("auth.getSession", {
                 token: token
-            }, callback, error, 'session' );
+            }, callback, error, 'session');
         },
 
         auth: function() {
 
-            gvik.chrome.sync.get( {
+            chrome.sync.get({
                 key: 'lastfm'
-            }, function( vals, key ) {
+            }, function(vals, key) {
 
-                if ( !vals.lastfm || !vals.lastfm.sk ) {
-                    if ( window.audioPlayer && window.audioPlayer.id ) {
-                        audioPlayer.operate( audioPlayer.id );
-                    }
-                    return gvik.chrome.openTab( 'http://www.last.fm/api/auth/?api_key=' + this.KEY );
+                if (!vals.lastfm || !vals.lastfm.sk) {
+                    return chrome.openTab('http://www.last.fm/api/auth/?api_key=' + this.KEY);
                 }
 
-                this.setConfig( vals.lastfm );
+                this.setConfig(vals.lastfm);
 
-                gvik.chrome.sync.set( {
+                chrome.sync.set({
                     lastfm: vals.lastfm
-                } )
-                    .sendTabs( 'LASTFM_enablebutton' )
-                    .sendTabs( 'LASTFM_changestate', {
+                })
+                    .sendTabs('LASTFM_enablebutton')
+                    .sendTabs('LASTFM_changestate', {
                         data: true
-                    } );
+                    });
 
-            }.bind( this ) );
+            }.bind(this));
             return this;
         },
 
-        scrobble: function( arg, callback, error ) {
-            return this._call( 'track.scrobble', arg, callback, error, "scrobbles" );
+        scrobble: function(arg, callback, error) {
+            return this._call('track.scrobble', arg, callback, error, "scrobbles");
         },
 
-        update: function( arg, callback, error ) {
-            return this._call( 'track.updateNowPlaying', arg, callback, error, "nowplaying" );
+        update: function(arg, callback, error) {
+            return this._call('track.updateNowPlaying', arg, callback, error, "nowplaying");
         },
 
-        love: function( arg, callback, error ) {
-            return this._call( 'track.love', arg, callback, error, 'status' );
+        love: function(arg, callback, error) {
+            return this._call('track.love', arg, callback, error, 'status');
         },
 
-        unlove: function( arg, callback, error ) {
-            return this._call( 'track.unlove', arg, callback, error, 'status' );
+        unlove: function(arg, callback, error) {
+            return this._call('track.unlove', arg, callback, error, 'status');
         },
 
-        getLoved: function( arg, callback, error ) {
-            return this._call( 'user.getLovedTracks', arg, callback, error, 'lovedtracks' );
+        getLoved: function(arg, callback, error) {
+            return this._call('user.getLovedTracks', arg, callback, error, 'lovedtracks');
         }
     };
 
 
-    GViKModule.Add( {
-        lastfmAPI: new LastFMAPI
-    } )
+    _GViK.Add('lastfmAPI', new LastFMAPI);
 
-} );
+});

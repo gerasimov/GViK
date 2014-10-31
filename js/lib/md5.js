@@ -5,7 +5,7 @@
  *
  **/
 
-GViKModule.Add( 'md5', function() {
+_GViK.Add( 'md5', function() {
 	return function( e ) {
 		function h( a, b ) {
 			var c, d, e, f, g;

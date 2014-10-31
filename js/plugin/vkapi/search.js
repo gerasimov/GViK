@@ -5,15 +5,21 @@
  *
  */
 
-GViKModule.Check( {}, [
+_GViK.Init( {}, [
         'vkapi'
     ],
-    function( gvik ) {
+    function( gvik, require ) {
 
         "use strict";
 
+
+        var
+            core = require( 'core' ),
+            vkapi = require( 'vkapi' ),
+            chrome = require( 'chrome' );
+
         function vkcall( method, data, suc, err ) {
-            gvik.vkapi.call( method, data, suc, err );
+            vkapi.call( method, data, suc, err );
         }
 
 
@@ -43,7 +49,7 @@ GViKModule.Check( {}, [
 
         function getBitrate( data, callback, error ) {
 
-            gvik.chrome.simpleAjax( {
+            chrome.simpleAjax( {
                 url: data.audio.url,
                 type: 'HEAD',
                 getheader: 'Content-Length'
@@ -86,7 +92,7 @@ GViKModule.Check( {}, [
         function searchInArray( arr, data, fn ) {
             var res = [];
 
-            gvik.core.each( arr, function( audio ) {
+            core.each( arr, function( audio ) {
                 if ( fn( audio.artist, data.artist ) &&
                     fn( audio.title, data.title ) ) {
                     res.push( {
@@ -117,7 +123,7 @@ GViKModule.Check( {}, [
                 callback( audioMap );
         }
 
-        GViKModule.Add( 'search', {
+        _GViK.Add( 'search', {
             audioSearch: audioSearch
         } )
 

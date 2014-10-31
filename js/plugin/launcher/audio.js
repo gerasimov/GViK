@@ -4,15 +4,22 @@
  *
  */
 
-GViKModule.Check( {}, [
+_GViK.Init( {}, [
 		'launcher'
 	],
 
-	function( gvik ) {
+	function( gvik, require) {
+ 
 
+		var
 
-		var TMPL = {
-			audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
+			core = require( 'core' ),
+			dom = require( 'dom' ),
+			launcher = require( 'launcher' ),
+			search = require( 'search' ),
+
+			TMPL = {
+				audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
                   <a name="%audio_id%"></a>\
                   <div class="area clear_fix" onclick="if (cur.cancelClick){ cur.cancelClick = false; return;} %onclick%">\
                     <div class="play_btn fl_l">\
@@ -29,7 +36,7 @@ GViKModule.Check( {}, [
                   </div>\
                   <div id="lyrics%audio_id%" class="lyrics" nosorthandle="1"></div>\
                 </div>'
-		};
+			};
 
 
 		function secToTime( sec ) {
@@ -79,17 +86,16 @@ GViKModule.Check( {}, [
 			] );
 		}
 
-		var trackContainer = gvik.dom.create( 'div', {
+		var trackContainer = dom.create( 'div', {
 			style: {
 				display: 'none'
 			}
 		} );
 
-		gvik.dom.appendBody( trackContainer );
+		dom.append( document.body, trackContainer );
 
-		gvik.launcher.add( 'search', function( searchData ) {
-
-			gvik.search.audioSearch( searchData, function( result ) {
+		launcher.add( 'search', function( searchData ) {
+			search.audioSearch( searchData, function( result ) {
 
 				if ( !result ) {
 					return;
@@ -99,13 +105,10 @@ GViKModule.Check( {}, [
 					result[ 0 ] :
 					result;
 
-
 				if ( !audioData )
 					return;
 
-
 				var audio = audioData.audio || audioData,
-
 					audioHTML = drawAudio( audio );
 
 				trackContainer.innerHTML += audioHTML;
@@ -115,10 +118,10 @@ GViKModule.Check( {}, [
 			}.bind( this ), {} );
 		} );
 
-		gvik.launcher.on( 'LAUNCHER_enter', function( q ) {
-			this.search( {
+		launcher.command.add( 'PlayAudio', function( q ) {
+			launcher.search( {
 				q: q
 			} )
-		} );
+		}, 'Play Audio' );
 
 	} );

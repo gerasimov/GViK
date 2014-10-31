@@ -7,10 +7,16 @@
 "use strict";
 
 
-GViKModule.Check( {
+_GViK.Init( function( gvik, require ) {
 
-}, [], function( gvik ) {
-    var core = gvik.core;
+    var core = require( 'core' );
+
+    var DOM = function() {};
+
+
+    DOM.prototype.setAttr = function() {
+
+    };
 
     function setAttr( element, attName, attVal ) {
         switch ( arguments.length ) {
@@ -205,6 +211,41 @@ GViKModule.Check( {
         return element;
     }
 
+
+
+    var decoder = document.createElement( 'textarea' ),
+
+        getToken = function( arr ) {
+            var i = !arr.length ? '' : '(?!(' + arr.join( '|' ) + '))';
+            return new RegExp( i + '\\&(?:[a-z]{2,7}|\\#x?[0-9a-z]{2,6})\\;', 'ig' )
+        };
+
+    function unes( str ) {
+        var noSpecialChar = [],
+            after,
+            i = 0,
+            token,
+            l = 30;
+
+        for ( ; i < l; i++ ) {
+            token = getToken( noSpecialChar );
+            if ( !token.test( str ) ) {
+                break;
+            }
+
+            str = str.replace( token, function( before ) {
+                decoder.innerHTML = before;
+                after = decoder.value;
+                if ( before !== after ) {
+                    return after;
+                }
+                noSpecialChar.push( before );
+                return before;
+            } )
+        }
+        return str;
+    }
+
     function after( el, targ ) {
         var next,
             parentNode = el.parentNode;
@@ -223,12 +264,12 @@ GViKModule.Check( {
 
     function create( tagName, data ) {
         var element = document.createElement( tagName ),
-            f;
-        core.each( Object.keys( data || {} ), function( v ) {
-            if ( ( f = assaciateFn[ v ] ) ) {
-                f( element, data[ v ] );
-            }
-        }, true );
+            f, i;
+
+        if ( data )
+            for ( i in data )
+                if ( ( f = assaciateFn[ i ] ) ) f( element, data[ i ] );
+
         return element;
     }
 
@@ -255,9 +296,32 @@ GViKModule.Check( {
         } );
     }
 
+    function is( el, selector ) {
+        return el.webkitMatchesSelector( selector );
+    }
+
+    function byId( id ) {
+        return document.getElementById( id );
+    }
+
+    function byClass( klass, el ) {
+        return ( el || document ).getElementsByClassName( klass );
+    }
 
 
-    var dom = {
+    function byTag( tagName, el ) {
+        return ( el || document ).getElementsByTagName( tagName );
+    }
+
+    function query( selector, el ) {
+        return ( el || document ).querySelector( selector );
+    }
+
+    function queryAll( selector, el ) {
+        return ( el || document ).querySelectorAll( selector );
+    }
+
+    _GViK.Add( 'dom', {
         create: create,
         hasClass: hasClass,
         addClass: addClass,
@@ -268,15 +332,20 @@ GViKModule.Check( {
         setAttr: setAttr,
         setDelegate: setDelegate,
         setData: setData,
+        is: is,
         setProp: setProp,
         append: append,
         setEvent: setEvent,
         clone: clone,
+        unes: unes,
         trigger: trigger,
         after: after,
-        empty: empty
-    };
-
-    gvik.IS_GVIK ? GViKModule.Add( 'dom', dom ) : ( gvik.dom = dom );
+        empty: empty,
+        byId: byId,
+        byTag: byTag,
+        byClass: byClass,
+        query: query,
+        queryAll: queryAll
+    } );
 
 } );

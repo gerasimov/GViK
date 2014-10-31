@@ -7,7 +7,7 @@
             "engine/core.js",
             "engine/api/support.js",
             "engine/api/methods.js",
-            "engine/api/background.api.js",
+            "engine/api/port.bg.js",
             "system/background.js"
         ]
     },
@@ -23,7 +23,7 @@
             "engine/api/support.js",
             "engine/api/methods.js",
             "system/contentScript.js",
-            "engine/api/content.api.js"
+            "engine/api/port.content.js"
         ],
         "matches": [
             "*://vk.com/*"
@@ -40,10 +40,10 @@
     },
     "manifest_version": 2,
     "name": "GViK",
-    "options_page": "options/index.html?act=options",
+    "options_page": "newoptions/index.html",
     "page_action": {
         "default_icon": "img/Settings.png",
-        "default_popup": "options/index.html?act=popup",
+        "default_popup": "newoptions/index.html",
         "default_title": "__MSG_actTitle__"
     },
     "permissions": [
@@ -51,6 +51,7 @@
         "downloads",
         "storage",
         "*://*.vk.com/*",
+        "*://*.vk-cdn.net/*",
         "*://*.audioscrobbler.com/*",
         "*://*.vk.me/*"
     ],
@@ -59,26 +60,36 @@
         "js/init.js",
 
         "engine/core.js",
-        "engine/api/chrome.js",
         "engine/dom.js",
+        "engine/events.js",
+        "engine/storage.js",
+        "engine/configs.js",
+
+
+        "engine/api/chrome.js",
 
         "js/lib/mousetrap.js",
-        "js/lib/lib.js",
         "js/lib/md5.js",
+
+        "js/vkinit.js",
+
 
         "js/plugin/lastfm/api.js",
         "js/plugin/lastfm/scrobbler.js",
-
 
         "js/plugin/vkapi/vkapi.js",
         "js/plugin/vkapi/search.js",
 
         "js/plugin/launcher/launcher.js",
+        "js/plugin/launcher/commands.js",
         "js/plugin/launcher/audio.js",
 
         "js/plugin/sidebar/sidebar.js",
         "js/plugin/sidebar/friends.js",
         "js/plugin/sidebar/lastfm.js",
+
+        "js/plugin/audio/download.js",
+        "js/plugin/audio/bitrate.js",
 
         "js/common.js",
 
@@ -92,8 +103,6 @@
         "img/misc.png",
         "img/sprite.png",
         "img/playBtn.png",
-        "img/remove.gif",
-        "font/gvik.woff",
-        "font/gvik.svg"
+        "img/remove.gif"
     ]
 }

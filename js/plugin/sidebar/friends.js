@@ -6,20 +6,29 @@
 
 
 
-"use strict";
-
-GViKModule.Check( {
+_GViK.Init( {
         'sidebar': 'friendsfaves-module'
     }, [
         'sidebar'
     ],
-    function( gvik ) {
+    function( gvik, require ) {
 
-        var stateLoad = false,
+        "use strict";
+
+        var
+
+            core = require( 'core' ),
+            dom = require( 'dom' ),
+            event = require( 'event' ),
+            vkapi = require( 'vkapi' ),
+            sidebar = require( 'sidebar' ),
+            chrome = require( 'chrome' ),
+
+            stateLoad = false,
             _faveElements = [],
             _uids = [],
             _avatars = [],
-            cnfg = gvik.GetConfig( 'sidebar' ),
+            cnfg = gvik.configs.get( 'sidebar' ),
             tab,
             tabCont,
             wrap,
@@ -46,7 +55,7 @@ GViKModule.Check( {
 
         function vkcall( method, data, success, error ) {
             tabCont.classList.remove( 'loaded' );
-            gvik.vkapi.call( method, data, function() {
+            vkapi.call( method, data, function() {
                 success.apply( this, arguments );
                 tabCont.classList.add( 'loaded' );
             }, function() {
@@ -65,8 +74,8 @@ GViKModule.Check( {
                 v: '5.21'
             }, function( res ) {
                 stateLoad = true;
-                gvik.core.each( res.items, function( user, i ) {
-                    html += gvik.util.tmpl( TMPL.item, {
+                core.each( res.items, function( user, i ) {
+                    html += core.tmpl( TMPL.item, {
                         online: ( user.online ? ( user.online_mobile ? 2 : 1 ) : 0 ),
                         href: user.domain,
                         uid: ( _uids[ i ] = user.id ),
@@ -85,13 +94,13 @@ GViKModule.Check( {
             stateLoad && vkcall( 'execute.getOnline', {
                 uids: _uids.toString()
             }, function( res ) {
-                var val = gvik.core.toObject( gvik.core.map( res.trim()
+                var val = core.toObject( core.map( res.trim()
                     .split( /\s/ ), function( v ) {
                         return v.split( ':' );
                     } ) );
 
-                gvik.core.each( _uids, function( v, i ) {
-                    gvik.dom.setData( _faveElements[ i ], 'online', ( val[ i ] !== undefined ?
+                core.each( _uids, function( v, i ) {
+                    dom.setData( _faveElements[ i ], 'online', ( val[ i ] !== undefined ?
                         ( val[ i ] ? 2 : 1 ) :
                         0 ) );
                 } )
@@ -99,7 +108,7 @@ GViKModule.Check( {
         }
 
 
-        gvik.sidebar.addPage( function( _switcher, _tabCont, _wrap ) {
+        sidebar.addPage( function( _switcher, _tabCont, _wrap ) {
 
             switcher = _switcher;
             tabCont = _tabCont;
@@ -113,7 +122,7 @@ GViKModule.Check( {
                 tabCont.classList.add( 'hidden-offline' );
             }
 
-            gvik.dom.setDelegate( tabCont, '.gvikLink', 'click', function() {
+            dom.setDelegate( tabCont, '.gvikLink', 'click', function() {
 
                 var hrf = this.getAttribute( 'data-href' );
 
@@ -122,7 +131,7 @@ GViKModule.Check( {
                 }
 
                 if ( cnfg.get( 'open-newTab' ) ) {
-                    return gvik.chrome.openTab( hrf, {}, {
+                    return chrome.openTab( hrf, {}, {
                         orUpd: true
                     } )
                 }
@@ -134,13 +143,13 @@ GViKModule.Check( {
         } );
 
 
-        gvik.event
-            .SIDEBAR_show( function() {
+        event
+            .bind( 'SIDEBAR_show', function() {
                 stateLoad ?
                     update() :
                     load()
             } )
-            .SIDEBAR_hide( function() {
+            .bind( 'SIDEBAR_hide', function() {
 
             } );
 
