@@ -1,16 +1,21 @@
 {
     "audio": {
+
         "add-bit": true,
         "add-but": true,
+
         "auto-load-bit": true,
         "auto-sort-bit": false,
         "auto-hide-bit": false,
+
         "bitrate-audio": true,
         "bitrate-downloadBtn": false,
         "bitrate-playBtn": false,
+
         "download-enable": true,
         "download-fromCache": false,
         "download-saveAs": false,
+
         "faster": false,
         "file-size": false,
         "loader-disable": false,
