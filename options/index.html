@@ -1,336 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Options</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
 
-<head>
-    <meta charset="UTF-8">
-    <title>
-        Настройки GViK
-    </title>
-    <link href='style.css' rel='stylesheet' type='text/css'>
-</head>
-<div id="content">
-
+        <link rel="stylesheet" type="text/css" href="/css/animation.css">
+        <link rel="stylesheet" type="text/css" href="ui.css">
+        <script src="/js/engine/migrate.js"></script>
+        <script src="/js/engine/core.js"></script>
+        <script src="loader.js"></script>
+    </head>
     <body>
-        <header>
+        <div id="container">
             <div class="message">
-                <div id="message-txt" i18n-content="saved_msg"></div>
-            </div>
-        </header>
-        <div class="nav-cont">
-            <div class="nav-top"></div>
-            <menu type="toolbar" class="nav">
-                <li class="active">
-                    <input type="radio" checked name="nav_menu" i18n-content="lastfm">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="sidebar">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="audio">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="video">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="message">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="vkapi">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="common">
-                </li>
-                <li>
-                    <input type="radio" name="nav_menu" i18n-content="other">
-                </li>
-<!--                 <li>
-    <input type="radio" name="nav_menu" data-i18n="Donate">
-</li> -->
-            </menu>
-            <div class="nav-bottom"></div>
-        </div>
-        <div id="opt">
-            <div class="options-wrap tab-content active">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="lastfm-enable">
-                        <label class="stl" for="lastfm-enable" i18n-content="lastfm_enable"></label>
-                        <div class="hidden-el">
-                            <div>
-                                <div class="block">
-                                    <span i18n-content="start_scrobble"></span>
-                                    <select id="lastfm-percent">
-                                        <option value="40">40</option>
-                                        <option value="45">45</option>
-                                        <option value="50">50</option>
-                                        <option value="55">55</option>
-                                        <option value="60">60</option>
-                                        <option value="65">65</option>
-                                        <option value="70">70</option>
-                                        <option value="75">75</option>
-                                        <option value="80">80</option>
-                                        <option value="85">85</option>
-                                        <option value="90">90</option>
-                                    </select>
-                                    <span>%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="message-title">
                 </div>
             </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="sidebar-enable">
-                        <label class="stl" for="sidebar-enable" i18n-content="enable_sidebar"></label>
-                        <div class="hidden-el">
-                            <div class="block">
-                                <input type="checkbox" id="sidebar-animation">
-                                <label class="stl" for="sidebar-animation" i18n-content="sidebar_enable_anim"></label>
-                            </div>
-                            <div class="block">
-                                <input type="radio" id="sidebar-open-newTab" name="sidebar_open">
-                                <label class="stl radio" for="sidebar-open-newTab" i18n-content="sidebar_open_newTab"></label>
-                            </div>
-                            <div class="block">
-                                <input type="radio" id="sidebar-open-ajax" name="sidebar_open">
-                                <label class="stl radio" for="sidebar-open-ajax" i18n-content="sidebar_open_ajax"></label>
-                            </div>
-                            <div class="block">
-                                <input type="radio" id="sidebar-open-cur" name="sidebar_open">
-                                <label class="stl radio" for="sidebar-open-cur" i18n-content="sidebar_open_cur"></label>
-                            </div>
-                            <div class="block">
-                                <input type="checkbox" id="sidebar-friendsfaves-module">
-                                <label class="stl" for="sidebar-friendsfaves-module">Включить модуль друзей и закладок
-                                    <span class="labelx green">Требуется доступ к VK API</span>
-                                </label>
-                                <div class="hidden-el">
-                                    <div class="block">
-                                        <input id="sidebar-faves" type="radio" name="sidebar_list" />
-                                        <label for="sidebar-faves" class="stl radio" i18n-content="sidebar_faves"></label>
-                                    </div>
-                                    <div class="block">
-                                        <input id="sidebar-friends" type="radio" name="sidebar_list" />
-                                        <label for="sidebar-friends" class="stl radio" i18n-content="sidebar_friends"></label>
-                                    </div>
-                                    <div class="block">
-                                        <input type="checkbox" id="sidebar-hide-offline">
-                                        <label class="stl" for="sidebar-hide-offline" i18n-content="sidebar_hide_offline"></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="block">
-                                <input type="checkbox" id="sidebar-lastfm-module">
-                                <label class="stl" for="sidebar-lastfm-module">Включить модуль Last.fm
-                                    <span class="labelx green">Требуется доступ к Last.fm API</span>
-                                </label>
-                                <div class="hidden-el">
-                                    <div class="block">
-                                        <input type="checkbox" id="sidebar-lastfm-searchAndPlay">
-                                        <label class="stl" for="sidebar-lastfm-searchAndPlay">Включить функцию "Найти и воспроизвести"
-                                            <span class="labelx red">Экспериментальная функция</span>
-                                        </label>
-                                        <div class="hidden-el">
+            <div class="loader"></div>
+            <div id="content">
+                <div id="tab">
+                    <div class="tabs">
+                        <ul>
+                            <li><a>Last.fm</a></li>
+                            <li><a>Sidebar</a></li>
+                            <li><a>Common</a></li>
+                            <li><a>Donate</a></li>
+                        </ul>
+                    </div>
+                    <div class="tabs-cont">
+                        <div  id="lastfm-tab" class="lastfm">
+                            <div class="tab-content">
+                                <div class="block">
+                                    <input type="checkbox" id="lastfm-enable">
+                                    <label class="stl" for="lastfm-enable" i18n-content="lastfm_enable"></label>
+                                    <div class="hidden-el">
+                                        <div>
                                             <div class="block">
-                                                <input type="checkbox" id="sidebar-lastfm-maxbit">
-                                                <label class="stl radio" for="sidebar-lastfm-maxbit">Воспроизводить аудиозапись с наибольшим битрейтом.</label>
+                                                <span i18n-content="start_scrobble"></span>
+                                                <select id="lastfm-percent">
+                                                    <option value="40">40</option>
+                                                    <option value="45">45</option>
+                                                    <option value="50">50</option>
+                                                    <option value="55">55</option>
+                                                    <option value="60">60</option>
+                                                    <option value="65">65</option>
+                                                    <option value="70">70</option>
+                                                    <option value="75">75</option>
+                                                    <option value="80">80</option>
+                                                    <option value="85">85</option>
+                                                    <option value="90">90</option>
+                                                </select>
+                                                <span>%</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="audio-download-enable">
-                        <label class="stl" for="audio-download-enable" i18n-content="audio_download_enable"></label>
-                        <div class="hidden-el">
-                            <div class="block">
-                                <input type="checkbox" id="audio-add-but">
-                                <label class="stl" for="audio-add-but" i18n-content="audio_add_but"></label>
-                                <div class="hidden-el">
-                                    <div class="block">
-                                        <input type="checkbox" id="audio-normal-name">
-                                        <label class="stl" for="audio-normal-name" i18n-content="audio_normal_name"></label>
-                                        <div class="hidden-el">
-                                            <div class="block">
-                                                <input type="checkbox" id="audio-download-fromCache">
-                                                <label class="stl" for="audio-download-fromCache" i18n-content="audio_download_fromCache"></label>
-                                            </div>
-                                            <div class="block">
-                                                <input type="checkbox" id="audio-download-saveAs">
-                                                <label class="stl" for="audio-download-saveAs" i18n-content="audio_download_saveAs"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="checkbox" id="audio-add-bit">
-                            <label class="stl" for="audio-add-bit" i18n-content="audio_add_bit"></label>
-                            <div class="hidden-el">
+                        <div id="sidebar-tab">
+                            <div class="tab-content">
                                 <div class="block">
-                                    <input id="audio-bitrate-audio" type="radio" name="audio_bit" />
-                                    <label for="audio-bitrate-audio" class="stl radio" i18n-content="audio_bitrate_audio"></label>
-                                </div>
-                                <div class="block">
-                                    <input id="audio-bitrate-playBtn" type="radio" name="audio_bit" />
-                                    <label for="audio-bitrate-playBtn" class="stl radio" i18n-content="audio_bitrate_playBtn"></label>
-                                </div>
-                                <div class="block">
-                                    <input id="audio-bitrate-downloadBtn" type="radio" name="audio_bit" />
-                                    <label for="audio-bitrate-downloadBtn" class="stl radio" i18n-content="audio_bitrate_downloadBtn"></label>
-                                </div>
-                                <div class="block">
-                                    <input id="audio-loader-disable" type="checkbox" />
-                                    <label for="audio-loader-disable" class="stl" i18n-content="audio_loader_disable"></label>
-                                </div>
-                                <div class="block">
-                                    <input id="audio-out-hide" type="checkbox" />
-                                    <label for="audio-out-hide" class="stl" i18n-content="audio_out_hide"></label>
-                                </div>
-                                <div class="block">
-                                    <input type="checkbox" id="audio-file-size">
-                                    <label class="stl" for="audio-file-size" i18n-content="audio_file_size"></label>
-                                </div>
-                                <div class="block">
-                                    <input type="checkbox" id="audio-auto-load-bit">
-                                    <label class="stl" for="audio-auto-load-bit" i18n-content="audio_auto_load_bit"></label>
+                                    <input type="checkbox" id="sidebar-enable">
+                                    <label class="stl" for="sidebar-enable" i18n-content="enable_sidebar"></label>
                                     <div class="hidden-el">
                                         <div class="block">
-                                            <input type="checkbox" id="audio-auto-hide-bit">
-                                            <label class="stl" for="audio-auto-hide-bit" i18n-content="audio_auto_hide_bit"></label>
-                                            <select id="audio-min-bitrate">
-                                                <option value="128">128</option>
-                                                <option value="192">192</option>
-                                                <option value="256" selected>256</option>
-                                                <option value="320">320</option>
-                                            </select>
-                                            <span>kbps.</span>
+                                            <input type="checkbox" id="sidebar-animation">
+                                            <label class="stl" for="sidebar-animation" i18n-content="sidebar_enable_anim"></label>
                                         </div>
                                         <div class="block">
-                                            <input type="checkbox" id="audio-auto-sort-bit">
-                                            <label class="stl" for="audio-auto-sort-bit" i18n-content="audio_auto_sort_bit"></label>
+                                            <input type="radio" id="sidebar-open-newTab" name="sidebar_open">
+                                            <label class="stl radio" for="sidebar-open-newTab" i18n-content="sidebar_open_newTab"></label>
+                                        </div>
+                                        <div class="block">
+                                            <input type="radio" id="sidebar-open-ajax" name="sidebar_open">
+                                            <label class="stl radio" for="sidebar-open-ajax" i18n-content="sidebar_open_ajax"></label>
+                                        </div>
+                                        <div class="block">
+                                            <input type="radio" id="sidebar-open-cur" name="sidebar_open">
+                                            <label class="stl radio" for="sidebar-open-cur" i18n-content="sidebar_open_cur"></label>
+                                        </div>
+                                        <div class="block">
+                                            <input type="checkbox" id="sidebar-friendsfaves-module">
+                                            <label class="stl" for="sidebar-friendsfaves-module">Включить модуль друзей и закладок
+                                                <span class="labelx green">Требуется доступ к VK API</span>
+                                            </label>
+                                            <div class="hidden-el">
+                                                <div class="block">
+                                                    <input id="sidebar-faves" type="radio" name="sidebar_list" />
+                                                    <label for="sidebar-faves" class="stl radio" i18n-content="sidebar_faves"></label>
+                                                </div>
+                                                <div class="block">
+                                                    <input id="sidebar-friends" type="radio" name="sidebar_list" />
+                                                    <label for="sidebar-friends" class="stl radio" i18n-content="sidebar_friends"></label>
+                                                </div>
+                                                <div class="block">
+                                                    <input type="checkbox" id="sidebar-hide-offline">
+                                                    <label class="stl" for="sidebar-hide-offline" i18n-content="sidebar_hide_offline"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="block">
+                                            <input type="checkbox" id="sidebar-lastfm-module">
+                                            <label class="stl" for="sidebar-lastfm-module">Включить модуль Last.fm
+                                                <span class="labelx green">Требуется доступ к Last.fm API</span>
+                                            </label>
+                                            <div class="hidden-el">
+                                                <div class="block">
+                                                    <input type="checkbox" id="sidebar-lastfm-searchAndPlay">
+                                                    <label class="stl" for="sidebar-lastfm-searchAndPlay">Включить функцию "Найти и воспроизвести"
+                                                        <span class="labelx red">Экспериментальная функция</span>
+                                                    </label>
+                                                    <div class="hidden-el">
+                                                        <div class="block">
+                                                            <input type="checkbox" id="sidebar-lastfm-maxbit">
+                                                            <label class="stl radio" for="sidebar-lastfm-maxbit">Воспроизводить аудиозапись с наибольшим битрейтом.</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="block">
-                            <input type="checkbox" id="audio-faster">
-                            <label class="stl" for="audio-faster" i18n-content="audio_faster"></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="video-download-enable">
-                        <label class="stl" for="video-download-enable" i18n-content="video_download_enable"></label>
-                        <div class="hidden-el">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="im-mark-read">
-                        <label class="stl" for="im-mark-read" i18n-content="im_mark_read"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="im-send-notify">
-                        <label class="stl" for="im-send-notify" i18n-content="im_send_notify"></label>
-                    </div>
-                </div>
-            </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="vkapi-offline">
-                        <label class="stl" for="vkapi-offline" i18n-content="vkapi_offline"></label>
-                    </div>
-                </div>
-            </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="checkbox" id="groups-fast-exit">
-                        <label class="stl" for="groups-fast-exit" i18n-content="group_exit"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="common-remove-white-heart">
-                        <label class="stl" for="common-remove-white-heart" i18n-content="remove_white_heart"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="common-remove-ads">
-                        <label class="stl" for="common-remove-ads" i18n-content="remove_ads"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="common-mark-red-type-vote">
-                        <label class="stl" for="common-mark-red-type-vote" i18n-content="mark_red_vote"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="common-remove-status">
-                        <label class="stl" for="common-remove-status" i18n-content="common_remove_status"></label>
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="common-state-onlineChange">
-                        <label class="stl" for="common-state-onlineChange" i18n-content="common_state_onlineChange"></label>
-                        <div class="hidden-el">
-                            <div class="block">
-                                <input type="radio" name="state_changer" id="common-set-offline">
-                                <label class="stl" for="common-set-offline" i18n-content="common_set_offline"></label>
+                        <div id="common-tab">
+                            <div class="tab-content">
+                                <h2>Общее</h2>
+                                <div class="block">
+                                    <input type="checkbox" id="groups-fast-exit">
+                                    <label class="stl" for="groups-fast-exit" i18n-content="group_exit"></label>
+                                </div>
+                                <div class="block">
+                                    <input type="checkbox" id="common-remove-white-heart">
+                                    <label class="stl" for="common-remove-white-heart" i18n-content="remove_white_heart"></label>
+                                </div>
+                                <div class="block">
+                                    <input type="checkbox" id="common-remove-ads">
+                                    <label class="stl" for="common-remove-ads" i18n-content="remove_ads"></label>
+                                </div>
+                                <div class="block">
+                                    <input type="checkbox" id="common-mark-red-type-vote">
+                                    <label class="stl" for="common-mark-red-type-vote" i18n-content="mark_red_vote"></label>
+                                </div>
+                                <div class="block">
+                                    <input type="checkbox" id="common-remove-status">
+                                    <label class="stl" for="common-remove-status" i18n-content="common_remove_status"></label>
+                                </div>
+                                <div class="block">
+                                    <input type="checkbox" id="common-state-onlineChange">
+                                    <label class="stl" for="common-state-onlineChange" i18n-content="common_state_onlineChange"></label>
+                                    <div class="hidden-el">
+                                        <div class="block">
+                                            <input type="radio" name="state_changer" id="common-set-offline">
+                                            <label class="stl" for="common-set-offline" i18n-content="common_set_offline"></label>
+                                        </div>
+                                        <div class="block">
+                                            <input type="radio" name="state_changer" id="common-set-online">
+                                            <label class="stl" for="common-set-online" i18n-content="common_set_online"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h2>Аудиозаписи</h2>
+                                <div class="block">
+                                    <input type="checkbox" id="audio-download-enable">
+                                    <label class="stl" for="audio-download-enable" i18n-content="audio_download_enable"></label>
+                                    <div class="hidden-el">
+                                        <div class="block">
+                                            <input type="checkbox" id="audio-add-but">
+                                            <label class="stl" for="audio-add-but" i18n-content="audio_add_but"></label>
+                                            <div class="hidden-el">
+                                                <div class="block grey">
+                                                    <span>Название скаченной аудиозаписи:</span>
+                                                    <input type="text" placeholder="Формат имени файла" id="audio-format-filename">
+                                                    <div>
+                                                        <ul>
+                                                            <li><span>%a</span><span class="defis">—</span>Имя исполнителя</li>
+                                                            <li><span>%t</span><span class="defis">—</span>Название трека</li>
+                                                            <li><span>%d</span><span class="defis">—</span>Длительность</li>
+                                                            <li><span>%i</span><span class="defis">—</span>ID трека</li>
+                                                            <li><span>%e</span><span class="defis">—</span>Расширение файла</li>
+                                                            <li><span>%n</span><span class="defis">—</span>Позиция трека в аудиозаписях</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                    <div class="block">
+                                                        <input type="checkbox" id="audio-download-fromCache">
+                                                        <label class="stl" for="audio-download-fromCache" i18n-content="audio_download_fromCache"></label>
+                                                    </div>
+                                                    <div class="block">
+                                                        <input type="checkbox" id="audio-download-saveAs">
+                                                        <label class="stl" for="audio-download-saveAs" i18n-content="audio_download_saveAs"></label>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                        <input type="checkbox" id="audio-add-bit">
+                                        <label class="stl" for="audio-add-bit" i18n-content="audio_add_bit"></label>
+                                        <div class="hidden-el">
+                                            <div class="block">
+                                                <input id="audio-bitrate-audio" type="radio" name="audio_bit" />
+                                                <label for="audio-bitrate-audio" class="stl radio" i18n-content="audio_bitrate_audio"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input id="audio-bitrate-playBtn" type="radio" name="audio_bit" />
+                                                <label for="audio-bitrate-playBtn" class="stl radio" i18n-content="audio_bitrate_playBtn"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input id="audio-bitrate-downloadBtn" type="radio" name="audio_bit" />
+                                                <label for="audio-bitrate-downloadBtn" class="stl radio" i18n-content="audio_bitrate_downloadBtn"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input id="audio-loader-disable" type="checkbox" />
+                                                <label for="audio-loader-disable" class="stl" i18n-content="audio_loader_disable"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input id="audio-out-hide" type="checkbox" />
+                                                <label for="audio-out-hide" class="stl" i18n-content="audio_out_hide"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input type="checkbox" id="audio-file-size">
+                                                <label class="stl" for="audio-file-size" i18n-content="audio_file_size"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input type="checkbox" id="audio-auto-load-bit">
+                                                <label class="stl" for="audio-auto-load-bit" i18n-content="audio_auto_load_bit"></label>
+                                                <div class="hidden-el">
+                                                    <div class="block">
+                                                        <input type="checkbox" id="audio-auto-hide-bit">
+                                                        <label class="stl" for="audio-auto-hide-bit" i18n-content="audio_auto_hide_bit"></label>
+                                                        <select id="audio-min-bitrate">
+                                                            <option value="128">128</option>
+                                                            <option value="192">192</option>
+                                                            <option value="256" selected>256</option>
+                                                            <option value="320">320</option>
+                                                        </select>
+                                                        <span>kbps.</span>
+                                                    </div>
+                                                    <div class="block">
+                                                        <input type="checkbox" id="audio-auto-sort-bit">
+                                                        <label class="stl" for="audio-auto-sort-bit" i18n-content="audio_auto_sort_bit"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="block">
+                                        <input type="checkbox" id="audio-faster">
+                                        <label class="stl" for="audio-faster" i18n-content="audio_faster"></label>
+                                    </div>
+                                </div>
+                                <h2>Видеозаписи</h2>
+                                <div class="block">
+                                    <input type="checkbox" id="video-download-enable">
+                                    <label class="stl" for="video-download-enable" i18n-content="video_download_enable"></label>
+                                    <div class="hidden-el">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="block">
-                                <input type="radio" name="state_changer" id="common-set-online">
-                                <label class="stl" for="common-set-online" i18n-content="common_set_online"></label>
+                        </div>
+                        <div id="donate-tab">
+                            <div class="tab-content">
+                                <div>
+                                    <span class="donate-label">Yandex.Money:</span>
+                                    <span class="donate-val">410012023528604</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="options-wrap tab-content">
-                <div class="wrapper">
-                    <div class="block">
-                        <input type="button" id="restore-defaults" i18n-content="default_settings">
-                    </div>
-                    <div class="block">
-                        <input type="checkbox" id="system-enable-qicksett">
-                        <label class="stl" for="system-enable-qicksett" i18n-content="system_enable_qicksett"></label>
-                    </div>
-                </div>
-            </div>
-<!--             <div class="options-wrap tab-content">
-    <div class="wrapper">
-
-    </div>
-</div> -->
         </div>
-        <footer><div>
-                <div class="donate-cont">
-            <span class="donate-label">Yandex.Money:</span>
-            <span class="donate-val">410012023528604</span>
-        </div>
-                <div class="donate-cont">
-            <span class="donate-label">QIWI:</span>
-            <span class="donate-val">gerasimow.ruslan@gmail.com</span>
-        </div>
-        </div>
-        </footer>
-</div>
-<script src="/engine/migrate.js"></script>
-<script src="/engine/core.js"></script>
-<script src="/engine/dom.js"></script>
-<script src="/engine/events.js"></script>
-<script src="/engine/storage.js"></script>
-<script src="main.js"></script>
-</body>
-
+    </body>
 </html>

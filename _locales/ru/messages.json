@@ -96,7 +96,7 @@
         "message": "Last.Fm"
     },
     "lastfm_enable": {
-        "message": "Включить Last.fm <span class=\"labelx green\">Требуется доступ к Last.fm API</span>"
+        "message": "Включить Last.fm"
     },
     "links": {
         "message": "Ссылки"
