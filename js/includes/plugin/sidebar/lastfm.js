@@ -11,7 +11,7 @@ _GViK.Init( {
         'lastfm',
         'sidebar'
     ],
-  function( gvik, require ) {
+  function( appData, require ) {
 
 
     "use strict";
@@ -20,9 +20,12 @@ _GViK.Init( {
 
       core = require( 'core' ),
       dom = require( 'dom' ),
+      cache = require( 'cache' ),
       event = require( 'event' ),
       lastfmAPI = require( 'lastfmAPI' ),
       launcher = require( 'launcher' ),
+      config = require( 'config' ),
+      global = require( 'global' ),
       options = require( 'options' ),
       sidebar = require( 'sidebar' ),
 
@@ -30,6 +33,7 @@ _GViK.Init( {
       nameArtist,
       nameTrack,
       nameAlbum,
+      trackId,
       lastNameTrack = '',
       lastNameArtist = '',
       lastNameAlbum = '',
@@ -42,20 +46,10 @@ _GViK.Init( {
       albumTab,
       audoNameCont = {},
       locked = false,
+      showCurTab,
 
       cnfg = options.get( 'sidebar' );
 
-
-
-    function lfapiCall( method, data, callback, error ) {
-
-      lastfmAPI.call( method, data, function( res, isError ) {
-        lastResult = res;
-        return typeof callback === 'function' && callback.apply( this, arguments )
-      }, function() {
-        return error && error.apply( this, arguments );
-      } );
-    }
 
 
     var label = 'Last.fm',
@@ -180,6 +174,7 @@ _GViK.Init( {
       dom.empty( np );
       dom.empty( tracksCont );
       dom.empty( tagsCont );
+
       labelEl.innerText = '';
       imgEl.src = '';
       lastNameArtist = '';
@@ -189,120 +184,99 @@ _GViK.Init( {
 
     }
 
-    function secToTime( sec ) {
-      var result = [],
 
-        hours = ( '00' + ( ( sec / 3600 % 3600 ) | 0 ) )
-        .slice( -2 ),
-        mins = ( '00' + ( ( ( sec / 60 ) % 60 ) | 0 ) )
-        .slice( -2 ),
-        secs = ( '00' + ( sec % 60 ) )
-        .slice( -2 );
 
-      if ( hours !== '00' ) {
-        result.push( hours );
+    function lfapiCall( method, data, prop ) {
+
+      var cacheId = trackId + method;
+
+      if ( cache.has( cacheId ) ) {
+        lastResult = cache.get( cacheId );
+        return event.trigger( method, cache.get( cacheId ) );
       }
-      result.push( mins );
-      result.push( secs );
 
-      return result.join( ':' );
-    }
-
-    function getArtistInfo( callback, error ) {
-
-      lfapiCall( 'artist.getInfo', {
-        artist: nameArtist,
-        correction: 1
-      }, function( response ) {
-        var responseArtist = response.artist;
-        nameArtist = responseArtist.name;
-        if ( typeof callback === 'function' ) {
-          callback.call( this, responseArtist );
-        }
-
-        event.trigger( 'SIDEBAR_LASTFM_artistinfoload', responseArtist );
-
-      }, error );
-    }
-
-    function getTrackInfo( callback, error ) {
-      lfapiCall( 'track.getInfo', {
-        artist: nameArtist,
-        track: nameTrack,
-        correction: 1
-      }, function( response ) {
-        var responseTrack = response.track;
-
-        nameTrack = responseTrack.name;
-
-        if ( responseTrack.album ) {
-          nameAlbum = responseTrack.album.title;
-        }
-
-        if ( typeof callback === 'function' ) {
-          callback.call( this, responseTrack );
-        }
-
-        event.trigger( 'SIDEBAR_LASTFM_trackinfoload', responseTrack );
-      } );
-    }
+      resetAlbum();
+      resetArtist();
 
 
-    function getAlbumInfo( callback, error ) {
-      lfapiCall( 'album.getInfo', {
-        artist: nameArtist,
-        album: nameAlbum
-      }, function( response ) {
+      lastfmAPI.call( method, data, function( res, isError ) {
+        lastResult = res;
 
-        if ( typeof callback === 'function' ) {
-          callback.call( this, response.album );
-        }
+        tabCont.classList.add( 'loaded' );
 
-        event.trigger( 'SIDEBAR_LASTFM_albumload', response.album );
-      }, resetAlbum );
-    }
+        if ( isError )
+          return event.trigger( method + '.error' );
 
-    function getTracks( callback, error ) {
-      lfapiCall( 'artist.getTopTracks', {
-        artist: nameArtist,
-        correction: 1,
-        limit: 150
-      }, function( response ) {
-        if ( typeof callback === 'function' ) {
-          callback.call( this, response.toptracks );
-        }
-        event.trigger( 'SIDEBAR_LASTFM_toptracksload', response.toptracks );
+        cache.set( cacheId, res[ prop ] );
+
+        event.trigger( method, res[ prop ] );
+
+
+
       }, function() {
-        dom.empty( tracksCont );
+        event.trigger( method + '.error' );
+
+        tabCont.classList.add( 'loaded' );
+
+
+        resetAlbum();
+        resetArtist();
+
       } );
     }
-
 
     function render( tmpl, arr, fn ) {
-      var html = '',
+      var html = [],
         i = 0,
         l = arr.length;
 
-      for ( ; i < l; i++ ) html += core.tmpl( tmpl, fn( arr[ i ] ) );
+      for ( ; i < l; i++ )
+        html[ i ] = core.tmpl( tmpl, fn( arr[ i ] ) );
 
-      return html;
+
+      return html.join( '' );
     }
 
 
     event
-      .bind( 'SIDEBAR_LASTFM_newartist', getArtistInfo )
-      .bind( 'SIDEBAR_LASTFM_newartist', getTracks )
-      .bind( 'SIDEBAR_LASTFM_load', getTrackInfo )
+      .bind( '_newdata', function() {
 
-    .bind( 'SIDEBAR_LASTFM_trackinfoload', function( track ) {
-      if ( track.album ) {
-        getAlbumInfo();
-      } else {
-        resetAlbum();
-      }
+        lfapiCall( 'artist.getInfo', {
+          artist: nameArtist,
+          correction: 1
+        }, "artist" );
+
+        lfapiCall( 'artist.getTopTracks', {
+          artist: nameArtist,
+          correction: 1,
+          limit: config.get( 'SIDEBAR_LASTFM_TOP_TRACKS_LIMIT' )
+        }, "toptracks" );
+
+        lfapiCall( 'track.getInfo', {
+          artist: nameArtist,
+          track: nameTrack,
+          correction: 1
+        }, "track" );
+      } )
+
+    .bind( 'track.getInfo', function( track ) {
+
+      if ( !track.album )
+        return resetAlbum();
+
+      nameAlbum = track.album.title;
+
+      lfapiCall( 'album.getInfo', {
+        artist: nameArtist,
+        album: nameAlbum
+      }, "album" );
+
     } )
 
-    .bind( 'SIDEBAR_LASTFM_artistinfoload', function( artist ) {
+    .bind( 'artist.getInfo', function( artist ) {
+
+
+      nameArtist = artist.name;
 
       labelEl.innerText = artist.name;
 
@@ -327,19 +301,20 @@ _GViK.Init( {
 
     } )
 
-    .bind( 'SIDEBAR_LASTFM_toptracksload', function( responseTracks ) {
+    .bind( 'artist.getTopTracks', function( responseTracks ) {
+
       tracksCont.innerHTML = render( TMPL.item, responseTracks.track || [], function( curTrack ) {
         return {
           url: curTrack.url,
           name: curTrack.name,
-          dur: secToTime( curTrack.duration ),
+          dur: global.VARS.FOMAT_TIME( curTrack.duration ),
           duration: curTrack.duration,
-          img: ( curTrack.image ? curTrack.image[ 1 ][ '#text' ] : ( gvik.APP_PATH + 'img/album.png' ) /*responseArtist.image[ 1 ][ '#text' ]*/ )
+          img: ( curTrack.image ? curTrack.image[ 1 ][ '#text' ] : ( appData.APP_PATH + 'img/album.png' ) /*responseArtist.image[ 1 ][ '#text' ]*/ )
         };
       } );
     } )
 
-    .bind( 'SIDEBAR_LASTFM_albumload', function( album ) {
+    .bind( 'album.getInfo', function( album ) {
 
       if ( !album.name ) {
         return resetAlbum();
@@ -348,8 +323,7 @@ _GViK.Init( {
       var albName = [ album.name ];
 
       if ( album.releasedate ) {
-        var res = album.releasedate.trim()
-          .match( /\d{4}/ );
+        var res = album.releasedate.trim().match( /\d{4}/ );
         if ( res ) {
           albName.push( res[ 0 ] );
         }
@@ -370,7 +344,7 @@ _GViK.Init( {
           url: curTrack.url,
           name: curTrack.name,
           duration: curTrack.duration,
-          dur: secToTime( curTrack.duration ),
+          dur: global.VARS.FOMAT_TIME( curTrack.duration ),
           img: album.image[ 1 ][ '#text' ]
         };
       } );
@@ -386,40 +360,26 @@ _GViK.Init( {
 
       nameArtist = data.artist;
       nameTrack = data.title;
+      trackId = data.trackId;
 
-
-      var cart = data.artist.toLowerCase()
-        .split( /\s+/g )
-        .join( '' ),
-        ctit = data.title.toLowerCase()
-        .split( /\s+/g )
-        .join( '' );
-
-      if ( cart !== lastNameArtist ) {
-        resetAlbum();
-        resetArtist();
-        event.trigger( 'SIDEBAR_LASTFM_newartist', data );
+      if ( !sidebar.shown ) {
+        sidebar.show();
       }
+      showCurTab();
 
-      if ( ctit !== lastNameTrack ) {
-        event.trigger( 'SIDEBAR_LASTFM_newtrack', data );
 
-      }
 
-      lastNameArtist = cart;
-      lastNameTrack = ctit;
-
-      event.trigger( 'SIDEBAR_LASTFM_load', data );
-
+      event.trigger( '_newdata', data );
     } );
 
-    sidebar.addPage( function( _switcher, _tabCont, _wrap, countPage ) {
+    sidebar.addPage( function( _switcher, _tabCont, _wrap, countPage, _showCurTab ) {
 
       // _switcher.classList.add('icon-lastfm');
       _tabCont.classList.add( 'loaded' );
 
       wrap = _wrap;
       tabCont = _tabCont;
+      showCurTab = _showCurTab;
 
       _tabCont.id = 'gvik-lastfm';
 

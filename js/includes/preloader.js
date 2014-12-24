@@ -42,16 +42,21 @@
     _modules = {},
 
     require = function( moduleName ) {
-      return _modules[ moduleName ];
+      moduleName = moduleName.toLowerCase();
+
+      return _modules[ moduleName.toLowerCase() ];
     },
 
     add = function( moduleName, moduleVal ) {
+
+      moduleName = moduleName.toLowerCase();
+
       if ( !_modules[ moduleName ] )
         _modules[ moduleName ] = moduleVal;
     };
 
 
-    var _export={};
+  var _export = {};
 
   function Init( fOpt, fMods, initfunc ) {
 
@@ -63,16 +68,19 @@
 
     if ( typeof fMods === 'function' ) {
       initfunc = fMods;
-      fMods = [];
+      if ( Array.isArray( fOpt ) ) {
+        fMods = fOpt;
+        fOpt = {};
+      } else {
+        fMods = [];
+      }
     }
 
     if ( typeof initfunc === 'function' ) {
 
       if ( !fMods.every( function( curModuleName ) {
           return _modules.hasOwnProperty( curModuleName );
-        } ) ) {
-        return;
-      }
+        } ) ) return;
 
       if ( require( 'options' ) !== undefined ) {
 
@@ -90,7 +98,7 @@
         }
       }
 
-      initfunc.call( APP_DATA, APP_DATA, require  );
+      initfunc.call( APP_DATA, APP_DATA, require );
     }
   }
 
@@ -134,4 +142,4 @@
 
 
 
-}() );
+} ).call( window, window );

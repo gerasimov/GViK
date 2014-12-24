@@ -180,6 +180,7 @@ _GViK.Init( {
     },
 
     setData: function( track ) {
+
       this.artist = dom.unes( this.info()[ 5 ] );
       this.title = dom.unes( this.info()[ 6 ] );
       this.startScrobble = ~~( ( audioPlayer.duration / 100 ) * this.PERCENT );
@@ -189,6 +190,7 @@ _GViK.Init( {
       event.trigger( 'newtrack', {
         artist: this.artist,
         title: this.title,
+        url: this.info()[ 2 ],
         duration: audioPlayer.duration,
         trackId: this.trackId
       } );

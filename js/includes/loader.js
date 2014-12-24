@@ -11,9 +11,7 @@ _GViK.Init( function( appData, require, d ) {
   var core = require( 'core' ),
     event = require( 'event' ),
     options = require( 'options' ),
-
     config = require( 'config' ),
-
     chrome = require( 'chrome' ),
     dom = require( 'dom' );
 
@@ -25,17 +23,9 @@ _GViK.Init( function( appData, require, d ) {
   var rNamespacePlugin = /js\/includes\/plugin\/([^\/]+)\/.+\.js$/,
     rPlugin = /\/([^\/]+)\.js$/;
 
-
-
   event.bind( 'init', function() {
 
-    if ( options.get( 'system', 'enable-qicksett' ) ) {
-      event.bind( "changeURL", function() {
-        chrome.sendRequest( "showPageAction", {} );
-      }, true );
-    }
 
-    chrome.ga( 'send', 'event', 'vk', 'init' );
     chrome.local.get( {
       key: 'options'
     }, function( res ) {
@@ -51,39 +41,27 @@ _GViK.Init( function( appData, require, d ) {
         return true;
       } ), {
         suffix: appData.VERSION,
-        path: appData.APP_PATH
-      }, function() {
-        console.log(d);
+        path: appData.APP_PATH,
       } );
     } );
   } );
 
 
-  var _domReady = false;
-
-
   function checkID() {
-
     chrome.pushID();
-
-
     if ( appData.getID() === 0 ) {
       setTimeout( checkID, config.get( "LOADER_TIMEOUT" ) );
     } else event.trigger( 'init' );
   }
 
-  function _checkDomLoad() {
-    if ( _domReady )
-      return;
-    _domReady = true;
-    checkID();
+  if ( options.get( 'system', 'enable-qicksett' ) ) {
+    event.bind( "changeURL", function() {
+      chrome.sendRequest( "showPageAction", {} );
+    }, true );
   }
 
-  if ( document.body )
-    _checkDomLoad();
-  else {
-    dom.setEvent( document, 'DOMContentLoaded', _checkDomLoad );
-    dom.setEvent( window, 'load', _checkDomLoad );
-  }
+  chrome.ga( 'send', 'event', 'vk', 'init' );
+
+  event.bind( 'load', checkID );
 
 } );

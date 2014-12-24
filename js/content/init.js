@@ -20,16 +20,11 @@ _GViK.Init( function( gvik, require ) {
 
   function __init( manifest ) {
 
-    if ( !( document.getElementsByTagName( 'head' )
-        .item( 0 ) ) )
-      return setTimeout( __init, 15, manifest );
-
-
 
     var includesJSList = [],
       engineJSList = [];
 
-    manifest.web_accessible_resources.forEach( function( fileName ) {
+    core.each( manifest.web_accessible_resources, function( fileName ) {
 
       if ( !rIsJs.test( fileName ) )
         return;

@@ -5,9 +5,7 @@
         "scripts": [
 
             "js/engine/migrate.js",
-
             "js/engine/core.js",
-
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
@@ -81,6 +79,7 @@
 
         "js/lib/md5.js",
 
+        "js/includes/utils.js",
         "js/includes/vkinit.js",
 
 

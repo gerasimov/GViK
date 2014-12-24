@@ -115,7 +115,7 @@ _GViK.Init( function( gvik, require ) {
 
     var nTabCont = dom.create( 'div', {
         prop: {
-          'className': [ 'tabCont', ( countPage >= 2 ? 'gvik-none' : '' ) ].join( ' ' )
+          'className': [ 'tabCont', ( countPage > 2 ? 'gvik-none' : '' ) ].join( ' ' )
         }
       } ),
 
@@ -130,7 +130,9 @@ _GViK.Init( function( gvik, require ) {
 
         events: {
           mousedown: function() {
+
             lastTabC.classList.add( 'gvik-none' );
+
             nTabCont.classList.remove( 'gvik-none' );
             lastTabC = nTabCont;
           }
@@ -141,8 +143,10 @@ _GViK.Init( function( gvik, require ) {
 
     offset += heightTab;
 
-    if ( countPage === 2 ) {
+    if ( !lastTabC )
       lastTabC = nTabCont;
+
+    if ( countPage === 2 ) {
       nSwitcher.classList.add( "gvik-none" );
     } else {
       core.each( tabs, function( el ) {
@@ -150,7 +154,11 @@ _GViK.Init( function( gvik, require ) {
       } );
     }
 
-    callback( nSwitcher, nTabCont, wrap, countPage );
+    callback( nSwitcher, nTabCont, wrap, countPage, function() {
+      lastTabC.classList.add( 'gvik-none' );
+      nTabCont.classList.remove( 'gvik-none' );
+      lastTabC = nTabCont;
+    } );
 
     wrap.style.minHeight = nTabCont.minHeight = offset + 'px';
 
@@ -168,6 +176,25 @@ _GViK.Init( function( gvik, require ) {
       countPage: countPage
     };
   };
+
+  dom.setDelegate( sidebarEl, '.gvikLink', 'click', function() {
+
+    var hrf = this.getAttribute( 'data-href' );
+
+    if ( cnfg.get( 'open-ajax' ) ) {
+      return window.nav && window.nav.go( hrf )
+    }
+
+    if ( cnfg.get( 'open-newTab' ) ) {
+      return chrome.openTab( hrf, {}, {
+        orUpd: true
+      } )
+    }
+
+    if ( cnfg.get( 'open-cur' ) ) {
+      location.href = hrf;
+    }
+  } );
 
   dom.setEvent( switcher, 'click', sidebar.toggle.bind( sidebar ) );
 

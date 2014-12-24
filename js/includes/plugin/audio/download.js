@@ -26,18 +26,35 @@ _GViK.Init( {
 		FROM_CACHE = CONFS.get( 'download-fromCache' ),
 		SAVE_AS = CONFS.get( 'download-saveAs' ),
 
+		rExtTest = /\.(?:\%e|mp3)/,
+
 		fileNamePattern = CONFS.get( 'format-filename' ),
 		methodNameDownload = FROM_CACHE ? 'downloadFromCache' : 'download';
 
 
 	function __formatFileName( data ) {
-		return core.tmpl2( fileNamePattern, {
+
+		fileNamePattern = fileNamePattern.trim();
+
+		var ext = '.' + data.ext;
+
+
+		if(!rExtTest.test(fileNamePattern))
+			fileNamePattern += ext;
+
+		var fName = core.tmpl2( fileNamePattern, {
 			a: data.artist,
 			t: data.title,
 			e: data.ext,
 			d: data.dur,
 			i: data.id
 		} );
+
+		if(fName.length === ext.length)
+			fName = "Name" + fName;
+
+
+		return fName;
 	}
 
 

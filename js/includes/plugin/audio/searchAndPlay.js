@@ -14,6 +14,7 @@ _GViK.Init( function( gvik, require ) {
 
     core = require( 'core' ),
     dom = require( 'dom' ),
+    global = require( 'global' ),
     search = require( 'search' ),
 
     TMPL = {
@@ -37,25 +38,6 @@ _GViK.Init( function( gvik, require ) {
     };
 
 
-  function secToTime( sec ) {
-    var result = [],
-
-      hours = ( '00' + ( ( sec / 3600 % 3600 ) | 0 ) )
-      .slice( -2 ),
-      mins = ( '00' + ( ( ( sec / 60 ) % 60 ) | 0 ) )
-      .slice( -2 ),
-      secs = ( '00' + ( sec % 60 ) )
-      .slice( -2 );
-
-    if ( hours !== '00' ) {
-      result.push( hours );
-    }
-    result.push( mins );
-    result.push( secs );
-
-    return result.join( ':' );
-  }
-
   function drawAudio( audio, callback ) {
 
     var _drawAudio = function( audio ) {
@@ -75,7 +57,7 @@ _GViK.Init( function( gvik, require ) {
                 audio.id,
                 audio.url,
                 audio.duration,
-                secToTime( audio.duration ),
+                global.VARS.FOMAT_TIME( audio.duration ),
                 audio.artist,
                 audio.title,
                 0,

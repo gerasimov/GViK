@@ -125,24 +125,7 @@ _GViK.Init( {
         tabCont.classList.add( 'hidden-offline' );
       }
 
-      dom.setDelegate( tabCont, '.gvikLink', 'click', function() {
 
-        var hrf = this.getAttribute( 'data-href' );
-
-        if ( cnfg.get( 'open-ajax' ) ) {
-          return window.nav && window.nav.go( hrf )
-        }
-
-        if ( cnfg.get( 'open-newTab' ) ) {
-          return chrome.openTab( hrf, {}, {
-            orUpd: true
-          } )
-        }
-
-        if ( cnfg.get( 'open-cur' ) ) {
-          location.href = hrf;
-        }
-      } );
     } );
 
 

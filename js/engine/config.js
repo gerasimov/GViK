@@ -26,6 +26,9 @@ _GViK.Init( function() {
     CHROME_FORCE_CS_RUN:  true,
 
 
+    SIDEBAR_LASTFM_TOP_TRACKS_LIMIT: 150,
+
+
 
     LOADER_TIMEOUT: 1000
 

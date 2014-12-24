@@ -23,18 +23,21 @@ if ( typeof _GViK === 'undefined' )( function( win ) {
           .forEach( function( _ ) {
             if ( typeof _ === 'function' )
               _.call( win, win, function( module ) {
-                return win[ superUniqKey ][ module ];
+                return win[ superUniqKey ][ module.toLowerCase() ];
               } );
           } );
       },
 
-      _Get: function() {
+      Get: function() {
         return win[ superUniqKey ];
       },
 
       Add: function( key, fn ) {
 
         var _add = function( name, fn ) {
+
+          name = name.toLowerCase();
+
           win[ superUniqKey ][ name ] = ( typeof fn === 'function' ) ?
             fn.call( win, win ) :
             fn;

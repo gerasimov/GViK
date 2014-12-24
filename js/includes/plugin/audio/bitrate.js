@@ -93,6 +93,9 @@ _GViK.Init( {
       return CLASS_BITRATE;
     }
 
+
+    global.VARS.GET_BITRATE = __getBitrate;
+
     var tId;
 
 

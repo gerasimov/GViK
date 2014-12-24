@@ -157,31 +157,32 @@ _GViK.Init( function( gvik ) {
 
     var fileName,
       script,
-      require = function() {
+      elem = document.head || document.documentElement;
+    ( function require() {
 
-        if ( !( fileName = _scripts.shift() ) ) {
-          return callback && callback();
-        }
+      if ( script && script.parentNode )
+        script.parentNode.removeChild( script );
 
-        script = document.createElement( 'script' );
-        script.charset = 'utf-8';
-        script.src = ( ( data.path ) ? data.path : '' ) + fileName + ( ( data.suffix ) ? '?' + data.suffix : '' );
+      if ( !( fileName = _scripts.shift() ) ) {
+        return callback && callback();
+      }
+
+      script = document.createElement( 'script' );
+      script.charset = 'utf-8';
+      script.src = ( ( data.path ) ? data.path : '' ) + fileName + ( ( data.suffix ) ? '?' + data.suffix : '' );
+
+      if ( data.async !== false ) {
         script.async = true;
 
-        script.addEventListener( 'load', function() {
-          require();
-          this.parentNode.removeChild( this );
-        }, false );
+        script.addEventListener( 'load', require, false );
+        script.addEventListener( 'error', require, false );
+      } else {
+        require();
+      }
 
-        script.addEventListener( 'error', function() {
-          require();
-          this.parentNode.removeChild( this );
-        }, false );
+      elem.appendChild( script );
 
-        document.head.appendChild( script );
-      };
-
-    require();
+    }() );
   }
 
   function ajax( data, callback, error ) {
