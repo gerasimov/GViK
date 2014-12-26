@@ -5,10 +5,10 @@
  *
  */
 
-_GViK.Init( {}, [
+_GViK( {}, [
         'vkapi'
     ],
-  function( gvik, require ) {
+  function( gvik, require, Add ) {
 
     "use strict";
 
@@ -123,7 +123,7 @@ _GViK.Init( {}, [
         callback( audioMap );
     }
 
-    _GViK.Add( 'search', {
+    Add( 'search', {
       audioSearch: audioSearch
     } )
 

@@ -6,7 +6,7 @@
  */
 
 
-_GViK.Init( function( appData, require, d ) {
+_GViK( function( appData, require, d ) {
 
   var core = require( 'core' ),
     event = require( 'event' ),
@@ -49,9 +49,9 @@ _GViK.Init( function( appData, require, d ) {
 
   function checkID() {
     chrome.pushID();
-    if ( appData.getID() === 0 ) {
+    if ( appData.getID() === 0 )
       setTimeout( checkID, config.get( "LOADER_TIMEOUT" ) );
-    } else event.trigger( 'init' );
+    else event.asyncTrigger( 'init' );
   }
 
   if ( options.get( 'system', 'enable-qicksett' ) ) {

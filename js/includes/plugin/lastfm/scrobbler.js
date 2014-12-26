@@ -5,9 +5,9 @@
  */
 
 
-_GViK.Init( {
+_GViK( {
   'lastfm': 'enable'
-}, function( gvik, require ) {
+}, function( gvik, require, Add ) {
 
   "use strict";
 
@@ -387,6 +387,6 @@ _GViK.Init( {
     }
   };
 
-  _GViK.Add( 'lastfm', new LastFM() );
+  Add( 'lastfm', new LastFM() );
 
 } );

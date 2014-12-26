@@ -6,7 +6,7 @@
 
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 

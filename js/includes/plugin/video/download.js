@@ -6,9 +6,9 @@
 
 
 
-_GViK.Init( {
+_GViK( {
   'video': 'download-enable',
-}, function( appData, require ) {
+}, function( appData, require, Add ) {
 
 
   var options = require( 'options' ),
@@ -50,14 +50,10 @@ _GViK.Init( {
     parseVideoData( varsToObject( vp.getAttribute( 'flashvars' ) ) );
   }
 
-  if ( !window.renderFlash ) {
-    return;
-  }
-  var rf = window.renderFlash;
-  window.renderFlash = function() {
-    parseVideoData( arguments[ 3 ] );
-    return rf.apply( this, arguments );
-  };
+  if ( window.renderFlash )
+    window.renderFlash.bindFuncAfter( function( data ) {
+      parseVideoData( data[ 0 ][ 3 ] );
+    } );
 
 
 } );

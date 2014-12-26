@@ -1,4 +1,4 @@
-_GViK.Init( function( appData, require ) {
+_GViK( function( appData, require, Add ) {
 
   var options = require( 'options' ),
     dom = require( 'dom' ),

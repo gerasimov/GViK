@@ -5,7 +5,7 @@
  */
 
 
-_GViK.Init( function( appData, require, d ) {
+_GViK( function( appData, require, Add ) {
 
   "use strict";
 
@@ -305,7 +305,7 @@ _GViK.Init( function( appData, require, d ) {
   };
 
 
-  _GViK.Add( 'chrome', _chrome );
+  Add( 'chrome', _chrome );
 
 
 

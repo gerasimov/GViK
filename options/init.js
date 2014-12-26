@@ -8,7 +8,7 @@
 
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -49,7 +49,7 @@ _GViK.Init( function( gvik, require ) {
       gvik.__ID = localStorage.curId;
 
       core.define( 'main.js', function() {
-        event.trigger( 'init' );
+        event.asyncTrigger( 'init' );
       } );
     }
   }

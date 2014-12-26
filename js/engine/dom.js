@@ -5,7 +5,7 @@
  */
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -137,6 +137,10 @@ _GViK.Init( function( gvik, require ) {
   function empty( pNode ) {
     var child;
     while ( ( child = pNode.firstChild ) ) {
+      if ( child[ expando ] ) {
+        delete eventsContainer[ child[ expando ] ];
+      }
+
       pNode.removeChild( child );
     }
   }
@@ -367,7 +371,7 @@ _GViK.Init( function( gvik, require ) {
       .querySelectorAll( selector );
   }
 
-  _GViK.Add( 'dom', {
+  Add( 'dom', {
     create: create,
     hasClass: hasClass,
     addClass: addClass,

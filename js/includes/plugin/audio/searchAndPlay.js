@@ -4,7 +4,7 @@
  *
  */
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
 
   "use strict";
@@ -74,7 +74,8 @@ _GViK.Init( function( gvik, require ) {
 
   dom.append( document.body, trackContainer );
 
-  _GViK.Add( 'searchandplay', function( searchData ) {
+  Add( 'searchandplay', function( searchData, callback, opt ) {
+
     search.audioSearch( searchData, function( result ) {
 
       if ( !result ) {
@@ -93,9 +94,11 @@ _GViK.Init( function( gvik, require ) {
 
       trackContainer.innerHTML += audioHTML;
 
+      callback( result );
+
       window.playAudioNew( audio.owner_id + '_' + audio.id );
 
-    }, {} );
+    }, opt );
   }, true );
 
 

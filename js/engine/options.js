@@ -6,7 +6,7 @@
 
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -76,7 +76,8 @@ _GViK.Init( function( gvik, require ) {
         "open-cur": false,
         "open-newTab": true,
         "lastfm-searchAndPlay": true,
-        "lastfm-maxbit": false
+        "lastfm-maxbit": false,
+        "lastfm-groupbyalbum": false,
       },
       "system": {
         "enable-qicksett": true
@@ -147,7 +148,7 @@ _GViK.Init( function( gvik, require ) {
 
 
 
-  _GViK.Add( 'options', new Options() );
+  Add( 'options', new Options() );
 
 
 } );

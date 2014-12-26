@@ -5,7 +5,7 @@
  *
  */
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -127,7 +127,10 @@ _GViK.Init( function( gvik, require ) {
       data.format = 'json';
 
 
-      chrome.simpleAjax( {
+
+      /*chrome.simpleAjax*/
+
+      core.ajax( {
           type: 'POST',
           url: this.ROOT_URL,
           dataType: 'json',
@@ -215,6 +218,6 @@ _GViK.Init( function( gvik, require ) {
   };
 
 
-  _GViK.Add( 'lastfmAPI', new LastFMAPI() );
+  Add( 'lastfmAPI', new LastFMAPI() );
 
 } );

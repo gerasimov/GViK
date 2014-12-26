@@ -9,16 +9,27 @@
  */
 
 
-_GViK.Init( function( gvik ) {
+_GViK( function( gvik, require, Add ) {
 
-  var __cache = {};
+  var __cache = {},
 
-  _GViK.Add( 'cache', {
+    tId = setInterval( function() {
+
+      __cache = null;
+      __cache = {};
+
+    }, 10 * ( 3600 * 1000 ) );
+
+  Add( 'cache', {
     get: function( key ) {
       return __cache[ key ];
     },
     set: function( key, val ) {
       __cache[ key ] = val;
+    },
+    del: function( key ) {
+      __cache[ key ] = null;
+      delete __cache[ key ];
     },
     has: function( key ) {
       return __cache[ key ] !== undefined;

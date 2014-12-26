@@ -5,38 +5,25 @@
  */
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
   var core = require( 'core' ),
 
 
-    storages = {
-      variablesStorage: {
-        _store: {},
-        setItem: function( key, data ) {
-          this._store[ key ] = data;
-        },
-        getItem: function( key ) {
-          return this._store[ key ];
-        },
-        removeItem: function( key ) {
-          delete this._store[ key ];
-        }
-      }
-    },
+    storages = { },
 
     Storage = function( storageName ) {
 
-      if ( !/^local|session|variables$/.test( storageName ) ) {
+      if ( !/^local|session$/.test( storageName ) ) {
         storageName = 'local';
       }
 
       storageName += 'Storage';
 
       this._storage = function() {
-        return window[ storageName ] || storages[ storageName ];
+        return window[ storageName ];
       };
 
       this._setPrefix = function( key ) {
@@ -48,8 +35,7 @@ _GViK.Init( function( gvik, require ) {
 
 
   Storage.prototype.get = function( key, fn ) {
-    var res = this._storage()
-      .getItem( this._setPrefix( key ) );
+    var res = this._storage().getItem( this._setPrefix( key ) );
     return core.isFunction( fn ) ? fn( res ) : res;
   };
 
@@ -62,25 +48,19 @@ _GViK.Init( function( gvik, require ) {
   Storage.prototype.set = function( key, val, fn ) {
     switch ( arguments.length ) {
       case 1:
-        if ( core.isPlainObject( key ) ) {
-          core.each( key, function( _v, _k ) {
-            this.set( _k, _v );
-          }.bind( this ) );
-        }
+        if ( core.isPlainObject( key ) ) core.each( key, function( _v, _k ) {
+          this.set( _k, _v );
+        }.bind( this ) );
         break;
       case 2:
-        if ( core.isPlainObject( key ) )
-          core.each( key, function( _v, _k ) {
-            this.set( _k, _v, val );
-          }.bind( this ) );
+        if ( core.isPlainObject( key ) ) core.each( key, function( _v, _k ) {
+          this.set( _k, _v, val );
+        }.bind( this ) );
         else
-          this._storage()
-          .setItem( this._setPrefix( key ), val );
+          this._storage().setItem( this._setPrefix( key ), val );
         break;
       case 3:
-        if ( core.isFunction( fn ) ) {
-          this.set( key, fn( val ) );
-        }
+        if ( core.isFunction( fn ) ) this.set( key, fn( val ) );
         break;
       default:
         break;
@@ -103,10 +83,9 @@ _GViK.Init( function( gvik, require ) {
 
 
 
-  _GViK.Add( 'storage', {
+  Add( 'storage', {
     session: new Storage( 'session' ),
-    local: new Storage( 'local' ),
-    variables: new Storage( 'variables' )
+    local: new Storage( 'local' )
   } );
 
 } );

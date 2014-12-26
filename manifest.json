@@ -69,8 +69,9 @@
         "js/engine/cache.js",
 
         "js/engine/core.js",
-        "js/engine/dom.js",
         "js/engine/event.js",
+        "js/engine/sql.js",
+        "js/engine/dom.js",
         "js/engine/storage.js",
         "js/engine/options.js",
 

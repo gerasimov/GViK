@@ -6,9 +6,9 @@
 
 
 
-_GViK.Init( {
+_GViK( {
   'groups': 'fast-exit'
-}, function( gvik, require ) {
+}, function( gvik, require, Add ) {
 
   'use strict';
 

@@ -3,8 +3,7 @@
  * @email gerasimow.ruslan@gmail.com
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
-;
-( function() {
+_GViK( function() {
 
   "use strict";
 

@@ -5,7 +5,7 @@
  *
  */
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use script";
 
@@ -23,6 +23,9 @@ _GViK.Init( function( gvik, require ) {
   function __run( name, data ) {
     var fnlist = _data[ name ].events,
       l = fnlist.length;
+
+    if ( !l )
+      return;
 
     if ( l === 1 )
       return fnlist[ 0 ]( data );
@@ -126,6 +129,15 @@ _GViK.Init( function( gvik, require ) {
     return this;
   };
 
+  Event.prototype.asyncTrigger = function( name, data ) {
+    if ( this.hasEvent( name ) ) {
+      setTimeout( function() {
+        __run( name, data );
+      }, 15 );
+    }
+    return this;
+  };
+
 
   Event.prototype.getEvent = function() {
     return _data;
@@ -155,7 +167,7 @@ _GViK.Init( function( gvik, require ) {
 
 
 
-  _GViK.Add( 'event', _event );
+  Add( 'event', _event );
 
 
 } );

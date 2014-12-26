@@ -7,7 +7,7 @@
  */
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
 	var core = require( 'core' ),
 		_chrome = require( 'chrome' ),

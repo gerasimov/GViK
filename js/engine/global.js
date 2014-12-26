@@ -5,11 +5,11 @@
  */
 
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
-  _GViK.Add( 'global', {
+  Add( 'global', {
     VARS: {}
   } );
 

@@ -9,7 +9,7 @@
  */
 
 
-_GViK.Init( function() {
+_GViK( function( gvik, require, Add ) {
 
 
   var configs = {
@@ -23,8 +23,13 @@ _GViK.Init( function() {
     CHROME_DISCONNECT: 'gvik-disconnect',
     CHROME_CS_RESPONSE_NAME: 'gvik-result',
 
-    CHROME_FORCE_CS_RUN:  true,
+    CHROME_FORCE_CS_RUN: true,
 
+
+    SQL_DATABASE_VERSION: "1.0",
+    SQL_DATABASE_SHORTNAME: "GViK",
+    SQL_DATABASE_NAME: "GViK",
+    SQL_DATABASE_SIZE: ( 1024 * 1024 ) * 5,
 
     SIDEBAR_LASTFM_TOP_TRACKS_LIMIT: 150,
 
@@ -36,7 +41,7 @@ _GViK.Init( function() {
 
 
 
-  _GViK.Add( 'config', {
+  Add( 'config', {
     get: function( key ) {
       return configs[ key ];
     },

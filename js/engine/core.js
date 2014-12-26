@@ -5,7 +5,7 @@
  */
 
 
-_GViK.Init( function( gvik ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -250,7 +250,7 @@ _GViK.Init( function( gvik ) {
 
 
 
-  _GViK.Add( 'core', {
+  Add( 'core', {
     extend: extend,
     each: each,
     filter: filter,

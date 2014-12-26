@@ -7,13 +7,13 @@
 
 
 
-_GViK.Init( {
+_GViK( {
     'audio': [
       'download-enable',
       'add-bit'
     ]
   },
-  function( gvik, require ) {
+  function( gvik, require, Add ) {
 
     "use strict";
 

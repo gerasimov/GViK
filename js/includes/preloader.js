@@ -58,7 +58,38 @@
 
   var _export = {};
 
-  function Init( fOpt, fMods, initfunc ) {
+  function Add( nameMod, fnMod, noCallFnMod ) {
+
+    if ( typeof nameMod === 'string' ) {
+      return add( nameMod, ( typeof fnMod === 'function' && !noCallFnMod ) ? fnMod() : fnMod );
+    }
+
+    if ( Array.isArray( nameMod ) ) {
+      if ( Array.isArray( nameMod[ 0 ] ) ) {
+        nameMod.forEach( function( curArr ) {
+          curArr.push( true );
+          Add.apply( this, curArr );
+        } );
+      } else {
+        nameMod.push( true );
+        Add.apply( this, nameMod );
+      }
+      return;
+    }
+
+    for ( var nameProp in nameMod ) {
+      if ( nameMod.hasOwnProperty( nameProp ) ) {
+        Add( nameProp, nameMod[ nameProp ] );
+      }
+    }
+    return;
+  }
+
+  function Get() {
+    return _modules;
+  }
+
+  function _GViK( fOpt, fMods, initfunc ) {
 
     if ( typeof fOpt === 'function' ) {
       initfunc = fOpt;
@@ -98,47 +129,13 @@
         }
       }
 
-      initfunc.call( APP_DATA, APP_DATA, require );
+      initfunc.call( APP_DATA, APP_DATA, require, Add );
     }
   }
 
-  function Add( nameMod, fnMod, noCallFnMod ) {
+  _GViK.Get = Get;
 
-    if ( typeof nameMod === 'string' ) {
-      return add( nameMod, ( typeof fnMod === 'function' && !noCallFnMod ) ? fnMod() : fnMod );
-    }
-
-    if ( Array.isArray( nameMod ) ) {
-      if ( Array.isArray( nameMod[ 0 ] ) ) {
-        nameMod.forEach( function( curArr ) {
-          curArr.push( true );
-          Add.apply( this, curArr );
-        } );
-      } else {
-        nameMod.push( true );
-        Add.apply( this, nameMod );
-      }
-      return;
-    }
-
-    for ( var nameProp in nameMod ) {
-      if ( nameMod.hasOwnProperty( nameProp ) ) {
-        Add( nameProp, nameMod[ nameProp ] );
-      }
-    }
-    return;
-  }
-
-  function Get() {
-    return _modules;
-  }
-
-
-  window._GViK = {
-    Init: Init,
-    Add: Add,
-    Get: Get
-  };
+  window._GViK = _GViK;
 
 
 

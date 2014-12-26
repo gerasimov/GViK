@@ -4,7 +4,7 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
   "use strict";
 
@@ -37,6 +37,18 @@ _GViK.Init( function( gvik, require ) {
       }
     } ),
 
+
+    additionalSwitcherCont = dom.create( 'div', {
+      prop: {
+        'className': 'gvik-add-switcher-cont'
+      },
+
+      style: {
+        position: 'absolute',
+        top: '60px'
+      }
+    } ),
+
     wrap = dom.create( 'div', {
       prop: {
         id: 'gvik-wrap',
@@ -47,7 +59,8 @@ _GViK.Init( function( gvik, require ) {
   dom.append( document.body,
     dom.append( sidebarEl, [
             wrap,
-            switcher
+            switcher,
+             additionalSwitcherCont
         ] )
   );
 
@@ -102,20 +115,21 @@ _GViK.Init( function( gvik, require ) {
     sidebarEl.classList.toggle( 'large' );
   };
 
-  var countPage = sidebar.countPage = 1,
+  var countPage = sidebar.countPage = 0,
+    heightTab = parseInt( window.getComputedStyle( switcher )[ "height" ] ),
 
-    heightTab = 31,
-
-    offset = heightTab + ( countPage * heightTab ),
     lastTabC;
+
 
   sidebar.addPage = function( callback ) {
 
     countPage += 1;
 
-    var nTabCont = dom.create( 'div', {
+    var offset = ( heightTab * 2 ) + ( countPage * heightTab ),
+
+      nTabCont = dom.create( 'div', {
         prop: {
-          'className': [ 'tabCont', ( countPage > 2 ? 'gvik-none' : '' ) ].join( ' ' )
+          'className': [ 'tabCont', ( countPage > 1 ? 'gvik-none' : '' ) ].join( ' ' )
         }
       } ),
 
@@ -124,15 +138,9 @@ _GViK.Init( function( gvik, require ) {
         prop: {
           className: [ 'gvik-switcher', 'additional', 'gvik-none' ].join( ' ' )
         },
-        style: {
-          top: offset + 'px'
-        },
-
         events: {
           mousedown: function() {
-
             lastTabC.classList.add( 'gvik-none' );
-
             nTabCont.classList.remove( 'gvik-none' );
             lastTabC = nTabCont;
           }
@@ -141,12 +149,11 @@ _GViK.Init( function( gvik, require ) {
 
     tabs.push( nSwitcher );
 
-    offset += heightTab;
 
     if ( !lastTabC )
       lastTabC = nTabCont;
 
-    if ( countPage === 2 ) {
+    if ( countPage === 1 ) {
       nSwitcher.classList.add( "gvik-none" );
     } else {
       core.each( tabs, function( el ) {
@@ -162,7 +169,7 @@ _GViK.Init( function( gvik, require ) {
 
     wrap.style.minHeight = nTabCont.minHeight = offset + 'px';
 
-    sidebarEl.appendChild( nSwitcher );
+    additionalSwitcherCont.appendChild( nSwitcher );
     wrap.appendChild( nTabCont );
 
     core.each( wrap.children, function( el ) {
@@ -199,6 +206,6 @@ _GViK.Init( function( gvik, require ) {
   dom.setEvent( switcher, 'click', sidebar.toggle.bind( sidebar ) );
 
 
-  _GViK.Add( 'sidebar', sidebar );
+  Add( 'sidebar', sidebar );
 
 } );

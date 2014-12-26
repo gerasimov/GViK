@@ -7,7 +7,7 @@
  *
  */
 
-_GViK.Init( function( gvik, require ) {
+_GViK( function( gvik, require, Add ) {
 
 
   "use strict";
@@ -23,7 +23,6 @@ _GViK.Init( function( gvik, require ) {
         'audio-out-hide': '_hide-bit_',
         'common-remove-ads': '_ads_',
         'common-remove-white-heart': '_heart_',
-        'common-mark-red-type-vote': '_mark-red_',
         'common-remove-status': '_hide-status_'
       }, function( v, k ) {
         var keys = k.split( /-/g );
@@ -60,7 +59,7 @@ _GViK.Init( function( gvik, require ) {
         ( elid = el.id ) &&
         ( ev = events[ elid ] )
       ) {
-        event.trigger( ev );
+        event.asyncTrigger( ev );
       }
   } );
 
@@ -121,7 +120,7 @@ _GViK.Init( function( gvik, require ) {
   } );
 
   window.hab.setLoc = window.hab.setLoc.bindFuncAfter( function( _ ) {
-    event.trigger( 'changeURL', _ );
+    event.asyncTrigger( 'changeURL', _ );
   } );
 
 
@@ -132,11 +131,14 @@ _GViK.Init( function( gvik, require ) {
         res = _.res,
         typeBox = arg[ 1 ].act;
 
+      switch ( typeBox ) {
+        case "edit_audio_box":
+          event.trigger( "audioEditBox", _ );
+          break;
+        default:
 
-      if ( typeBox === "edit_audio_box" ) {
-        event.trigger( "audioEditBox", _ );
+          break;
       }
-
 
     } )
     .bind( 'audioEditBox', function( _ ) {

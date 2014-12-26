@@ -6,12 +6,12 @@
 
 
 
-_GViK.Init( {
+_GViK( {
     'sidebar': 'friendsfaves-module'
   }, [
         'sidebar'
     ],
-  function( gvik, require ) {
+  function( gvik, require, Add ) {
 
     "use strict";
 
