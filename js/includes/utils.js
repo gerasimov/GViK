@@ -22,7 +22,7 @@ _GViK( function( gvik, require, Add ) {
 
   global.VARS.PARSE_AUDIO_DATA = function( el, id ) {
 
-    var act = dom.byClass( 'actions', el ).item( 0 ),
+    var act = dom.query( '.actions', el ),
       input, url, dur, data, parsedData;
 
 
@@ -33,7 +33,7 @@ _GViK( function( gvik, require, Add ) {
       url = data.url;
       dur = data.dur;
     } else {
-      input = dom.byTag( 'input', el ).item( 0 );
+      input = dom.query( 'input', el );
       parsedData = input.value.split( ',' );
       url = parsedData[ 0 ];
       dur = parsedData[ 1 ];
@@ -48,7 +48,7 @@ _GViK( function( gvik, require, Add ) {
   };
 
 
-  global.VARS.FOMAT_TIME = function( sec ) {
+  global.VARS.FORMAT_TIME = function( sec ) {
     var result = [],
 
       hours = ( '00' + ( ( sec / 3600 % 3600 ) | 0 ) )

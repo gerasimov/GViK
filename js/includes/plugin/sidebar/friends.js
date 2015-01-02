@@ -36,7 +36,6 @@ _GViK( {
       wrap,
       switcher,
       tabCont,
-      html = '',
       TMPL = {
         item: '<div class="gvikLink item" data-online="<%=online>" data-href="<%=href>" data-uid="<%=uid>">\
                 <div class="item-cont">\
@@ -76,17 +75,15 @@ _GViK( {
         v: '5.21'
       }, function( res ) {
         stateLoad = true;
-        core.each( res.items, function( user, i ) {
-          html += core.tmpl( TMPL.item, {
+        tabCont.innerHTML = res.items.map( function( user, i ) {
+          return core.tmpl( TMPL.item, {
             online: ( user.online ? ( user.online_mobile ? 2 : 1 ) : 0 ),
             href: user.domain,
             uid: ( _uids[ i ] = user.id ),
             photo: user.image_src || user.photo_50,
             name: user.title || user.first_name + ' ' + user.last_name
-          } );
-        }, true );
-
-        tabCont.innerHTML = html;
+          } )
+        } ).join( '' );
         _faveElements = tabCont.children;
       } );
     }

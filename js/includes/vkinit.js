@@ -9,6 +9,9 @@
 
 _GViK( function( gvik, require, Add ) {
 
+  if ( !window.vk )
+    return;
+
 
   "use strict";
 
@@ -17,19 +20,6 @@ _GViK( function( gvik, require, Add ) {
     options = require( 'options' ),
     event = require( 'event' );
 
-  dom.setData( document.body, {
-    'gvik-os': gvik.OS,
-    'gvik-options': core.filter( {
-        'audio-out-hide': '_hide-bit_',
-        'common-remove-ads': '_ads_',
-        'common-remove-white-heart': '_heart_',
-        'common-remove-status': '_hide-status_'
-      }, function( v, k ) {
-        var keys = k.split( /-/g );
-        return !options.get( keys.shift(), keys.join( '-' ) );
-      } )
-      .join( '' )
-  } );
 
 
   // id element => event name
@@ -59,7 +49,7 @@ _GViK( function( gvik, require, Add ) {
         ( elid = el.id ) &&
         ( ev = events[ elid ] )
       ) {
-        event.asyncTrigger( ev );
+        event.trigger( ev );
       }
   } );
 
@@ -101,13 +91,15 @@ _GViK( function( gvik, require, Add ) {
     var curFn = this;
     return function() {
       var res = curFn.apply( this, arguments );
-
-      res = fn.apply( this, [
-                arguments,
-                res
-            ] ) || res;
-
+      res = fn.apply( this, [ arguments, res ] ) || res;
       return res;
+    };
+  };
+
+  Function.prototype.bindFuncBefore = function( fn ) {
+    var curFn = this;
+    return function() {
+      return curFn.apply( this, fn.apply( this, [ arguments ] ) || arguments );
     };
   };
 
@@ -122,6 +114,20 @@ _GViK( function( gvik, require, Add ) {
   window.hab.setLoc = window.hab.setLoc.bindFuncAfter( function( _ ) {
     event.asyncTrigger( 'changeURL', _ );
   } );
+
+
+  window.stManager.add = window.stManager.add.bindFuncBefore( function( arg ) {
+    event.trigger( 'stManager.add', arg );
+
+    if ( arg[ 1 ] ) arg[ 1 ] = arg[ 1 ].bindFuncBefore( function() {
+      core.each( arg[ 0 ], function( fName ) {
+        event.trigger( fName + '.clb' );
+      } );
+    } );
+
+    return arg;
+  } );
+
 
 
   event
@@ -148,8 +154,8 @@ _GViK( function( gvik, require, Add ) {
       console.error( 'disconnected GViK! Please reload VK pages!' );
     } )
     .bind( [
-        'audio',
-        'padOpen'
+      'audio',
+      'padOpen'
     ], function() {
 
       if ( !window.Audio )
@@ -177,18 +183,42 @@ _GViK( function( gvik, require, Add ) {
 
 
   .bind( 'playerOpen', function() {
-      window.audioPlayer.setCurTime = window.audioPlayer.setCurTime.bindFuncAfter( function( arg, res ) {
-
-        event.trigger( 'onPlayAudio', {
-          arg: arg,
-          res: res
-        } );
+    window.audioPlayer.setCurTime = window.audioPlayer.setCurTime.bindFuncAfter( function( arg, res ) {
+      event.trigger( 'onPlayAudio', {
+        arg: arg,
+        res: res
       } );
-    } )
-    .bind( 'onPlayAudio', function() {
-
-
     } );
+
+    window.audioPlayer.operate = window.audioPlayer.operate.bindFuncAfter( function( arg, res ) {
+      event.trigger( 'onOperateAudio', {
+        arg: arg,
+        res: res
+      } );
+    } );
+
+  } )
+
+  .bind( 'onPlayAudio', function() {
+
+
+  } );
+
+  var lasttrackId;
+
+  event.bind( 'onOperateAudio', function( data ) {
+    
+    var arg = data.arg,
+      tId = arg[ 0 ];
+
+      if ( lasttrackId !== tId ) {
+        event.trigger( 'onNewTrack', tId );
+      }
+
+      lasttrackId = tId;
+
+  } );
+
 
 
 } );

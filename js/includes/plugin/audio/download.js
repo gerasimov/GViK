@@ -16,10 +16,9 @@ _GViK( {
 		chrome = require( 'chrome' ),
 		dom = require( 'dom' ),
 		options = require( 'options' ),
-
 		event = require( 'event' ),
-
 		global = require( 'global' ),
+
 
 		CONFS = options.get( 'audio' ),
 

@@ -4,11 +4,12 @@
 
 .gvik-scrobble
 {
-    font-size: 18px;
+
+    font-size: 17px;
+    height: 17px;
 
     float: left;
 
-    height: 18px;
     margin: 1px;
     padding: 0 2px;
 
@@ -17,12 +18,10 @@
 
     color: rgba(127, 150, 172, .5);
 }
-body[data-gvik-os='Win'] .gvik-scrobble
+body[data-gvik-os='Linux'] .gvik-scrobble
 {
-    font-size: 17px;
-
-    height: 17px;
-    padding: 0 2px;
+    font-size: 18px;
+    height: 18px;
 }
 .gvik-scrobble.mp
 {
@@ -66,24 +65,23 @@ body[data-gvik-os='Win'] .gvik-scrobble
 }
 .gvik-like
 {
-    font-size: 16px;
 
     float: left;
 
-    height: 16px;
-    margin: 1px;
     padding: 1px 2px;
 
+    font-size: 15px;
+    height: 15px;
+    margin: 2px 1px;
     cursor: pointer;
 
     color: rgba(127, 150, 172, .56);
 }
-body[data-gvik-os='Win'] .gvik-like
+body[data-gvik-os='Linux'] .gvik-like
 {
-    font-size: 15px;
-
-    height: 15px;
-    margin: 2px 1px;
+    font-size: 16px;
+    height: 16px;
+    margin: 1px;
 }
 .gvik-like.on,
 .gvik-scrobble.on
@@ -534,7 +532,7 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
     min-height: 60px;
 
 
-    background: #f7f7f7 url('chrome-extension://__MSG_@@extension_id__/img/progress.gif') no-repeat 50% 50%;
+  /*   background: #f7f7f7 url('chrome-extension://__MSG_@@extension_id__/img/progress.gif') no-repeat 50% 50%; */
 }
 #gvik-sidebar.anim .tabCont
 {
@@ -550,12 +548,38 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
 
     min-height: 65px;
     z-index: 4;
-    opacity: 0;
-    background-color: #f7f7f7;
+/*     opacity: 0;
+     */    background-color: #f7f7f7;
+}
+
+#gvik-wrap .tabCont > *
+{
+    display: none;
+}
+
+#gvik-wrap .tabCont.loaded > *
+{
+    display: block;
 }
 #gvik-sidebar.anim #gvik-wrap .tabCont.loaded
 {
     -webkit-transition: opacity 400ms ease;
+}
+
+#gvik-sidebar .tabCont:after{
+  position: absolute;
+  z-index: 5;
+  left: calc(50% - 20px);
+  top: calc(50% - 40px);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  -webkit-animation: options-loader .5s linear infinite alternate;
+  content: ' ';
+}
+
+#gvik-sidebar .tabCont.loaded:after{
+      -webkit-animation: 0;
 }
 #gvik-wrap .tabCont.loaded
 {

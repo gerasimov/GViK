@@ -5,7 +5,7 @@
         "scripts": [
 
             "js/engine/migrate.js",
-            "js/engine/core.js",
+            "js/engine/core/core.js",
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
@@ -16,25 +16,30 @@
     "content_scripts": [ {
         "css": [
             "css/font/gvik.css",
+            "css/animation.css",
             "css/common.css"
         ],
         "js": [
             "js/engine/migrate.js",
-            "js/engine/core.js",
+
             "js/engine/config.js",
 
-            "js/engine/dom.js",
+            "js/engine/core/core.js",
+            "js/engine/core/dom.js",
+
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/content.js",
             "js/content/init.js"
         ],
         "matches": [
-            "*://vk.com/*"
+            "*://vk.com/*",
+            "*://last.fm/*",
+            "*://*.last.fm/*"
         ],
         "run_at": "document_start"
     } ],
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://ssl.google-analytics.com;  img-src *; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://events.webmoney.ru https://ssl.google-analytics.com;  img-src *; object-src 'self'",
     "default_locale": "ru",
     "description": "__MSG_extDescription__",
     "icons": {
@@ -54,6 +59,7 @@
         "tabs",
         "downloads",
         "storage",
+        "webNavigation",
         "*://*.vk.com/*",
         "*://*.vk-cdn.net/*",
         "*://*.audioscrobbler.com/*",
@@ -61,20 +67,19 @@
     ],
     "version": "1.0.7.2",
     "web_accessible_resources": [
+
         "js/includes/preloader.js",
         "js/includes/loader.js",
 
-        "js/engine/global.js",
         "js/engine/config.js",
-        "js/engine/cache.js",
 
-        "js/engine/core.js",
-        "js/engine/event.js",
-        "js/engine/sql.js",
-        "js/engine/dom.js",
-        "js/engine/storage.js",
-        "js/engine/options.js",
-
+        "js/engine/core/global.js",
+        "js/engine/core/cache.js",
+        "js/engine/core/core.js",
+        "js/engine/core/event.js",
+        "js/engine/core/sql.js",
+        "js/engine/core/dom.js",
+        "js/engine/core/storage.js",
 
         "js/engine/api/chrome.js",
 
@@ -83,6 +88,8 @@
         "js/includes/utils.js",
         "js/includes/vkinit.js",
 
+        "js/engine/options.js",
+
 
         "js/includes/plugin/lastfm/api.js",
         "js/includes/plugin/lastfm/scrobbler.js",
@@ -90,16 +97,18 @@
         "js/includes/plugin/vkapi/vkapi.js",
         "js/includes/plugin/vkapi/search.js",
 
-        "js/includes/plugin/audio/common.js",
         "js/includes/plugin/audio/download.js",
         "js/includes/plugin/audio/bitrate.js",
+        "js/includes/plugin/audio/common.js",
         "js/includes/plugin/audio/searchAndPlay.js",
 
-        "js/includes/plugin/video/download.js",
-
         "js/includes/plugin/sidebar/sidebar.js",
+
         "js/includes/plugin/sidebar/friends.js",
         "js/includes/plugin/sidebar/lastfm.js",
+        "js/includes/plugin/sidebar/downloadManager.js",
+
+        "js/includes/plugin/video/download.js",
 
         "js/includes/common.js",
 

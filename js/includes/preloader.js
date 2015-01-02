@@ -89,7 +89,9 @@
     return _modules;
   }
 
+
   function _GViK( fOpt, fMods, initfunc ) {
+
 
     if ( typeof fOpt === 'function' ) {
       initfunc = fOpt;
@@ -129,7 +131,7 @@
         }
       }
 
-      initfunc.call( APP_DATA, APP_DATA, require, Add );
+      initfunc( APP_DATA, require, Add );
     }
   }
 

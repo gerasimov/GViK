@@ -16,15 +16,14 @@ _GViK( function( appData, require, d ) {
     dom = require( 'dom' );
 
   appData.getID = function() {
+
     return window.vk.id;
   };
 
+  function __init() {
 
-  var rNamespacePlugin = /js\/includes\/plugin\/([^\/]+)\/.+\.js$/,
-    rPlugin = /\/([^\/]+)\.js$/;
-
-  event.bind( 'init', function() {
-
+    var rNamespacePlugin = /js\/includes\/plugin\/([^\/]+)\/.+\.js$/,
+      rPlugin = /\/([^\/]+)\.js$/;
 
     chrome.local.get( {
       key: 'options'
@@ -34,24 +33,13 @@ _GViK( function( appData, require, d ) {
 
       core.define( appData.JS_LIST.filter( function( curFileName ) {
         var pluginName = curFileName.match( rNamespacePlugin ) || curFileName.match( rPlugin );
-        if ( !pluginName )
-          return true;
-        if ( options.get( pluginName.pop(), 'enable' ) === false )
-          return false;
-        return true;
+        if ( !pluginName ) return true;
+        return !( options.get( pluginName.pop(), 'enable' ) === false );
       } ), {
         suffix: appData.VERSION,
         path: appData.APP_PATH,
       } );
     } );
-  } );
-
-
-  function checkID() {
-    chrome.pushID();
-    if ( appData.getID() === 0 )
-      setTimeout( checkID, config.get( "LOADER_TIMEOUT" ) );
-    else event.asyncTrigger( 'init' );
   }
 
   if ( options.get( 'system', 'enable-qicksett' ) ) {
@@ -62,6 +50,12 @@ _GViK( function( appData, require, d ) {
 
   chrome.ga( 'send', 'event', 'vk', 'init' );
 
-  event.bind( 'load', checkID );
+  event.bind( 'load', function checkID() {
+    chrome.pushID();
+    if ( appData.getID() === 0 )
+      setTimeout( checkID, config.get( "LOADER_TIMEOUT" ) );
+    else
+      __init();
+  } );
 
 } );

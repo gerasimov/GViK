@@ -18,6 +18,19 @@ _GViK( function( gvik, require, Add ) {
     core = require( 'core' );
 
 
+  dom.setData( document.body, {
+    'gvik-os': gvik.OS,
+    'gvik-options': core.filter( {
+        'audio-out-hide': '_hide-bit_',
+        'common-remove-ads': '_ads_',
+        'common-remove-white-heart': '_heart_',
+        'common-remove-status': '_hide-status_'
+      }, function( v, k ) {
+        var keys = k.split( /-/g );
+        return !options.get( keys.shift(), keys.join( '-' ) );
+      } )
+      .join( '' )
+  } );
 
   event.bind( 'IM', function( e ) {
     var cfs = options.get( 'im' );

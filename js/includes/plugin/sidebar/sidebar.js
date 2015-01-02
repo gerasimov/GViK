@@ -12,6 +12,7 @@ _GViK( function( gvik, require, Add ) {
   var
     dom = require( 'dom' ),
     core = require( 'core' ),
+    chrome = require('chrome'),
     options = require( 'options' ),
     event = require( 'event' ),
 
@@ -116,7 +117,7 @@ _GViK( function( gvik, require, Add ) {
   };
 
   var countPage = sidebar.countPage = 0,
-    heightTab = parseInt( window.getComputedStyle( switcher )[ "height" ] ),
+    heightTab = parseInt( window.getComputedStyle( switcher )[ "height" ] )+5,
 
     lastTabC;
 
@@ -190,15 +191,11 @@ _GViK( function( gvik, require, Add ) {
 
     if ( cnfg.get( 'open-ajax' ) ) {
       return window.nav && window.nav.go( hrf )
-    }
-
-    if ( cnfg.get( 'open-newTab' ) ) {
-      return chrome.openTab( hrf, {}, {
+    } else if ( cnfg.get( 'open-newTab' ) ) {
+      return chrome.tabs.open( hrf, {}, {
         orUpd: true
       } )
-    }
-
-    if ( cnfg.get( 'open-cur' ) ) {
+    } else if ( cnfg.get( 'open-cur' ) ) {
       location.href = hrf;
     }
   } );

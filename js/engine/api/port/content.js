@@ -19,23 +19,26 @@ _GViK( function( gvik, require, Add ) {
       lang: function( e ) {
         return chrome.i18n.getMessage( e );
       }
-    },
+    };
 
-    chromeApiElement = document.documentElement;
+  var port = chrome[ CONFIG.sender ].connect();
 
 
-  function processResponse( data ) {
-    chromeApiElement.dispatchEvent(
-      new CustomEvent( config.get( "CHROME_RESPONSE" ), {
+  function trigger( evName, data ) {
+    document.dispatchEvent(
+      new CustomEvent( evName, {
         detail: {
           data: data
         }
       } )
     );
   }
-  var port = chrome[ CONFIG.sender ].connect();
-  port.onMessage.addListener( processResponse );
 
+  function processResponse( data ) {
+    trigger( config.get( "CHROME_RESPONSE" ), data );
+  }
+
+  port.onMessage.addListener( processResponse );
   chrome[ CONFIG.sender ].onMessage.addListener( processResponse );
 
   port.onDisconnect.addListener( function() {
@@ -44,7 +47,7 @@ _GViK( function( gvik, require, Add ) {
 
 
   function connect( name, fn ) {
-    chromeApiElement.addEventListener( name, function( e ) {
+    document.addEventListener( name, function( e ) {
       fn( e.detail );
     }, false );
   }

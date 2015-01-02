@@ -19,11 +19,8 @@ _GViK( function( appData, require, Add ) {
     disconnected = false;
 
 
-  var chromeElement = document.documentElement; //document.getElementById( ELEMENT_ID );
-
-
   function connect( evName, fn ) {
-    chromeElement.addEventListener( evName, function( e ) {
+    document.addEventListener( evName, function( e ) {
       var data = {};
 
       if ( e.detail ) {
@@ -35,9 +32,13 @@ _GViK( function( appData, require, Add ) {
   }
 
   connect( config.get( "CHROME_RESPONSE" ), function( data ) {
-    if ( has( data.callback ) )
-      return get( data.callback )
+    if ( has( data.callback ) ) {
+      get( data.callback )
         .apply( this, data.arg );
+
+      remove( data.callback );
+      remove( data.error );
+    }
   } );
 
   connect( config.get( "CHROME_DISCONNECT" ), function() {
@@ -46,11 +47,11 @@ _GViK( function( appData, require, Add ) {
   } );
 
   var callbackContainer = [
-            function() {
+      function() {
         var args = core.toArray( arguments );
         args.unshift( 'defaultFn' );
-            }
-        ],
+      }
+    ],
 
     defaultFn = 0;
 
@@ -60,14 +61,7 @@ _GViK( function( appData, require, Add ) {
       return defaultFn;
     }
 
-    var fnId = callbackContainer.length;
-
-    callbackContainer.push( function() {
-      fn.apply( this, arguments );
-      remove( fnId );
-    } );
-
-    return fnId;
+    return callbackContainer.push( fn ) - 1;
   }
 
   function get( fnId ) {
@@ -107,17 +101,39 @@ _GViK( function( appData, require, Add ) {
       bubbles: false
     } );
 
-    chromeElement.dispatchEvent( customEvent );
+    document.dispatchEvent( customEvent );
 
     return _chrome;
   }
   _chrome.sendRequest = sendRequest;
 
 
-  _chrome.simpleAjax = function( data, callback, error ) {
+  _chrome.simpleAjax = _chrome.ajax = function( data, callback, error ) {
 
     return sendRequest( 'simpleAjax', {
       data: data,
+      callback: callback,
+      error: error,
+      forceCS: config.get( "CHROME_FORCE_CS_RUN" )
+    } );
+  };
+
+  _chrome.abortAjax = function( xhrId, callback, error ) {
+
+    return sendRequest( 'abortAjax', {
+      data: {
+        xhrId: xhrId
+      },
+      callback: callback,
+      error: error,
+      forceCS: config.get( "CHROME_FORCE_CS_RUN" )
+    } );
+  };
+
+  _chrome.abortAllAjax = function(  callback, error ) {
+
+    return sendRequest( 'abortAllAjax', {
+      data: { },
       callback: callback,
       error: error,
       forceCS: config.get( "CHROME_FORCE_CS_RUN" )
@@ -143,23 +159,6 @@ _GViK( function( appData, require, Add ) {
     } );
   };
 
-  _chrome.openTab = function( url, obj, params ) {
-
-    params = params || {};
-
-    if ( !params.chrome && !/https?\:\/\//.test( url ) ) {
-      url = location.origin + '/' + url;
-    }
-
-    return sendRequest( 'openTab', {
-      data: core.extend( {
-        url: url,
-        active: true
-      }, obj || {} ),
-      params: params
-    } );
-  };
-
   _chrome.sendEvent = function( events ) {
     return sendRequest( 'sendEvent', {
       data: {
@@ -177,7 +176,7 @@ _GViK( function( appData, require, Add ) {
       bubbles: true
     } );
 
-    chromeElement.dispatchEvent( customEvent );
+    document.dispatchEvent( customEvent );
 
     return sessionStorage[ config.get( "CHROME_CS_RESPONSE_NAME" ) ];
   }
@@ -281,13 +280,34 @@ _GViK( function( appData, require, Add ) {
   };
 
 
-  _chrome.executeScript = function( code, callback ) {
-    return sendRequest( 'executeScript', {
-      data: {
-        code: code
-      },
-      callback: callback
-    } );
+  _chrome.tabs = {
+    open: function( url, obj, params, clb ) {
+
+      params = params || {};
+
+      if ( !params.chrome && !/https?\:\/\//.test( url ) ) {
+        url = location.origin + '/' + url;
+      }
+
+      return sendRequest( 'tabsOpen', {
+        data: core.extend( {
+          url: url,
+          active: true
+        }, obj || {} ),
+        params: params
+      }, clb );
+    },
+    update: function( clb ) {
+      return sendRequest( 'tabsUpdate', {
+
+      }, clb );
+    },
+
+    close: function( clb ) {
+      return sendRequest( 'tabsClose', {
+
+      }, clb );
+    }
   };
 
   _chrome.getSupport = function( callback ) {

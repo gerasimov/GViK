@@ -130,7 +130,7 @@ _GViK( function( gvik, require, Add ) {
 
       /*chrome.simpleAjax*/
 
-      core.ajax( {
+      return core.ajax( {
           type: 'POST',
           url: this.ROOT_URL,
           dataType: 'json',
@@ -151,11 +151,10 @@ _GViK( function( gvik, require, Add ) {
         } )
         .bind( this ) );
 
-      return this;
     },
 
     _call: function( method, params, callback, error, prop ) {
-      return this.call( method, params, function( res ) {
+      this.call( method, params, function( res ) {
         if ( res.hasOwnProperty( prop ) ) {
           return callback.apply( this, arguments );
         }
@@ -164,12 +163,15 @@ _GViK( function( gvik, require, Add ) {
           return error.apply( this, arguments );
         }
       }, error );
+      return this;
     },
 
     getSession: function( token, callback, error ) {
-      return this._call( "auth.getSession", {
+      this._call( "auth.getSession", {
         token: token
       }, callback, error, 'session' );
+      return this;
+
     },
 
     auth: function() {
@@ -179,7 +181,7 @@ _GViK( function( gvik, require, Add ) {
       }, function( vals, key ) {
 
         if ( !vals.lastfm || !vals.lastfm.sk ) {
-          return chrome.openTab( 'http://www.last.fm/api/auth/?api_key=' + this.KEY );
+          return chrome.tabs.open( 'http://www.last.fm/api/auth/?api_key=' + this.KEY );
         }
 
         this.setConfig( vals.lastfm );

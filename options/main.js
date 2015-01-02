@@ -121,4 +121,21 @@ _GViK( function( gvik, require, Add ) {
     }
   } );
 
+
+
+  core.define( [ 'https://events.webmoney.ru/js/ewm-api.js' ], function() {
+    EWM.urls.main = "https://events.webmoney.ru";
+  } );
+
+  /*
+    (function(w, d, id) {
+      if (!d.getElementById(id)) {
+          var s = document.createElement('script');
+          s.id = id;
+          s.async = true;
+          s.src = '//?11';
+          (d.getElementsByTagName('head')[0] || d.documentElement).appendChild(s);
+      }
+  })(window, document, 'ewm-js-api');
+  */
 } );

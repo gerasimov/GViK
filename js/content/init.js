@@ -12,6 +12,7 @@ _GViK( function( gvik, require, Add ) {
 
   var dom = require( 'dom' ),
     core = require( 'core' ),
+    config = require( 'config' ),
     appPath = chrome.extension.getURL( '' ),
 
     rIsJs = /\.js$/,
@@ -52,13 +53,11 @@ _GViK( function( gvik, require, Add ) {
     core.define( engineJSList, {
       suffix: manifest.version,
       path: appPath
-    }, function() {
-      console.log( 'GViK init' );
     } );
 
   }
 
-  if ( SUPPORT.runtime ) {
+  if ( SUPPORT.runtime  ) {
     __init( chrome.runtime.getManifest() );
   } else {
     core.getResource( 'manifest.json', function( res ) {

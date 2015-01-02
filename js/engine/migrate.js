@@ -37,12 +37,14 @@ if ( typeof _GViK === 'undefined' )( function( win ) {
 
           if ( Array.isArray( key ) ) {
             if ( Array.isArray( key[ 0 ] ) ) {
+
               for ( i = 0; i < key.length; i++ ) {
                 carr = key[ i ];
                 carr.push( true );
 
                 this.Add.apply( this, carr );
               }
+
             } else {
               key.push( true );
               this.Add.apply( this, key );

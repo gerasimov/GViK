@@ -13,7 +13,7 @@ _GViK( {
       'add-bit'
     ]
   },
-  function( gvik, require, Add ) {
+  function( appData, require, Add ) {
 
     "use strict";
 
@@ -44,21 +44,18 @@ _GViK( {
 
     function __calcBitrate( size, dur, needFileSize ) {
       var bitInt = ( ( size * 8 ) / dur / 1000 ) | 0,
-        fileSizeInt = 0,
+        sizeInt = size / ( 1024 * 1024 ) | 0,
         formated = bitInt + 'kbps';
 
       if ( needFileSize ) {
-        fileSizeInt = ( ( size / ( 1024 * 1024 ) ) | 0 );
-
-        formated += ', ' + fileSizeInt + 'MB';
-
+        formated += ', ' + sizeInt + 'MB';
       }
 
       return {
         formated: formated,
         bitInt: bitInt,
         size: size,
-        fileSizeInt: fileSizeInt
+        sizeInt: sizeInt
       };
     }
 
@@ -77,17 +74,14 @@ _GViK( {
     function __getBitrate( url, dur, callback, needFileSize, id ) {
 
       var res = cache.get( id );
+
       if ( res ) {
         callback( res, true );
         return 'gvik-bitrate';
       }
 
       __getFilesSize( url, function( size ) {
-
-        if ( size ) {
-          callback( __calcBitrate( size, dur, needFileSize, id ) );
-          return;
-        }
+        if ( size ) return callback( __calcBitrate( size, dur, needFileSize, id ) );
       } );
 
       return CLASS_BITRATE;
@@ -106,6 +100,7 @@ _GViK( {
       var data = global.VARS.PARSE_AUDIO_DATA( audioEl ),
         bitrateEl = document.createElement( 'div' );
 
+      data.act.appendChild( bitrateEl );
 
       bitrateEl.className = __getBitrate( data.url, data.dur, function( res, fromCache ) {
 
@@ -122,14 +117,13 @@ _GViK( {
         res.dur = data.dur;
         res.id = data.id;
 
-        cache.set( data.id, res );
+        if ( !cache.has( data.id ) ) cache.set( data.id, res );
 
         if ( callback )
           callback( bitrateEl, res, audioEl );
 
       }, FILE_SIZE_ENABLED, data.id );
 
-      data.act.appendChild( bitrateEl );
     }
 
 
@@ -138,61 +132,52 @@ _GViK( {
 
 
     var clbck = CONFS.get( 'auto-load-bit' ) ? function( bitrateEl, res, audioEl ) {
-      if ( window.cur && window.cur.searchStr ) {
+      if ( window.cur.searchStr ) {
         clearTimeout( tId );
-
-        tId = null;
-
-        tId = setTimeout( function() {
-          if ( tId )
-            event.trigger( 'bitrate_load' );
-        }, 200 );
+        tId = event.asyncTrigger( 'bitrate_load', 100 );
       }
     } : null;
 
-
-    function setBitrateAllAudios() {
-
-      var audios = dom.queryAll( AUDIO_SELECTOR ),
-        i = 0,
-        l = audios.length;
-
-
-      for ( ; i < l; i++ )
-        setBitrate( audios[ i ], clbck );
-    }
-
-
+    var _sortProp = "bitInt";
 
     function getCacheInt( id ) {
-      return ( cache.get( id ) || {} ).bitInt || 0;
+      return ( cache.get( id ) || {} )[ _sortProp ] || 0;
     }
 
-
-
-    event.bind( 'bitrate_load', function() {
-
-      var searchList = window.cur.sContent || dom.byId( 'search_list' ),
-        audios = dom.queryAll( '.audio[' + NAME_ATTR + ']', searchList );
-
-      if ( !audios.length )
-        return;
-
-      audios = core.toArray( audios ).sort( function( a, b ) {
+    var SORT_SELECTOR = '.audio:not([id=audio_global])[' + NAME_ATTR + ']',
+      SORT_FN = function( a, b ) {
         return getCacheInt( b.id ) - getCacheInt( a.id );
-      } );
+      };
 
+    event
+      .bind( 'bitrate_load', function() {
 
-      var df = document.createDocumentFragment();
+        var audios = core.toArray(  window.cur.sContent.querySelectorAll( SORT_SELECTOR ) ).sort( SORT_FN ),
+          l, i;
 
-      for ( var i = 0; i < audios.length; i++ ) {
-        df.appendChild( audios[ i ] );
-      }
+        if ( !( l = audios.length ) )
+          return;
 
-      event.trigger( 'audio_sort', audios );
+        var df = document.createDocumentFragment(),
+        i = 0;
 
-      searchList.appendChild( df );
-    } );
+        for ( ; i < l; i++ )
+          df.appendChild( audios[ i ] );
+
+        window.cur.sContent.appendChild( df );
+
+        event.trigger( 'audio_sort', audios );
+      } )
+
+    .bind( [
+    'newAudioRows',
+    'audio',
+    'padOpen'
+  ], function() {
+      var audios = dom.queryAll( AUDIO_SELECTOR ),
+         l = audios.length;
+      for ( ; l--;)  setBitrate( audios[ l ], clbck );
+    }, true );
 
     if ( CONFS.get( 'auto-hide-bit' ) )
       event.bind( 'audio_sort', function( audios ) {
@@ -205,15 +190,8 @@ _GViK( {
       } );
 
 
-    event.bind( [
-    'newAudioRows',
-    'audio',
-    'padOpen'
-  ], setBitrateAllAudios, true );
-
-
     dom.setDelegate( document, AUDIO_SELECTOR, {
-      'mouseover': function( el ) {
+      mouseover: function( el ) {
         setBitrate( el );
       }
     } );

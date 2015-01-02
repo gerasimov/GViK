@@ -57,7 +57,7 @@ _GViK( function( gvik, require, Add ) {
                 audio.id,
                 audio.url,
                 audio.duration,
-                global.VARS.FOMAT_TIME( audio.duration ),
+                global.VARS.FORMAT_TIME( audio.duration ),
                 audio.artist,
                 audio.title,
                 0,

@@ -130,6 +130,27 @@ _GViK( {
         if ( exct ) {
           dom.append( exct, [ likePad, scrobblePad ] );
         }
+      }.bind( this ) )
+
+      .bind( 'onNewTrack', function( trackId ) {
+
+        this.trackId = trackId;
+        this.artist = dom.unes( this.info()[ 5 ] );
+        this.title = dom.unes( this.info()[ 6 ] );
+        this.startScrobble = ~~( ( window.audioPlayer.duration / 100 ) * this.PERCENT );
+        this.maxStep = Math.max( 1, Math.floor( this.startScrobble / this.UPDATE_DELAY ) - 1 );
+        this.readyD = false;
+
+        event.trigger( 'newtrack', {
+          artist: this.artist,
+          title: this.title,
+          url: this.info()[ 2 ],
+          duration: window.audioPlayer.duration,
+          trackId: this.trackId
+        } );
+
+
+        storage.session.get( this.trackId ) ? this._liked() : this._removedLiked();
       }.bind( this ) );
 
 
@@ -141,8 +162,6 @@ _GViK( {
         .globalFn( 'LASTFM_changestate', function( response ) {
           response.data ? this._on() : this._off();
         }, this );
-
-
 
     };
 
@@ -160,7 +179,7 @@ _GViK( {
     info: function() {
       return window.audioPlayer.lastSong || window.audioPlaylist[ audioPlayer.id ];
     },
-    reset: function( itsnewtrack, changeslider ) {
+    reset: function( changeslider ) {
 
       this.step = !changeslider ? 0 : 1;
 
@@ -179,25 +198,6 @@ _GViK( {
         ._setErrorState( false );
     },
 
-    setData: function( track ) {
-
-      this.artist = dom.unes( this.info()[ 5 ] );
-      this.title = dom.unes( this.info()[ 6 ] );
-      this.startScrobble = ~~( ( audioPlayer.duration / 100 ) * this.PERCENT );
-      this.maxStep = Math.max( 1, Math.floor( this.startScrobble / this.UPDATE_DELAY ) - 1 );
-      this.readyD = false;
-
-      event.trigger( 'newtrack', {
-        artist: this.artist,
-        title: this.title,
-        url: this.info()[ 2 ],
-        duration: audioPlayer.duration,
-        trackId: this.trackId
-      } );
-
-
-      storage.session.get( this.trackId ) ? this._liked() : this._removedLiked();
-    },
 
     _on: function() {
       state = true;
@@ -345,29 +345,21 @@ _GViK( {
 
     playProgress: function( pos, len ) {
 
-      if ( pos === this.position ) {
+      if ( pos === this.position )
         return;
-      }
+    
 
       if ( pos < this.UPDATE_DELAY ) {
 
-        var itsnewtrack = this.trackId !== audioPlayer.id,
-          changeslider = pos < this.position;
-
-        if ( itsnewtrack ) {
-          this.trackId = audioPlayer.id;
-          this.setData();
-        }
+        var changeslider = pos < this.position;
 
         if ( !this.readyD ) {
-          this.reset( itsnewtrack, changeslider );
+          this.reset( changeslider );
           this.readyD = true;
-          if ( state ) {
-            this._update_();
-          }
+          if ( state ) this._update_(); 
         }
 
-      } else this.readyD = false;
+      };
 
       this.position = pos;
 

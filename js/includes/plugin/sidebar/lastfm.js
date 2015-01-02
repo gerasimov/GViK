@@ -8,9 +8,9 @@
 _GViK( {
     'sidebar': 'lastfm-module'
   }, [
-        'lastfm',
-        'sidebar'
-    ],
+    'lastfm',
+    'sidebar'
+  ],
   function( appData, require, Add ) {
 
 
@@ -22,7 +22,8 @@ _GViK( {
       dom = require( 'dom' ),
       cache = require( 'cache' ),
       event = require( 'event' ),
-      lastfmAPI = require( 'lastfmAPI' ),
+      chrome = require( 'chrome' ),
+      lastfmAPI = require( 'lastfmapi' ),
       launcher = require( 'launcher' ),
       config = require( 'config' ),
       global = require( 'global' ),
@@ -134,7 +135,7 @@ _GViK( {
               }
             }
           } ) )
-                ]
+        ]
       } ),
 
       trackInfoCont = dom.create( 'div', {
@@ -162,7 +163,7 @@ _GViK( {
           return {
             url: curTrack.url,
             name: curTrack.name,
-            dur: global.VARS.FOMAT_TIME( curTrack.duration ),
+            dur: global.VARS.FORMAT_TIME( curTrack.duration ),
             duration: curTrack.duration,
             img: ( curTrack.image ? curTrack.image[ 1 ][ '#text' ] : ( appData.APP_PATH + 'img/album.png' ) )
           };
@@ -181,7 +182,7 @@ _GViK( {
             url: curTrack.url,
             name: curTrack.name,
             duration: curTrack.duration,
-            dur: global.VARS.FOMAT_TIME( curTrack.duration ),
+            dur: global.VARS.FORMAT_TIME( curTrack.duration ),
             img: album.image[ 1 ][ '#text' ]
           };
         }
@@ -189,55 +190,60 @@ _GViK( {
 
 
     function resetAlbum() {
+
       dom.empty( albTracksCont );
       albumTab.setAttribute( 'data-label', 'Album' );
+
       topTab.dispatchEvent( new Event( 'change' ) );
       topTab.checked = true;
+
+      nameAlbum = '';
 
       tabs.classList.add( 'gvik-none' );
     }
 
 
     function resetArtist() {
+
       dom.empty( np );
       dom.empty( tracksCont );
       dom.empty( tagsCont );
 
+      trackId = '';
+
       labelEl.innerText = '';
       imgEl.src = '';
-      lastNameArtist = '';
-      lastNameTrack = '';
-      lastNameAlbum = '';
+
+      nameArtist = nameTrack = '';
+
+
       cover.style.backgroundImage = 'none';
+
+      resetAlbum();
 
     }
 
+    function getCacheKey() {
+      return core.toArray( arguments ).map( function( val ) {
+        return val.replace( /(?:[\s,\.\\\/\!\@\#\$\%\^\&\*\(\)\|]+)/g, '' ).toLowerCase();
+      } ).join( '-' );
+    }
+
+    var __xhr;
 
 
-    function lfapiCall( method, data, prop ) {
+    function lfapiCall( method, prop ) {
+ 
 
-      var cacheId = trackId + method;
-
-      if ( cache.has( cacheId ) ) {
-        lastResult = cache.get( cacheId );
-        return event.trigger( method, cache.get( cacheId ) );
-      }
-
-
-      lastfmAPI.call( method, data, function( res, isError ) {
+      __xhr = lastfmAPI.call( method, {
+        artist: nameArtist || '',
+        album: nameAlbum || '',
+        track: nameTrack || '',
+        correction: 1
+      }, function( res, isError ) {
         lastResult = res;
-
-        tabCont.classList.add( 'loaded' );
-
-        if ( isError )
-          return event.trigger( method + '.error' );
-
-        cache.set( cacheId, res[ prop ] );
-
+        if ( isError ) return event.trigger( method + '.error' );
         event.trigger( method, res[ prop ] );
-
-
-
       }, function() {
         event.trigger( method + '.error' );
 
@@ -245,84 +251,47 @@ _GViK( {
     }
 
     function render( tmpl, arr, fn ) {
-      var html = [],
-        i = 0,
-        l = arr.length;
-
-      for ( ; i < l; i++ )
-        html[ i ] = core.tmpl( tmpl, fn( arr[ i ] ) );
-
-
-      return html.join( '' );
+      if ( arr )
+        return arr.map( function( val ) {
+          return core.tmpl( tmpl, fn( val ) );
+        } ).join( '' );
     }
 
 
-    event
-      .bind( '_newdata', function( data ) {
-
-        trackId = data.trackId;
-
-        if ( data.artist !== nameArtist ) {
-          resetAlbum();
-          resetArtist();
-          lfapiCall( 'artist.getInfo', {
-            artist: data.artist,
-            correction: 1
-          }, "artist" );
-
-          lfapiCall( 'artist.getTopTracks', {
-            artist: data.artist,
-            correction: 1,
-            limit: config.get( 'SIDEBAR_LASTFM_TOP_TRACKS_LIMIT' )
-          }, "toptracks" );
-
-          nameArtist = data.artist;
-        }
+    event.bind( 'track.getInfo', function( track, evname ) {
 
 
-        if ( nameTrack !== data.title ) {
-          lfapiCall( 'track.getInfo', {
-            artist: data.artist,
-            track: data.title,
-            correction: 1
-          }, "track" );
-          nameTrack = data.title;
-        }
+      cache.set( getCacheKey( nameArtist, nameTrack, evname ), track );
 
-      } )
+      if ( !track.album )
+        return resetAlbum();
 
-    .bind( 'track.getInfo', function( track ) {
-
-      if ( !track.album ) return resetAlbum();
 
       if ( track.album.title === nameAlbum ) {
-        albumTab.dispatchEvent( new Event( 'change' ) );
-        albumTab.checked = true;
+        /*       albumTab.dispatchEvent( new Event( 'change' ) );
+               albumTab.checked = true;*/
         return;
       }
 
-      resetAlbum();
-
       nameAlbum = track.album.title;
 
-      lfapiCall( 'album.getInfo', {
-        artist: nameArtist,
-        album: nameAlbum
-      }, "album" );
+      if ( cache.has( getCacheKey( nameArtist, nameTrack, 'album.getInfo' ) ) )
+        event.trigger( 'album.getInfo', cache.get( getCacheKey( nameArtist, nameAlbum, 'album.getInfo' ) ) );
+      else lfapiCall( 'album.getInfo', "album" );
 
     } )
 
-    .bind( 'artist.getInfo', function( artist ) {
-
+    .bind( 'artist.getInfo', function( artist, evname ) {
 
       nameArtist = artist.name;
 
+      cache.set( getCacheKey( nameArtist, evname ), artist );
+
       labelEl.innerText = artist.name;
 
-
       imgEl.src = artist.image[ 2 ][ '#text' ];
-      cover.style.backgroundImage = 'url(' + artist.image[ 2 ][ '#text' ] + ')';
 
+      cover.style.backgroundImage = 'url(' + artist.image[ 2 ][ '#text' ] + ')';
 
 
       var tag = ( artist.tags || {} )
@@ -336,67 +305,81 @@ _GViK( {
         return a.name.length < b.name.length ? 1 : 0;
       } ), TMPL.renderTag );
 
+      dom.addClass( tabCont, 'loaded' );
+
+
+      if ( cache.has( getCacheKey( nameArtist, 'artist.getTopTracks' ) ) )
+        event
+        .trigger( 'artist.getTopTracks', cache.get( getCacheKey( nameArtist, 'artist.getTopTracks' ) ) );
+      else lfapiCall( 'artist.getTopTracks', "toptracks" );
+
+
+
     } )
 
-    .bind( 'artist.getTopTracks', function( responseTracks ) {
+    .bind( 'artist.getTopTracks', function( responseTracks, evname ) {
 
-      var html = '',
+
+      cache.set( getCacheKey( nameArtist, evname ), responseTracks );
+
+      var html = [],
         track = responseTracks.track || [];
 
 
       if ( cnfg.get( 'lastfm-groupbyalbum' ) ) {
-        var i = 0,
-          groups = {},
-          l = track.length;
 
-        for ( ; i < l; i++ ) {
-          if ( track[ i ].image ) {
-            var img = track[ i ].image[ 1 ][ "#text" ];
-            ( groups[ img ] = groups[ img ] || [] ).push( track[ i ] );
+        var groups = {};
+
+        core.each( track, function( curTrack ) {
+          if ( curTrack.image ) {
+            var img = curTrack.image[ 1 ][ "#text" ];
+            ( groups[ img ] = groups[ img ] || [] ).push( curTrack );
           } else
-            ( groups.noimage = groups.noimage || [] ).push( track[ i ] );
-        }
+            ( groups.noimage = groups.noimage || [] ).push( curTrack );
+        } );
 
-        for ( i in groups ) {
-          if ( i !== "noimage" && groups.hasOwnProperty( i ) )
-            html += render( TMPL.item, groups[ i ], TMPL.renderTrack );
-        }
 
-        html += render( TMPL.item, groups.noimage || [], TMPL.renderTrack );
+        core.each( groups, function( val, key ) {
+          if ( key !== "noimage" ) html.push( render( TMPL.item, val, TMPL.renderTrack ) );
+        } );
 
-        tracksCont.innerHTML = html;
+        html.push( render( TMPL.item, groups.noimage || [], TMPL.renderTrack ) );
 
-      } else {
-        html = render( TMPL.item, track || [], TMPL.renderTrack );
-      }
-      tracksCont.innerHTML = html;
+
+      } else
+        html.push( render( TMPL.item, track || [], TMPL.renderTrack ) );
+
+
+      tracksCont.innerHTML = html.join( '' );
+
+      if ( cache.has( getCacheKey( nameArtist, nameTrack, 'track.getInfo' ) ) )
+        event
+        .trigger( 'track.getInfo', cache.get( getCacheKey( nameArtist, nameTrack, 'track.getInfo' ) ) );
+      else lfapiCall( 'track.getInfo', "track" );
+
+
     } )
 
-    .bind( 'album.getInfo', function( album ) {
+    .bind( 'album.getInfo', function( album, evname ) {
+
+      cache.set( getCacheKey( nameArtist, nameAlbum, evname ), album );
 
       var albName = [ album.name ];
 
       if ( album.releasedate ) {
         var res = album.releasedate.trim().match( /\d{4}/ );
-        if ( res ) {
-          albName.push( res[ 0 ] );
-        }
+        if ( res ) albName.push( res[ 0 ] );
       }
 
       albumTab.setAttribute( 'data-label', albName.join( ', ' ) );
 
-      if ( album.tracks && album.tracks.track ) {
-        var track = album.tracks.track;
-      }
+      if ( !album.tracks || !album.tracks.track )
+        return;
 
-      if ( !track || !track.length ) {
-        return dom.empty( albTracksCont );
-      }
+      albTracksCont.innerHTML = render( TMPL.item, album.tracks.track, TMPL.renderAlbumTrack.pbind( album ) );
 
-      albTracksCont.innerHTML = render( TMPL.item, track, TMPL.renderAlbumTrack.pbind( album ) );
-
-      albumTab.dispatchEvent( new Event( 'change' ) );
-      albumTab.checked = true;
+      /*    albumTab.dispatchEvent( new Event( 'change' ) );
+          albumTab.checked = true;*/
 
       tabs.classList.remove( 'gvik-none' );
 
@@ -404,12 +387,35 @@ _GViK( {
 
     .bind( 'newtrack', function( data ) {
 
-      if ( !sidebar.shown ) {
+      if ( !sidebar.shown )
         sidebar.show();
-      }
-      showCurTab();
 
-      event.trigger( '_newdata', data );
+      showCurTab();
+      resetArtist();
+
+
+      if(__xhr)
+        __xhr.abort();
+      __xhr = null;
+
+
+
+      trackId = data.trackId;
+      nameTrack = data.title;
+      nameArtist = data.artist;
+
+
+
+      if ( cache.has( getCacheKey( nameArtist, 'artist.getInfo' ) ) )
+        event
+        .trigger( 'artist.getInfo', cache.get( getCacheKey( nameArtist, 'artist.getInfo' ) ) );
+      else {
+        dom.removeClass( tabCont, 'loaded' );
+        lfapiCall( 'artist.getInfo', "artist" );
+      }
+
+
+
     } );
 
     sidebar.addPage( function( _switcher, _tabCont, _wrap, countPage, _showCurTab ) {
@@ -452,14 +458,14 @@ _GViK( {
 
         e._canceled = true;
 
-        var _audioEl = dom.parent( el, '.gvikLastfm' );
+        var _audioEl = dom.parent( e, '.gvikLastfm' );
 
         require( 'searchandplay' )( {
           artist: nameArtist,
           title: _audioEl.getAttribute( 'data-trackname' ),
           dur: _audioEl.getAttribute( 'data-duration' )
         }, function() {}, {
-          maxbit: true
+          maxbit: cnfg.get( 'lastfm-maxbit' )
         } );
       } );
     }
