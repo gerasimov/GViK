@@ -7,10 +7,10 @@
 
 _GViK( function( gvik, require, Add ) {
 
-  "use strict";
+	"use strict";
 
-  Add( 'global', {
-    VARS: {}
-  } );
+	Add( 'global', {
+		VARS: {}
+	} );
 
 } );

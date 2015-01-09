@@ -7,18 +7,18 @@
 _GViK( function( gvik, require, Add ) {
 
 
-  "use strict";
+    "use strict";
 
 
-  var
+    var
 
-    core = require( 'core' ),
-    dom = require( 'dom' ),
-    global = require( 'global' ),
-    search = require( 'search' ),
+        core = require( 'core' ),
+        dom = require( 'dom' ),
+        global = require( 'global' ),
+        search = require( 'search' ),
 
-    TMPL = {
-      audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
+        TMPL = {
+            audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
                   <a name="%audio_id%"></a>\
                   <div class="area clear_fix" onclick="if (cur.cancelClick){ cur.cancelClick = false; return;} %onclick%">\
                     <div class="play_btn fl_l">\
@@ -35,71 +35,71 @@ _GViK( function( gvik, require, Add ) {
                   </div>\
                   <div id="lyrics%audio_id%" class="lyrics" nosorthandle="1"></div>\
                 </div>'
-    };
+        };
 
 
-  function drawAudio( audio, callback ) {
+    function drawAudio( audio, callback ) {
 
-    var _drawAudio = function( audio ) {
-      return rs( TMPL.audio, {
-        audio_id: audio[ 0 ] + '_' + audio[ 1 ],
-        performer: audio[ 5 ],
-        title: audio[ 6 ],
-        url: audio[ 2 ],
-        playtime: audio[ 3 ],
-        duration: audio[ 4 ]
-      } );
-    };
+        var _drawAudio = function( audio ) {
+            return rs( TMPL.audio, {
+                audio_id: audio[ 0 ] + '_' + audio[ 1 ],
+                performer: audio[ 5 ],
+                title: audio[ 6 ],
+                url: audio[ 2 ],
+                playtime: audio[ 3 ],
+                duration: audio[ 4 ]
+            } );
+        };
 
 
-    return _drawAudio( [
-                audio.owner_id,
-                audio.id,
-                audio.url,
-                audio.duration,
-                global.VARS.FORMAT_TIME( audio.duration ),
-                audio.artist,
-                audio.title,
-                0,
-                0,
-                1
-            ] );
-  }
-
-  var trackContainer = dom.create( 'div', {
-    style: {
-      display: 'none'
+        return _drawAudio( [
+            audio.owner_id,
+            audio.id,
+            audio.url,
+            audio.duration,
+            global.VARS.FORMAT_TIME( audio.duration ),
+            audio.artist,
+            audio.title,
+            0,
+            0,
+            1
+        ] );
     }
-  } );
 
-  dom.append( document.body, trackContainer );
+    var trackContainer = dom.create( 'div', {
+        style: {
+            display: 'none'
+        }
+    } );
 
-  Add( 'searchandplay', function( searchData, callback, opt ) {
+    dom.append( document.body, trackContainer );
 
-    search.audioSearch( searchData, function( result ) {
+    Add( 'searchandplay', function( searchData, callback, opt ) {
 
-      if ( !result ) {
-        return;
-      }
+        search.audioSearch( searchData, function( result ) {
 
-      var audioData = ( result.length != null ) ?
-        result[ 0 ] :
-        result;
+            if ( !result ) {
+                return;
+            }
 
-      if ( !audioData )
-        return;
+            var audioData = ( result.length != null ) ?
+                result[ 0 ] :
+                result;
 
-      var audio = audioData.audio || audioData,
-        audioHTML = drawAudio( audio );
+            if ( !audioData )
+                return;
 
-      trackContainer.innerHTML += audioHTML;
+            var audio = audioData.audio || audioData,
+                audioHTML = drawAudio( audio );
 
-      callback( result );
+            trackContainer.innerHTML += audioHTML;
 
-      window.playAudioNew( audio.owner_id + '_' + audio.id );
+            callback( result );
 
-    }, opt );
-  }, true );
+            window.playAudioNew( audio.owner_id + '_' + audio.id );
+
+        }, opt );
+    }, true );
 
 
 

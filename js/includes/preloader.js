@@ -9,135 +9,135 @@
 
 ( function() {
 
-  "use strict";
+    "use strict";
 
 
-  if ( window._GViK )
-    return;
+    if ( window._GViK )
+        return;
 
-  var
+    var
 
-    MANIFEST = JSON.parse( sessionStorage.manifest ),
+        MANIFEST = JSON.parse( sessionStorage.manifest ),
 
-    APP_DATA = {
+        APP_DATA = {
 
-      APP_PATH: sessionStorage.apppath,
-      APP_ID: sessionStorage.appid,
-      IS_GVIK: true,
+            APP_PATH: sessionStorage.apppath,
+            APP_ID: sessionStorage.appid,
+            IS_GVIK: true,
 
-      JS_LIST: JSON.parse( sessionStorage.jslist ),
-
-
-      DEBUG: false,
-
-      VERSION: MANIFEST.version,
-      VERSION_INT: MANIFEST.version.replace( /\./g, '' ),
-      AUTHOR: MANIFEST.author,
+            JS_LIST: JSON.parse( sessionStorage.jslist ),
 
 
-      OS: navigator.platform.match( /^[a-z]+/i )
-        .pop()
-    },
+            DEBUG: false,
 
-    _modules = {},
-
-    require = function( moduleName ) {
-      moduleName = moduleName.toLowerCase();
-
-      return _modules[ moduleName.toLowerCase() ];
-    },
-
-    add = function( moduleName, moduleVal ) {
-
-      moduleName = moduleName.toLowerCase();
-
-      if ( !_modules[ moduleName ] )
-        _modules[ moduleName ] = moduleVal;
-    };
+            VERSION: MANIFEST.version,
+            VERSION_INT: MANIFEST.version.replace( /\./g, '' ),
+            AUTHOR: MANIFEST.author,
 
 
-  var _export = {};
+            OS: navigator.platform.match( /^[a-z]+/i )
+                .pop()
+        },
 
-  function Add( nameMod, fnMod, noCallFnMod ) {
+        _modules = {},
 
-    if ( typeof nameMod === 'string' ) {
-      return add( nameMod, ( typeof fnMod === 'function' && !noCallFnMod ) ? fnMod() : fnMod );
-    }
+        require = function( moduleName ) {
+            moduleName = moduleName.toLowerCase();
 
-    if ( Array.isArray( nameMod ) ) {
-      if ( Array.isArray( nameMod[ 0 ] ) ) {
-        nameMod.forEach( function( curArr ) {
-          curArr.push( true );
-          Add.apply( this, curArr );
-        } );
-      } else {
-        nameMod.push( true );
-        Add.apply( this, nameMod );
-      }
-      return;
-    }
+            return _modules[ moduleName.toLowerCase() ];
+        },
 
-    for ( var nameProp in nameMod ) {
-      if ( nameMod.hasOwnProperty( nameProp ) ) {
-        Add( nameProp, nameMod[ nameProp ] );
-      }
-    }
-    return;
-  }
+        add = function( moduleName, moduleVal ) {
 
-  function Get() {
-    return _modules;
-  }
+            moduleName = moduleName.toLowerCase();
+
+            if ( !_modules[ moduleName ] )
+                _modules[ moduleName ] = moduleVal;
+        };
 
 
-  function _GViK( fOpt, fMods, initfunc ) {
+    var _export = {};
 
+    function Add( nameMod, fnMod, noCallFnMod ) {
 
-    if ( typeof fOpt === 'function' ) {
-      initfunc = fOpt;
-      fMods = [];
-      fOpt = {};
-    }
-
-    if ( typeof fMods === 'function' ) {
-      initfunc = fMods;
-      if ( Array.isArray( fOpt ) ) {
-        fMods = fOpt;
-        fOpt = {};
-      } else {
-        fMods = [];
-      }
-    }
-
-    if ( typeof initfunc === 'function' ) {
-
-      if ( !fMods.every( function( curModuleName ) {
-          return _modules.hasOwnProperty( curModuleName );
-        } ) ) return;
-
-      if ( require( 'options' ) !== undefined ) {
-
-        var options = require( 'options' );
-
-        for ( var i in fOpt ) {
-          if ( Array.isArray( fOpt[ i ] ) ) {
-            if ( !fOpt[ i ].every( function( curOptName ) {
-                return options.get( i, curOptName );
-              } ) )
-              return;
-          } else if ( !options.get( i, fOpt[ i ] ) )
-            return;
-
+        if ( typeof nameMod === 'string' ) {
+            return add( nameMod, ( typeof fnMod === 'function' && !noCallFnMod ) ? fnMod() : fnMod );
         }
-      }
 
-      initfunc( APP_DATA, require, Add );
+        if ( Array.isArray( nameMod ) ) {
+            if ( Array.isArray( nameMod[ 0 ] ) ) {
+                nameMod.forEach( function( curArr ) {
+                    curArr.push( true );
+                    Add.apply( this, curArr );
+                } );
+            } else {
+                nameMod.push( true );
+                Add.apply( this, nameMod );
+            }
+            return;
+        }
+
+        for ( var nameProp in nameMod ) {
+            if ( nameMod.hasOwnProperty( nameProp ) ) {
+                Add( nameProp, nameMod[ nameProp ] );
+            }
+        }
+        return;
     }
-  }
 
-  _GViK.Get = Get;
+    function Get() {
+        return _modules;
+    }
 
-  window._GViK = _GViK;
+
+    function _GViK( fOpt, fMods, initfunc ) {
+
+
+        if ( typeof fOpt === 'function' ) {
+            initfunc = fOpt;
+            fMods = [];
+            fOpt = {};
+        }
+
+        if ( typeof fMods === 'function' ) {
+            initfunc = fMods;
+            if ( Array.isArray( fOpt ) ) {
+                fMods = fOpt;
+                fOpt = {};
+            } else {
+                fMods = [];
+            }
+        }
+
+        if ( typeof initfunc === 'function' ) {
+
+            if ( !fMods.every( function( curModuleName ) {
+                    return _modules.hasOwnProperty( curModuleName );
+                } ) ) return;
+
+            if ( require( 'options' ) !== undefined ) {
+
+                var options = require( 'options' );
+
+                for ( var i in fOpt ) {
+                    if ( Array.isArray( fOpt[ i ] ) ) {
+                        if ( !fOpt[ i ].every( function( curOptName ) {
+                                return options.get( i, curOptName );
+                            } ) )
+                            return;
+                    } else if ( !options.get( i, fOpt[ i ] ) )
+                        return;
+
+                }
+            }
+
+            initfunc( APP_DATA, require, Add );
+        }
+    }
+
+    _GViK.Get = Get;
+
+    window._GViK = _GViK;
 
 
 
