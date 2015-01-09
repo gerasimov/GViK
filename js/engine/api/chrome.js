@@ -13,7 +13,7 @@ _GViK( function( appData, require, Add ) {
   var
 
     core = require( 'core' ),
-    config = require( 'config' ),
+    constants = require( 'constants' ),
     event = require( 'event' ),
 
     disconnected = false;
@@ -31,7 +31,7 @@ _GViK( function( appData, require, Add ) {
     }, false );
   }
 
-  connect( config.get( "CHROME_RESPONSE" ), function( data ) {
+  connect( constants.get( "CHROME_RESPONSE" ), function( data ) {
     if ( has( data.callback ) ) {
       get( data.callback )
         .apply( this, data.arg );
@@ -41,7 +41,7 @@ _GViK( function( appData, require, Add ) {
     }
   } );
 
-  connect( config.get( "CHROME_DISCONNECT" ), function() {
+  connect( constants.get( "CHROME_DISCONNECT" ), function() {
     disconnected = true;
     event.trigger( 'disconnect' );
   } );
@@ -85,7 +85,7 @@ _GViK( function( appData, require, Add ) {
   function sendRequest( method, sys, callback, error ) {
 
     var params = sys.params || {},
-      callName = disconnected || sys.forceCS ? config.get( "CHROME_CSREQUEST" ) : config.get( "CHROME_REQUEST" ),
+      callName = disconnected || sys.forceCS ? constants.get( "CHROME_CSREQUEST" ) : constants.get( "CHROME_REQUEST" ),
       eventTrigger;
 
     params.uid = appData.getID();
@@ -114,7 +114,7 @@ _GViK( function( appData, require, Add ) {
       data: data,
       callback: callback,
       error: error,
-      forceCS: config.get( "CHROME_FORCE_CS_RUN" )
+      forceCS: constants.get( "CHROME_FORCE_CS_RUN" )
     } );
   };
 
@@ -126,7 +126,7 @@ _GViK( function( appData, require, Add ) {
       },
       callback: callback,
       error: error,
-      forceCS: config.get( "CHROME_FORCE_CS_RUN" )
+      forceCS: constants.get( "CHROME_FORCE_CS_RUN" )
     } );
   };
 
@@ -136,7 +136,7 @@ _GViK( function( appData, require, Add ) {
       data: { },
       callback: callback,
       error: error,
-      forceCS: config.get( "CHROME_FORCE_CS_RUN" )
+      forceCS: constants.get( "CHROME_FORCE_CS_RUN" )
     } );
   };
 
@@ -168,7 +168,7 @@ _GViK( function( appData, require, Add ) {
   };
 
   function sendRequestSync( method, arg ) {
-    var customEvent = new CustomEvent( config.get( "CHROME_REQUEST_SYNC" ), {
+    var customEvent = new CustomEvent( constants.get( "CHROME_REQUEST_SYNC" ), {
       detail: {
         method: method,
         arg: arg
@@ -178,7 +178,7 @@ _GViK( function( appData, require, Add ) {
 
     document.dispatchEvent( customEvent );
 
-    return sessionStorage[ config.get( "CHROME_CS_RESPONSE_NAME" ) ];
+    return sessionStorage[ constants.get( "CHROME_CS_RESPONSE_NAME" ) ];
   }
 
   _chrome.globalFn = function( key, fn, context ) {

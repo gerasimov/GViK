@@ -111,28 +111,29 @@ _GViK( function( appData, require, Add ) {
 
   function isEmpty( obj ) {
     var i;
-    for ( i in obj ) return false;
+    for ( i in obj )
+      return false;
     return true;
   }
 
   function toObject( arrMap ) {
-    var res = {};
-    each( arrMap, function( cArr ) {
-      res[ cArr[ 0 ] ] = cArr[ 1 ];
-    } );
+    var res = {},
+      l = arrMap.length;
+
+    while ( l-- ) res[ arrMap[ l ][ 0 ] ] = arrMap[ l ][ 1 ];
+
     return res;
   }
 
   function toArray( arg ) {
 
-    var length = arg.length,
+    var l = arg.length,
       res = [];
 
-    if ( length === 1 ) res = [ arg[ 0 ] ];
+    if ( l === 1 )
+      res = [ arg[ 0 ] ];
     else
-      while ( length-- ) {
-        res[ length ] = arg[ length ];
-      }
+      while ( l-- ) res[ l ] = arg[ l ];
 
 
     return res;
@@ -192,9 +193,6 @@ _GViK( function( appData, require, Add ) {
     }() );
   }
 
-
-  window.__xhr = [];
-
   function ajax( data, callback, error ) {
 
 
@@ -204,28 +202,18 @@ _GViK( function( appData, require, Add ) {
 
     xhr.open( type, data.url, true );
 
-    xhr.timeout = 30000;
-
     if ( type === 'HEAD' ) {
-      xhr.addEventListener( 'load', function() {
-        callback( data.getheader ?
-          this.getResponseHeader( data.getheader ) :
-          this.getAllResponseHeaders() );
-      } );
+      xhr.onreadystatechange = function() {
+        if ( this.readyState === XMLHttpRequest.HEADERS_RECEIVED )
+          callback( data.getheader ?
+            this.getResponseHeader( data.getheader ) :
+            this.getAllResponseHeaders() );
+      };
 
     } else {
 
-      var __xhrId = __xhr.push( xhr ) - 1;
+      xhr.onload = function() {
 
-      xhr.addEventListener( 'abort', function() {
-        __xhr[ __xhrId ] = undefined;
-        __xhr[ __xhrId ] = null;
-      } )
-
-      xhr.addEventListener( 'load', function() {
-
-        __xhr[ __xhrId ] = undefined;
-        __xhr[ __xhrId ] = null;
 
         if ( xhr.status >= 200 && xhr.status < 300 ) {
           var res = this.responseText,
@@ -237,42 +225,27 @@ _GViK( function( appData, require, Add ) {
           return callback( res );
         }
         error( xhr.status, xhr.statusText, this.getAllResponseHeaders() );
-      }, false );
+
+      };
 
       if ( type === 'POST' ) {
+
         xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
         xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+
         if ( !isEmpty( data.data ) ) {
           dataArg = map( data.data, function( v, k ) {
               return encodeURIComponent( k ) + '=' + encodeURIComponent( v );
             } )
             .join( '&' );
         }
+
       }
     }
 
     xhr.send( dataArg );
 
     return xhr;
-  }
-
-  function abortXHR( xhrId, clb ) {
-    if ( __xhr[ xhrId ] ) {
-      __xhr[ xhrId ].abort();
-    }
-    clb && clb()
-  }
-
-  function abortAllXHR( clb ) {
-
-    if ( __xhr.length )
-      return clb && clb();
-
-    each( __xhr, function( v, id, isLast ) {
-      abortXHR( id  );
-    } );
-
-    clb && clb();
   }
 
 
@@ -304,9 +277,7 @@ _GViK( function( appData, require, Add ) {
     toArray: toArray,
     getResource: getResource,
     define: define,
-    ajax: ajax,
-    abortXHR: abortXHR,
-    abortAllXHR: abortAllXHR
+    ajax: ajax
 
   } );
 

@@ -432,14 +432,7 @@ body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize][data-gv
 }
 
 /* OPTIONS */
-body:not([data-gvik-options*='_hide-status_']) #ac_status
-{
-    display: none !important;
-}
-body:not([data-gvik-options*='_hide-status_']) #pd_status
-{
-    display: none !important;
-}
+ 
 body:not([data-gvik-options*='_ads_']) #left_ads
 {
     display: none !important;
@@ -699,10 +692,7 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
 }
 
 /* SIDEBAR LAST.FM */
-.gvik-switcher.lastfm
-{
-    background: rgb(252, 253, 255) url(chrome-extension://__MSG_@@extension_id__/img/sprite.png) 7px -230px no-repeat;
-}
+ 
 #gvik-sidebar .tags
 {
     width: 85%;
@@ -768,6 +758,11 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
 {
     background-color: #5f7fa2;
 }
+#gvik-lastfm .cur-track .item-cont
+{
+    background: #E5EAEE;
+} 
+
 #gvik-lastfm .tabs
 {
     height: auto;
@@ -908,4 +903,44 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
 {
     height: auto;
     min-height: 100px;
+}
+
+
+
+.gvik-contextmenu
+{
+    position: absolute;
+      background: #F7F7F7;
+    height: auto;
+    width: auto;
+    z-index: 1540;
+    display: none;
+    box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.22);
+    border: 1px solid #DAE2E8;
+}
+
+.gvik-contextmenu ul
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    width: 150px;
+}
+
+.gvik-contextmenu ul li
+{ 
+    text-align: center;
+}
+.gvik-contextmenu ul li:hover
+{
+      background: #EDF1F5;
+}
+.gvik-contextmenu ul li a
+{
+    text-decoration: none;
+    height: 23px;
+    line-height: 23px;
+    display: block;
+
 }

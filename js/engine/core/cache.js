@@ -13,9 +13,9 @@ _GViK( function( gvik, require, Add ) {
 
   var
 
-  config = require('config'),
+    constants = require( 'constants' ),
 
-  __cache = {},
+    __cache = {},
 
 
     tId = setInterval( function() {
@@ -24,14 +24,14 @@ _GViK( function( gvik, require, Add ) {
       __cache = {};
 
 
-    }, config.get('CACHE_CLEAR_TIMEOUT')   );
+    }, constants.get( 'CACHE_CLEAR_TIMEOUT' ) );
 
   Add( 'cache', {
     get: function( key ) {
       return __cache[ key ];
     },
     set: function( key, val ) {
-      __cache[ key ] = val; 
+      __cache[ key ] = val;
     },
     del: function( key ) {
       __cache[ key ] = null;

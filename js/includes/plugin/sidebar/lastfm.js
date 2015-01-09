@@ -24,8 +24,7 @@ _GViK( {
       event = require( 'event' ),
       chrome = require( 'chrome' ),
       lastfmAPI = require( 'lastfmapi' ),
-      launcher = require( 'launcher' ),
-      config = require( 'config' ),
+      constants = require( 'constants' ),
       global = require( 'global' ),
       options = require( 'options' ),
       sidebar = require( 'sidebar' ),
@@ -34,19 +33,16 @@ _GViK( {
       nameArtist,
       nameTrack,
       nameAlbum,
+
       trackId,
-      lastNameTrack = '',
-      lastNameArtist = '',
-      lastNameAlbum = '',
+
       albumTrackList = [],
-      lastResult,
-      lastMbid,
+
       wrap,
       tabCont,
       topTab,
       albumTab,
-      audoNameCont = {},
-      locked = false,
+
       showCurTab,
 
       cnfg = options.get( 'sidebar' );
@@ -143,7 +139,7 @@ _GViK( {
       } ),
 
       TMPL = {
-        item: '<div class="item gvikLastfm" data-duration="<%=duration>" data-trackName="<%=name>">\
+        item: '<div class="item gvikLastfm <%=isCurTrack>" data-duration="<%=duration>" data-trackName="<%=name>">\
             <div class="item-cont">\
                 <div class="img-cont">\
                     <div class="img" style="background-image: url(\'<%=img>\');"></div>\
@@ -163,6 +159,8 @@ _GViK( {
           return {
             url: curTrack.url,
             name: curTrack.name,
+            isCurTrack: ( ( curTrack.name === nameTrack ) ? 'cur-track' : '' ),
+
             dur: global.VARS.FORMAT_TIME( curTrack.duration ),
             duration: curTrack.duration,
             img: ( curTrack.image ? curTrack.image[ 1 ][ '#text' ] : ( appData.APP_PATH + 'img/album.png' ) )
@@ -181,6 +179,7 @@ _GViK( {
           return {
             url: curTrack.url,
             name: curTrack.name,
+            isCurTrack: ( ( curTrack.name === nameTrack ) ? 'cur-track' : '' ),
             duration: curTrack.duration,
             dur: global.VARS.FORMAT_TIME( curTrack.duration ),
             img: album.image[ 1 ][ '#text' ]
@@ -194,12 +193,25 @@ _GViK( {
       dom.empty( albTracksCont );
       albumTab.setAttribute( 'data-label', 'Album' );
 
-      topTab.dispatchEvent( new Event( 'change' ) );
-      topTab.checked = true;
+      selectTopTab();
 
       nameAlbum = '';
 
       tabs.classList.add( 'gvik-none' );
+    }
+
+
+    function selectTab( el ) {
+      el.dispatchEvent( new Event( 'change' ) );
+      el.checked = true;
+    }
+
+    function selectAlbumTab() {
+      selectTab( albumTab );
+    }
+
+    function selectTopTab() {
+      selectTab( topTab );
     }
 
 
@@ -224,16 +236,30 @@ _GViK( {
     }
 
     function getCacheKey() {
-      return core.toArray( arguments ).map( function( val ) {
-        return val.replace( /(?:[\s,\.\\\/\!\@\#\$\%\^\&\*\(\)\|]+)/g, '' ).toLowerCase();
-      } ).join( '-' );
+      return core.toArray( arguments ).join( '-' );
+    }
+
+    function checkCache( method, prop, cacheArr, clb ) {
+
+      cacheArr.push( method );
+
+      var cacheVal = cache.get( getCacheKey.apply( this, cacheArr ) );
+
+
+      clb && clb( !!cacheVal );
+
+      if ( cacheVal )
+        event.trigger( method, cacheVal );
+      else {
+        lfapiCall( method, prop );
+      }
     }
 
     var __xhr;
 
 
     function lfapiCall( method, prop ) {
- 
+
 
       __xhr = lastfmAPI.call( method, {
         artist: nameArtist || '',
@@ -241,7 +267,6 @@ _GViK( {
         track: nameTrack || '',
         correction: 1
       }, function( res, isError ) {
-        lastResult = res;
         if ( isError ) return event.trigger( method + '.error' );
         event.trigger( method, res[ prop ] );
       }, function() {
@@ -260,34 +285,30 @@ _GViK( {
 
     event.bind( 'track.getInfo', function( track, evname ) {
 
+      nameTrack = track.name;
+
 
       cache.set( getCacheKey( nameArtist, nameTrack, evname ), track );
 
       if ( !track.album )
         return resetAlbum();
 
+      if ( track.album.title === nameAlbum )
+        return selectAlbumTab();
 
-      if ( track.album.title === nameAlbum ) {
-        /*       albumTab.dispatchEvent( new Event( 'change' ) );
-               albumTab.checked = true;*/
-        return;
-      }
 
       nameAlbum = track.album.title;
 
-      if ( cache.has( getCacheKey( nameArtist, nameTrack, 'album.getInfo' ) ) )
-        event.trigger( 'album.getInfo', cache.get( getCacheKey( nameArtist, nameAlbum, 'album.getInfo' ) ) );
-      else lfapiCall( 'album.getInfo', "album" );
+      checkCache( 'album.getInfo', 'album', [ nameArtist, nameAlbum ] );
 
     } )
 
     .bind( 'artist.getInfo', function( artist, evname ) {
 
-      nameArtist = artist.name;
 
       cache.set( getCacheKey( nameArtist, evname ), artist );
-
-      labelEl.innerText = artist.name;
+      nameArtist = dom.unes( artist.name );
+      labelEl.innerText = nameArtist;
 
       imgEl.src = artist.image[ 2 ][ '#text' ];
 
@@ -307,13 +328,7 @@ _GViK( {
 
       dom.addClass( tabCont, 'loaded' );
 
-
-      if ( cache.has( getCacheKey( nameArtist, 'artist.getTopTracks' ) ) )
-        event
-        .trigger( 'artist.getTopTracks', cache.get( getCacheKey( nameArtist, 'artist.getTopTracks' ) ) );
-      else lfapiCall( 'artist.getTopTracks', "toptracks" );
-
-
+      checkCache( 'artist.getTopTracks', 'toptracks', [ nameArtist ] );
 
     } )
 
@@ -340,7 +355,8 @@ _GViK( {
 
 
         core.each( groups, function( val, key ) {
-          if ( key !== "noimage" ) html.push( render( TMPL.item, val, TMPL.renderTrack ) );
+          if ( key !== "noimage" )
+            html.push( render( TMPL.item, val, TMPL.renderTrack ) );
         } );
 
         html.push( render( TMPL.item, groups.noimage || [], TMPL.renderTrack ) );
@@ -352,11 +368,7 @@ _GViK( {
 
       tracksCont.innerHTML = html.join( '' );
 
-      if ( cache.has( getCacheKey( nameArtist, nameTrack, 'track.getInfo' ) ) )
-        event
-        .trigger( 'track.getInfo', cache.get( getCacheKey( nameArtist, nameTrack, 'track.getInfo' ) ) );
-      else lfapiCall( 'track.getInfo', "track" );
-
+      checkCache( 'track.getInfo', 'track', [ nameArtist, nameTrack ] )
 
     } )
 
@@ -378,43 +390,42 @@ _GViK( {
 
       albTracksCont.innerHTML = render( TMPL.item, album.tracks.track, TMPL.renderAlbumTrack.pbind( album ) );
 
-      /*    albumTab.dispatchEvent( new Event( 'change' ) );
-          albumTab.checked = true;*/
+      selectAlbumTab();
 
       tabs.classList.remove( 'gvik-none' );
 
     } )
 
-    .bind( 'newtrack', function( data ) {
+    .bind( 'lastfm.newtrack', function( data ) {
 
       if ( !sidebar.shown )
         sidebar.show();
 
       showCurTab();
-      resetArtist();
 
 
-      if(__xhr)
+      if ( __xhr )
         __xhr.abort();
       __xhr = null;
 
 
 
+      dom.removeClass( tabCont, 'loaded' );
+
       trackId = data.trackId;
       nameTrack = data.title;
       nameArtist = data.artist;
 
+      checkCache( 'artist.getInfo', 'artist', [ nameArtist ], function( fromCache ) {
 
+        if ( !fromCache )
+          resetArtist();
 
-      if ( cache.has( getCacheKey( nameArtist, 'artist.getInfo' ) ) )
-        event
-        .trigger( 'artist.getInfo', cache.get( getCacheKey( nameArtist, 'artist.getInfo' ) ) );
-      else {
-        dom.removeClass( tabCont, 'loaded' );
-        lfapiCall( 'artist.getInfo', "artist" );
-      }
+        trackId = data.trackId;
+        nameTrack = data.title;
+        nameArtist = data.artist;
 
-
+      } );
 
     } );
 
@@ -475,20 +486,22 @@ _GViK( {
       e.stopPropagation();
       e.preventDefault();
 
-      var searchName = nameArtist + ' – ' + this.getAttribute( 'data-trackname' );
+      var searchName = nameArtist + ' – ' + this.getAttribute( 'data-trackname' ),
+        from_pad = window._pads.shown == 'mus',
+        __cur = window._pads && _pads.cur || window.cur;
 
-      if ( window.cur.aSearch ) {
+      if ( window.cur.aSearch || from_pad ) {
 
-        cur.searchTypeChanged( {
+        __cur.searchTypeChanged( {
           target: {
             index: 0
           }
         }, true );
 
-        cur.searchTypeMenu.value = 0;
+        __cur.searchTypeMenu.value = 0;
 
         Audio.selectPerformer( {
-          from_pad: false,
+          from_pad: from_pad,
           event: 0,
           name: searchName
         } );

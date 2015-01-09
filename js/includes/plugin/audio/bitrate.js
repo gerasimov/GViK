@@ -1,8 +1,8 @@
 /*
-
-
-
-
+ 
+ 
+ 
+ 
  */
 
 
@@ -68,7 +68,44 @@ _GViK( {
       LOADER_DISABLED = CONFS.get( 'loader-disable' ),
 
       CLASS_BITRATE = [ 'gvik-bitrate', ( LOADER_DISABLED ? '' : ' loader' ) ].join( '' ),
-      NAME_ATTR = [ 'data-gvik-bitrate', ( FILE_SIZE_ENABLED ? '-filesize' : '' ) ].join( '' );
+      NAME_ATTR = [ 'data-gvik-bitrate', ( FILE_SIZE_ENABLED ? '-filesize' : '' ) ].join( '' ),
+
+      AUDIO_SELECTOR = '.audio:not([id=audio_global]):not([' + NAME_ATTR + '])',
+      SORT_AUDIO_SELECTOR = '.audio:not([id=audio_global])[' + NAME_ATTR + ']',
+
+      SORT_PROP = "bitInt",
+
+      HIDE_SMALL_BIT_FN = CONFS.get( 'auto-hide-bit' ) ? function( audios ) {
+        for ( var i = audios.length; i--; ) {
+          if ( getCacheInt( audios[ i ].id ) > 260 )
+            break;
+
+          audios[ i ].style.display = "none";
+        }
+      } : null,
+
+      AUTO_LOAD_BIT_FN = CONFS.get( 'auto-load-bit' ) ? function( bitrateEl, res, audioEl ) {
+        if ( window.cur.searchStr ) {
+          clearTimeout( tId );
+          tId = setTimeout( function() {
+            var audios = [].slice.call( window.cur.sContent.querySelectorAll( SORT_AUDIO_SELECTOR ) ).sort( function( a, b ) {
+              return getCacheInt( b.id ) - getCacheInt( a.id );
+            } );
+
+            if ( !audios.length ) return;
+
+            HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN( audios );
+
+            dom.append( window.cur.sContent, audios );
+          }, 100 );
+        }
+      } : null;
+
+
+
+    function getCacheInt( id ) {
+      return ( cache.get( id ) || {} )[ SORT_PROP ] || 0;
+    }
 
 
     function __getBitrate( url, dur, callback, needFileSize, id ) {
@@ -106,10 +143,8 @@ _GViK( {
 
         if ( fromCache ) {
           //
-        } else {
-          if ( !LOADER_DISABLED )
-            bitrateEl.classList.remove( 'loader' );
-        }
+        } else
+        if ( !LOADER_DISABLED ) bitrateEl.classList.remove( 'loader' );
 
         bitrateEl.innerText = res.formated;
 
@@ -119,76 +154,27 @@ _GViK( {
 
         if ( !cache.has( data.id ) ) cache.set( data.id, res );
 
-        if ( callback )
-          callback( bitrateEl, res, audioEl );
+        if ( callback ) callback( bitrateEl, res, audioEl );
 
       }, FILE_SIZE_ENABLED, data.id );
 
     }
 
 
-    var AUDIO_SELECTOR = '.audio:not([id=audio_global]):not([' + NAME_ATTR + '])';
 
+    event.bind( [
+      'audio.newRows',
+      'audio',
+      'padOpen'
+    ], function() {
 
-
-    var clbck = CONFS.get( 'auto-load-bit' ) ? function( bitrateEl, res, audioEl ) {
-      if ( window.cur.searchStr ) {
-        clearTimeout( tId );
-        tId = event.asyncTrigger( 'bitrate_load', 100 );
-      }
-    } : null;
-
-    var _sortProp = "bitInt";
-
-    function getCacheInt( id ) {
-      return ( cache.get( id ) || {} )[ _sortProp ] || 0;
-    }
-
-    var SORT_SELECTOR = '.audio:not([id=audio_global])[' + NAME_ATTR + ']',
-      SORT_FN = function( a, b ) {
-        return getCacheInt( b.id ) - getCacheInt( a.id );
-      };
-
-    event
-      .bind( 'bitrate_load', function() {
-
-        var audios = core.toArray(  window.cur.sContent.querySelectorAll( SORT_SELECTOR ) ).sort( SORT_FN ),
-          l, i;
-
-        if ( !( l = audios.length ) )
-          return;
-
-        var df = document.createDocumentFragment(),
-        i = 0;
-
-        for ( ; i < l; i++ )
-          df.appendChild( audios[ i ] );
-
-        window.cur.sContent.appendChild( df );
-
-        event.trigger( 'audio_sort', audios );
-      } )
-
-    .bind( [
-    'newAudioRows',
-    'audio',
-    'padOpen'
-  ], function() {
       var audios = dom.queryAll( AUDIO_SELECTOR ),
-         l = audios.length;
-      for ( ; l--;)  setBitrate( audios[ l ], clbck );
+        i = 0,
+        l = audios.length;
+
+      for ( ; i < l; i++ )
+        setBitrate( audios[ i ], AUTO_LOAD_BIT_FN );
     }, true );
-
-    if ( CONFS.get( 'auto-hide-bit' ) )
-      event.bind( 'audio_sort', function( audios ) {
-        for ( var i = audios.length; i--; ) {
-          if ( getCacheInt( audios[ i ].id ) > 260 )
-            break;
-
-          audios[ i ].style.display = "none";
-        }
-      } );
-
 
     dom.setDelegate( document, AUDIO_SELECTOR, {
       mouseover: function( el ) {

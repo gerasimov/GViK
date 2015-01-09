@@ -12,7 +12,7 @@ _GViK( function( gvik, require, Add ) {
   var
     dom = require( 'dom' ),
     core = require( 'core' ),
-    chrome = require('chrome'),
+    chrome = require( 'chrome' ),
     options = require( 'options' ),
     event = require( 'event' ),
 
@@ -59,10 +59,10 @@ _GViK( function( gvik, require, Add ) {
 
   dom.append( document.body,
     dom.append( sidebarEl, [
-            wrap,
-            switcher,
-             additionalSwitcherCont
-        ] )
+      wrap,
+      switcher,
+      additionalSwitcherCont
+    ] )
   );
 
   event.bind( 'resize', function( s ) {
@@ -117,7 +117,7 @@ _GViK( function( gvik, require, Add ) {
   };
 
   var countPage = sidebar.countPage = 0,
-    heightTab = parseInt( window.getComputedStyle( switcher )[ "height" ] )+5,
+    heightTab = parseInt( window.getComputedStyle( switcher )[ "height" ] ) + 5,
 
     lastTabC;
 
@@ -162,7 +162,7 @@ _GViK( function( gvik, require, Add ) {
       } );
     }
 
-    callback( nSwitcher, nTabCont, wrap, countPage, function() {
+    callback && callback( nSwitcher, nTabCont, wrap, countPage, function() {
       lastTabC.classList.add( 'gvik-none' );
       nTabCont.classList.remove( 'gvik-none' );
       lastTabC = nTabCont;
@@ -181,7 +181,12 @@ _GViK( function( gvik, require, Add ) {
       switcher: nSwitcher,
       tabCont: nTabCont,
       wrap: wrap,
-      countPage: countPage
+      countPage: countPage,
+      show: function() {
+        lastTabC.classList.add( 'gvik-none' );
+        nTabCont.classList.remove( 'gvik-none' );
+        lastTabC = nTabCont;
+      }
     };
   };
 

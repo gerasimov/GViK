@@ -12,7 +12,7 @@
 _GViK( function( gvik, require, Add ) {
 
 
-  var configs = {
+  var __constants = {
 
     DEBUG: true,
 
@@ -35,8 +35,11 @@ _GViK( function( gvik, require, Add ) {
     SIDEBAR_LASTFM_TOP_TRACKS_LIMIT: 20,
 
 
-    CORE_PATH: "engine/core/",
+    GOOGLE_ANALITICS_CODE: 'UA-51509924-1',
 
+
+    CORE_PATH: "engine/core/",
+    PLUGIN_PATH: "includes/plugin/",
 
 
 
@@ -46,13 +49,15 @@ _GViK( function( gvik, require, Add ) {
 
 
 
-  Add( 'config', {
+  Add( 'constants', {
     get: function( key ) {
-      return configs[ key ];
+      return __constants[ key ];
     },
 
-    get config() {
-      return configs;
+    define: function( name, val ) {
+      if ( !__constants.hasOwnProperty( name ) )
+        __constants[ name ] = val;
+
     }
   } );
 

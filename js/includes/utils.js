@@ -18,7 +18,7 @@ _GViK( function( gvik, require, Add ) {
     cache = require( 'cache' ),
     event = require( 'event' ),
     global = require( 'global' ),
-    config = require( 'config' );
+    constants = require( 'constants' );
 
   global.VARS.PARSE_AUDIO_DATA = function( el, id ) {
 

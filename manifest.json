@@ -5,7 +5,10 @@
         "scripts": [
 
             "js/engine/migrate.js",
+            "js/engine/constants.js",
+
             "js/engine/core/core.js",
+            "js/engine/core/event.js",
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
@@ -22,20 +25,20 @@
         "js": [
             "js/engine/migrate.js",
 
-            "js/engine/config.js",
+            "js/engine/constants.js",
 
             "js/engine/core/core.js",
+            "js/engine/core/event.js",
             "js/engine/core/dom.js",
 
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/content.js",
+
             "js/content/init.js"
         ],
         "matches": [
-            "*://vk.com/*",
-            "*://last.fm/*",
-            "*://*.last.fm/*"
+            "*://vk.com/*"
         ],
         "run_at": "document_start"
     } ],
@@ -59,7 +62,6 @@
         "tabs",
         "downloads",
         "storage",
-        "webNavigation",
         "*://*.vk.com/*",
         "*://*.vk-cdn.net/*",
         "*://*.audioscrobbler.com/*",
@@ -71,7 +73,7 @@
         "js/includes/preloader.js",
         "js/includes/loader.js",
 
-        "js/engine/config.js",
+        "js/engine/constants.js",
 
         "js/engine/core/global.js",
         "js/engine/core/cache.js",
@@ -86,7 +88,7 @@
         "js/lib/md5.js",
 
         "js/includes/utils.js",
-        "js/includes/vkinit.js",
+        "js/includes/customEvents.js",
 
         "js/engine/options.js",
 
@@ -97,10 +99,16 @@
         "js/includes/plugin/vkapi/vkapi.js",
         "js/includes/plugin/vkapi/search.js",
 
+        "js/includes/plugin/groups/leave.js",
+
         "js/includes/plugin/audio/download.js",
         "js/includes/plugin/audio/bitrate.js",
         "js/includes/plugin/audio/common.js",
         "js/includes/plugin/audio/searchAndPlay.js",
+
+        "js/includes/plugin/audio/contextMenu.js",
+
+        "js/includes/plugin/audio/autocomplete.js",
 
         "js/includes/plugin/sidebar/sidebar.js",
 

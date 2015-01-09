@@ -1,12 +1,13 @@
 /*
-
-
-
+ 
+ 
+ 
  */
 
 _GViK( function( gvik, require, Add ) {
 
   "use strict";
+
 
 
   var methods = window.methods = {},
@@ -49,6 +50,11 @@ _GViK( function( gvik, require, Add ) {
       } );
     } );
   }
+
+  methods.triggerEvent = function( o, p, c ) {
+    if ( event )
+      event.trigger( o.ev, o.dt );
+  };
 
   methods.getSupport = function( o, p, c ) {
     c( window.SUPPORT || {} );
@@ -100,13 +106,12 @@ _GViK( function( gvik, require, Add ) {
         return;
       }
 
-      var token,
-        p = core.extend( {
-          type: 'popup',
-          focused: true
-        }, obj );
+      var token;
 
-      chrome.windows.create( p, function( createdWin ) {
+      chrome.windows.create( core.extend( {
+        type: 'popup',
+        focused: true
+      }, obj ), function( createdWin ) {
         winId = createdWin.id;
         winOpened = true;
 
@@ -148,9 +153,7 @@ _GViK( function( gvik, require, Add ) {
   if ( SUPPORT.downloads ) {
 
     chrome.downloads.onChanged.addListener( function( downProp ) {
-      eachTabs( function( tab ) {
-        sendMessageEx( "donwloadChanged", [ downProp ], null, tab.id )
-      } );
+      sendMessageEx( "donwloadChanged", [ downProp ] );
     } );
 
     methods.download = function( o, p, c ) {
@@ -169,7 +172,7 @@ _GViK( function( gvik, require, Add ) {
       var xhr = new XMLHttpRequest(),
         i = 0,
         ready = false,
-        urlmng = ( window.webkitURL || window.URL ),
+        urlmng = ( window.URL || window.webkitURL ),
         url = o.url,
         fromCache = false;
 
@@ -240,7 +243,7 @@ _GViK( function( gvik, require, Add ) {
     };
   }
 
-  methods.simpleAjax = methods.ajax= function( o, p, c, e ) {
+  methods.simpleAjax = methods.ajax = function( o, p, c, e ) {
     core.ajax( o, c, e );
   };
 

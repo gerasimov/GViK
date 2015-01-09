@@ -21,32 +21,38 @@ _GViK( {
 
 
   event.bind( 'groups', function() {
+
     var el = dom.byId( 'groups_list_summary' );
 
-    if ( !el )
-      return;
+    if ( !el ) return;
 
     dom.append( el, [
 
-            dom.create( 'span', {
+      dom.create( 'span', {
         prop: {
           className: 'divider',
           innerText: '|'
         }
       } ),
 
-            dom.create( 'span', {
+      dom.create( 'span', {
         append: dom.create( 'a', {
           prop: {
             innerText: 'Выйти из всех групп'
           },
 
           events: {
-            click: function() {}
+            click: function() {
+              var key = "gvik";
+
+
+              if ( ( prompt( "Введите слово \"" + key + "\", чтобы подтвердить действие." ) || '' ).toLowerCase().trim() === key )
+                vkapi.call();
+            }
           }
         } )
       } )
-        ] );
+    ] );
 
 
   }, true );
@@ -63,7 +69,7 @@ _GViK( {
       return;
     }
 
-    but = dom.create( 'span', {
+    dom.after( infRow, dom.create( 'span', {
       prop: {
         className: 'gvik-exit-group'
       },
@@ -76,9 +82,7 @@ _GViK( {
           } );
         }
       }
-    } );
-
-    dom.after( infRow, but );
+    } ) );
 
   } );
 

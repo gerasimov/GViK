@@ -61,6 +61,10 @@ _GViK( function( gvik, require, Add ) {
     return element;
   }
 
+
+  var customEventCont = {};
+ 
+
   function setEvent( element, evName, evVal ) {
 
     if ( arguments.length === 2 ) {
@@ -241,6 +245,11 @@ _GViK( function( gvik, require, Add ) {
       arg = isarr ? arr : Array.prototype.slice.call( arguments, 1 ),
       l = arg.length;
 
+    if ( l === 1 )
+      return element.appendChild( arg[ 0 ] );
+    else if ( l === 0 )
+      return;
+
     var df = document.createDocumentFragment();
 
     for ( ; i < l; i++ )
@@ -310,10 +319,10 @@ _GViK( function( gvik, require, Add ) {
       f, i;
 
     if ( data )
-      for ( i in data )
+      for ( i in data ) {
         if ( ( f = assaciateFn[ i ] ) )
           f( element, data[ i ] );
-
+      }
     return element;
   }
 

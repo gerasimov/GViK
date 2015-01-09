@@ -11,12 +11,11 @@ _GViK( function( appData, require, d ) {
   var core = require( 'core' ),
     event = require( 'event' ),
     options = require( 'options' ),
-    config = require( 'config' ),
+    constants = require( 'constants' ),
     chrome = require( 'chrome' ),
     dom = require( 'dom' );
 
-  appData.getID = function() {
-
+  appData.getID = function() { 
     return window.vk.id;
   };
 
@@ -42,18 +41,18 @@ _GViK( function( appData, require, d ) {
     } );
   }
 
-  if ( options.get( 'system', 'enable-qicksett' ) ) {
+  if ( options.get( 'system', 'enable-qicksett' ) )
     event.bind( "changeURL", function() {
       chrome.sendRequest( "showPageAction", {} );
     }, true );
-  }
+
 
   chrome.ga( 'send', 'event', 'vk', 'init' );
 
   event.bind( 'load', function checkID() {
     chrome.pushID();
     if ( appData.getID() === 0 )
-      setTimeout( checkID, config.get( "LOADER_TIMEOUT" ) );
+      setTimeout( checkID, constants.get( "LOADER_TIMEOUT" ) );
     else
       __init();
   } );

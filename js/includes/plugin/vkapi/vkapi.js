@@ -4,7 +4,7 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-_GViK( function( gvik, require, Add ) {
+_GViK( function( appData, require, Add ) {
 
   "use strict";
 
@@ -19,7 +19,7 @@ _GViK( function( gvik, require, Add ) {
       this.KEY_TOKEN = "vk";
       this.ROOT_URL = "https://api.vk.com/method/";
       this.APP_ID = "2224353";
-      this.USER_ID = gvik.UNIQ_ID;
+      this.USER_ID = appData.getID();
 
 
       this.permission = [ 'friends',

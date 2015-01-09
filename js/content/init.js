@@ -12,7 +12,7 @@ _GViK( function( gvik, require, Add ) {
 
   var dom = require( 'dom' ),
     core = require( 'core' ),
-    config = require( 'config' ),
+    constants = require( 'constants' ),
     appPath = chrome.extension.getURL( '' ),
 
     rIsJs = /\.js$/,

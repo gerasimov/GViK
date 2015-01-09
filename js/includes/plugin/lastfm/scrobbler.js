@@ -102,37 +102,27 @@ _GViK( {
 
       }.bind( this ), true )
 
-      .bind( 'onPlayAudio', function( data ) {
-        this.playProgress.apply( this, data.arg );
-      }.bind( this ) )
+      .bind( 'audio.onPlayProgress', this.playProgress.bind( this ) )
 
       .bind( 'playerOpen', function( ev ) {
-
         var gpW = document.getElementById( 'gp_wrap' );
-
-        if ( gpW )
-          gpW.appendChild( scrobbleMini );
+        if ( gpW )  gpW.appendChild( scrobbleMini );
         ev.el.classList.add( 'gvik' );
-
       }.bind( this ) )
 
       .bind( 'padOpen', function( ev ) {
         var pd = document.getElementById( 'pd' );
 
-        if ( !pd ) {
-          return;
-        }
+        if ( !pd ) return;
 
         pd.classList.add( 'gvik' );
 
         var exct = pd.querySelector( '.extra_ctrls' );
 
-        if ( exct ) {
-          dom.append( exct, [ likePad, scrobblePad ] );
-        }
+        if ( exct ) dom.append( exct, [ likePad, scrobblePad ] );
       }.bind( this ) )
 
-      .bind( 'onNewTrack', function( trackId ) {
+      .bind( 'audio.onNewTrack', function( trackId ) {
 
         this.trackId = trackId;
         this.artist = dom.unes( this.info()[ 5 ] );
@@ -141,7 +131,7 @@ _GViK( {
         this.maxStep = Math.max( 1, Math.floor( this.startScrobble / this.UPDATE_DELAY ) - 1 );
         this.readyD = false;
 
-        event.trigger( 'newtrack', {
+        event.trigger( 'lastfm.newtrack', {
           artist: this.artist,
           title: this.title,
           url: this.info()[ 2 ],
@@ -291,7 +281,7 @@ _GViK( {
 
       return chrome.sendTabs( 'LASTFM_changestate', {
         data: state
-      } );
+      }, true );
 
     },
 
@@ -343,7 +333,7 @@ _GViK( {
       }.bind( this ) );
     },
 
-    playProgress: function( pos, len ) {
+    playProgress: function( pos ) {
 
       if ( pos === this.position )
         return;
@@ -363,13 +353,8 @@ _GViK( {
 
       this.position = pos;
 
-      if ( !state || this.scrobbled || !pos ) {
-        return;
-      }
-
-      if ( !( pos % this.UPDATE_DELAY ) && pos <= this.startScrobble - this.UPDATE_DELAY ) {
-        this._update_();
-      }
+      if ( !state || this.scrobbled )  return;
+      if ( !( pos % this.UPDATE_DELAY ) && pos <= this.startScrobble - this.UPDATE_DELAY ) this._update_();
 
       if ( this.step >= this.maxStep && pos >= this.startScrobble ) {
         this.scrobbled = true;

@@ -85,6 +85,9 @@ _GViK( function( gvik, require, Add ) {
 
 
   var _trigger = function( el ) {
+
+
+
     var elId = el.id.split( '-' ),
 
       namespace = elId.shift(),
@@ -92,6 +95,7 @@ _GViK( function( gvik, require, Add ) {
       optVal = ischeckedpropreg.test( el.type ) ?
       el.checked :
       el.value;
+
 
     event.trigger( 'change_option', {
       namespace: namespace,
@@ -113,8 +117,15 @@ _GViK( function( gvik, require, Add ) {
 
 
   dom.setDelegate( document, {
-    'input[type=checkbox],  input[type=number],  input[type=radio],  select': {
+    'input[type=checkbox], input[type=number], select': {
       change: _trigger
+    },
+    'input[type=radio]': {
+      change: function( el ) {
+
+        console.log(dom.queryAll( 'input[type=radio][name=' + el.name + ']', dom.parent( el, '.hidden-el' ) ));
+        core.each( dom.queryAll( 'input[type=radio][name=' + el.name + ']', dom.parent( el, '.hidden-el' ) ), _trigger );
+      }
     },
     'input[type=text]': {
       keyup: _trigger
@@ -122,20 +133,4 @@ _GViK( function( gvik, require, Add ) {
   } );
 
 
-
-  core.define( [ 'https://events.webmoney.ru/js/ewm-api.js' ], function() {
-    EWM.urls.main = "https://events.webmoney.ru";
-  } );
-
-  /*
-    (function(w, d, id) {
-      if (!d.getElementById(id)) {
-          var s = document.createElement('script');
-          s.id = id;
-          s.async = true;
-          s.src = '//?11';
-          (d.getElementsByTagName('head')[0] || d.documentElement).appendChild(s);
-      }
-  })(window, document, 'ewm-js-api');
-  */
 } );

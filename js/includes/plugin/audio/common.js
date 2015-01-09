@@ -8,15 +8,5 @@ _GViK( function( appData, require, Add ) {
     vkapi = require( 'vkapi' ),
     event = require( 'event' ),
     core = require( 'core' );
-
-
-
-  if ( options.get( 'audio', 'faster' ) )
-    event.bind( 'audio', function() {
-      if ( window.sorter && window.sorter.added ) {
-        window.sorter.added = function() {};
-      }
-    }, true );
-
-
+ 
 } );

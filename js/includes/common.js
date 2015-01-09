@@ -23,8 +23,7 @@ _GViK( function( gvik, require, Add ) {
     'gvik-options': core.filter( {
         'audio-out-hide': '_hide-bit_',
         'common-remove-ads': '_ads_',
-        'common-remove-white-heart': '_heart_',
-        'common-remove-status': '_hide-status_'
+        'common-remove-white-heart': '_heart_' 
       }, function( v, k ) {
         var keys = k.split( /-/g );
         return !options.get( keys.shift(), keys.join( '-' ) );

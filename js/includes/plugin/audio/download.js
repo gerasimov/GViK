@@ -38,7 +38,7 @@ _GViK( {
 		var ext = '.' + data.ext;
 
 
-		if(!rExtTest.test(fileNamePattern))
+		if ( !rExtTest.test( fileNamePattern ) )
 			fileNamePattern += ext;
 
 		var fName = core.tmpl2( fileNamePattern, {
@@ -49,7 +49,7 @@ _GViK( {
 			i: data.id
 		} );
 
-		if(fName.length === ext.length)
+		if ( fName.length === ext.length )
 			fName = "Name" + fName;
 
 
@@ -91,7 +91,10 @@ _GViK( {
 						saveAs: SAVE_AS
 					}, function( downloadItemId ) {
 						chrome.download.search( downloadItemId, function( downloadItem ) {
-							event.trigger( 'AUDIO_downloaded', downloadItem );
+							event.trigger( 'AUDIO_downloaded', {
+								downloadItem: downloadItem,
+								data: data
+							} );
 						} );
 					} );
 				}

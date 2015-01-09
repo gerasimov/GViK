@@ -31,8 +31,7 @@ _GViK( function( gvik, require, Add ) {
         "download-enable": true,
         "download-fromCache": false,
         "download-saveAs": false,
-
-        "faster": false,
+ 
         "file-size": false,
 
         "format-filename": "%a - %t.%e",
@@ -41,10 +40,8 @@ _GViK( function( gvik, require, Add ) {
         "min-bitrate": 256,
         "out-hide": false
       },
-      "common": {
-        "mark-red-type-vote": false,
-        "remove-ads": true,
-        "remove-status": false,
+      "common": { 
+        "remove-ads": true, 
         "remove-white-heart": true,
         "set-offline": true,
         "set-online": false,

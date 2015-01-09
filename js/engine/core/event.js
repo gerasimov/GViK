@@ -123,12 +123,16 @@ _GViK( function( gvik, require, Add ) {
 
 
   Event.prototype.chromeTrigger = function( name, data ) {
-    if( chrome )
-      chrome.sendRequest( name, {
-        data: data
+    if ( chrome || ( chrome = require( 'chrome' ) ) )
+      chrome.sendRequest( 'triggerEvent', {
+        data: {
+          ev: name,
+          dt: data
+        },
+        forceCS: true
       } );
 
-      return this;
+    return this;
   };
 
 
@@ -136,6 +140,13 @@ _GViK( function( gvik, require, Add ) {
     if ( this.hasEvent( name ) ) {
       __run( name, data );
     }
+
+
+    if ( chromeTrigger ) {
+      this.chromeTrigger( name, data );
+    }
+
+
     return this;
   };
 

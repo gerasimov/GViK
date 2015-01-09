@@ -12,7 +12,8 @@ _GViK( function( gvik, require, Add ) {
   var
 
     core = require( 'core' ),
-    config = require( 'config' ),
+    event = require( 'event' ),
+    constants = require( 'constants' ),
     dom = require( 'dom' ),
 
     syncMethods = {
@@ -34,15 +35,20 @@ _GViK( function( gvik, require, Add ) {
     );
   }
 
+ 
+
+  var _disc = false;
+
   function processResponse( data ) {
-    trigger( config.get( "CHROME_RESPONSE" ), data );
+    trigger( constants.get( "CHROME_RESPONSE" ), data );
   }
 
   port.onMessage.addListener( processResponse );
   chrome[ CONFIG.sender ].onMessage.addListener( processResponse );
 
   port.onDisconnect.addListener( function() {
-    trigger( config.get( "CHROME_DISCONNECT" ), {} );
+    trigger( constants.get( "CHROME_DISCONNECT" ), {} );
+    _disc = true;
   } );
 
 
@@ -52,15 +58,12 @@ _GViK( function( gvik, require, Add ) {
     }, false );
   }
 
-  connect( config.get( "CHROME_REQUEST_SYNC" ), function( data ) {
-    sessionStorage[ config.get( "CHROME_CS_RESPONSE_NAME" ) ] = syncMethods[ data.method ]( data.arg );
+  connect( constants.get( "CHROME_REQUEST_SYNC" ), function( data ) {
+    sessionStorage[ constants.get( "CHROME_CS_RESPONSE_NAME" ) ] = syncMethods[ data.method ]( data.arg );
   } );
 
-  connect( config.get( "CHROME_REQUEST" ), function( data ) {
-    port.postMessage( data );
-  } );
 
-  connect( config.get( "CHROME_CSREQUEST" ), function( data ) {
+  function cs_request( data ) {
     var params = data.params,
       method = methods[ params.method ];
 
@@ -76,7 +79,20 @@ _GViK( function( gvik, require, Add ) {
           callback: params.error
         } );
       } );
+  }
+
+  connect( constants.get( "CHROME_REQUEST" ), function( data ) {
+
+    var params = data.params,
+      method = methods[ params.method ];
+
+    if ( _disc || method )
+      return cs_request( data );
+
+    port.postMessage( data );
   } );
+
+  connect( constants.get( "CHROME_CSREQUEST" ), cs_request );
 
 
 } );

@@ -144,8 +144,10 @@ input[type=radio]
 }
 input ~ label
 {
-    color: #C7C7C7;
-    cursor: pointer;
+    
+    color: #3d464d;
+/*     color: #C7C7C7;
+     */    cursor: pointer;
     vertical-align: middle;
     -webkit-transition: color .1s ease-in;
        -moz-transition: color .1s ease-in;
@@ -153,12 +155,12 @@ input ~ label
          -o-transition: color .1s ease-in;
             transition: color .1s ease-in;
 }
-
+/* 
 input:checked ~ label,
 .block:hover > input ~ label
 {
     color: #3d464d;
-}
+} */
 .block
 {
     margin: 4px 0;

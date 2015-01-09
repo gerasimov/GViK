@@ -8,7 +8,7 @@
 
 _GViK( function( appData, require, Add ) {
 
-    var config = require( 'config' ),
+    var constants = require( 'constants' ),
         event = require( 'event' ),
         core = require( 'core' );
 
@@ -19,10 +19,10 @@ _GViK( function( appData, require, Add ) {
 
     SQL.prototype.open = function() {
         this.db = openDatabase(
-            config.get( "SQL_DATABASE_SHORTNAME" ),
-            config.get( "SQL_DATABASE_VERSION" ),
-            config.get( "SQL_DATABASE_NAME" ),
-            config.get( "SQL_DATABASE_SIZE" ) );
+            constants.get( "SQL_DATABASE_SHORTNAME" ),
+            constants.get( "SQL_DATABASE_VERSION" ),
+            constants.get( "SQL_DATABASE_NAME" ),
+            constants.get( "SQL_DATABASE_SIZE" ) );
     };
 
 
@@ -64,6 +64,7 @@ _GViK( function( appData, require, Add ) {
 
 
     SQL.prototype.insertTable = function( tableName, vals ) {
+        
         if ( Array.isArray( vals ) ) {
 
         } else {
