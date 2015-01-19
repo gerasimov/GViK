@@ -20,17 +20,14 @@ _GViK( function( gvik, require, Add ) {
 
     // id element => event name
     var events = {
-            'gp': 'playerOpen',
-            'pad_cont': 'padOpen',
-            'wrap3': 'changePage',
-            'audio': 'audio',
-            'im_content': 'IM',
-            'groups_list_content': 'groups',
-            'settings_panel': 'settings'
-        },
-
-
-        eventsKeys = Object.keys( events );
+        'gp': 'playerOpen',
+        'pad_cont': 'padOpen',
+        'wrap3': 'changePage',
+        'audio': 'audio',
+        'im_content': 'IM',
+        'groups_list_content': 'groups',
+        'settings_panel': 'settings'
+    };
 
 
     new WebKitMutationObserver( function( mutations ) {
@@ -43,16 +40,15 @@ _GViK( function( gvik, require, Add ) {
 
             for ( ; l--; ) {
 
-                curEl = mutations[ l ].target;
-                id = curEl.id;
+                id = ( curEl = mutations[ l ].target ).id;
 
-                if ( lastId !== id && events.hasOwnProperty( id ) ) {
+                if ( id && lastId !== id && ( ev = events[ id ] ) ) {
 
-                    event.trigger( events[ id ], {
+                    event.trigger( ev, {
                         el: curEl
                     } );
 
-                    if ( ( lastId = id ) === 'wrap3' ) return;
+                    lastId = id;
                 }
             }
 
@@ -87,6 +83,7 @@ _GViK( function( gvik, require, Add ) {
             curParent = window,
             curFn,
             curProp,
+
             curK = bef ? '_bef_ready' : '_aft_ready',
             curNameFn = bef ? 'bindFuncBefore' : 'bindFuncAfter',
             i = 0,
@@ -139,61 +136,79 @@ _GViK( function( gvik, require, Add ) {
     }, true );
 
     bindHandle( 'stManager.add', function( arg ) {
+
         event.trigger( 'stManager.add', arg );
 
         if ( arg[ 1 ] ) {
             arg[ 1 ] = arg[ 1 ].bindFuncBefore( function() {
+
                 core.each( arg[ 0 ], function( fName ) {
                     event.trigger( fName + '.clb' );
                 } );
+
+                event.trigger( 'stManager.add.clb' );
             } );
         }
 
         return arg;
     }, true );
 
+
+    bindHandle( 'nav.go', function( arg ) {
+        if ( arg[ 2 ] ) {
+            if ( !arg[ 2 ].onDone ) {
+                arg[ 2 ].onDone = function() {
+                    event.trigger( 'nav.go.clb' );
+                };
+            }else {
+                arg[ 2 ].onDone = arg[ 2 ].onDone.bindFuncBefore( function() {} );
+            }
+        }
+    }, true );
+
     event.bind( 'changePage', function( even, cnt ) {
         if ( ( cnt = document.getElementById( 'content' ) ) === null ) return;
+
         var el, elid, ev, ch = cnt.children,
             l = ch.length;
+
         for ( ; l--; )
-            if ( ( el = ch[ l ] ) && ( elid = el.id ) && ( ev = events[ elid ] ) ) event.trigger( ev );
+            if ( ( el = ch[ l ] ) &&
+                ( elid = el.id ) &&
+                ( ev = events[ elid ] ) )
+                event.trigger( ev );
     } )
 
     .bind( 'openBox', function( _ ) {
         var arg = _.arg,
             res = _.res;
 
-        switch ( arg[ 1 ].act ) {
-            case "edit_audio_box":
-                event.trigger( "audioEditBox", _ );
-                break;
-            default:
-                break;
-        }
+        event.trigger( arg[ 1 ].act, _ );
     } )
 
 
     .bind( 'audioEditBox', function( _ ) {
 
-        } )
-        .bind( 'disconnect', function() {
-            console.error( 'disconnected GViK! Please reload VK pages!' );
-        } )
-        .bind( [
-            'audio',
-            'padOpen'
-        ], function() {
-            core.each( [
-                'Audio.showRows',
-                'Audio.scrollCheck'
-            ], function( fnName ) {
-                bindHandle( fnName, function( arg, res ) {
-                    event.trigger( 'audio.newRows', [ arg, res ] );
-                }, false, true );
-            } );
+    } )
 
-        }, true )
+    .bind( 'disconnect', function() {
+        console.error( 'disconnected GViK! Please reload VK pages!' );
+    } )
+
+    .bind( [
+        'audio',
+        'padOpen'
+    ], function() {
+        core.each( [
+            'Audio.showRows',
+            'Audio.scrollCheck'
+        ], function( fnName ) {
+            bindHandle( fnName, function( arg, res ) {
+                event.trigger( 'audio.newRows', [ arg, res ], 50 );
+            }, false, true );
+        } );
+
+    }, true )
 
 
     .bind( 'playerOpen', function() {
@@ -220,6 +235,20 @@ _GViK( function( gvik, require, Add ) {
 
     } );
 
+    Object.observe( window.cur, function( data ) {
+
+        core.each( data, function( curData ) {
+            switch ( curData.name ) {
+                case 'searchOffset':
+                    event.trigger( 'audio.search' );
+                    break;
+
+                default:
+                    break;
+            }
+        } );
+
+    } );
 
 
 } );

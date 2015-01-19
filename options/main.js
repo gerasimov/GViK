@@ -122,8 +122,6 @@ _GViK( function( gvik, require, Add ) {
         },
         'input[type=radio]': {
             change: function( el ) {
-
-                console.log( dom.queryAll( 'input[type=radio][name=' + el.name + ']', dom.parent( el, '.hidden-el' ) ) );
                 core.each( dom.queryAll( 'input[type=radio][name=' + el.name + ']', dom.parent( el, '.hidden-el' ) ), _trigger );
             }
         },

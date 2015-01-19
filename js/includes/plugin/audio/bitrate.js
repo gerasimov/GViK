@@ -26,21 +26,6 @@ _GViK( {
             chrome = require( 'chrome' );
 
 
-        function __getFilesSize( url, callback ) {
-
-            chrome.ajax( {
-                    type: 'HEAD',
-                    url: url,
-                    getheader: 'Content-Length'
-                }, function( contentLenght ) {
-                    callback( contentLenght );
-                },
-                function() {
-                    callback( 0 );
-                }, false );
-
-        }
-
 
         function __calcBitrate( size, dur, needFileSize ) {
             var bitInt = ( ( size * 8 ) / dur / 1000 ) | 0,
@@ -84,40 +69,52 @@ _GViK( {
                 }
             } : null,
 
-            AUTO_LOAD_BIT_FN = CONFS.get( 'auto-load-bit' ) ? function( bitrateEl, res, audioEl ) {
-                if ( window.cur.searchStr ) {
-                    clearTimeout( tId );
-                    tId = setTimeout( function() {
-                        var audios = [].slice.call( window.cur.sContent.querySelectorAll( SORT_AUDIO_SELECTOR ) ).sort( function( a, b ) {
-                            return getCacheInt( b.id ) - getCacheInt( a.id );
-                        } );
 
-                        if ( !audios.length ) return;
+            tId,
 
-                        HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN( audios );
+            SORT_FN = function() {
 
-                        dom.append( window.cur.sContent, audios );
-                    }, 100 );
-                }
+ 
+                var audios = [].slice.call( window.cur.sContent.children ).sort( function( a, b ) {
+                    return getCacheInt( b.id ) - getCacheInt( a.id );
+                } );
+
+                if ( !audios.length )
+                    return;
+
+                HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN( audios );
+
+
+                dom.append( window.cur.sContent, audios );
+
+            },
+
+            AUTO_LOAD_BIT_FN = CONFS.get( 'auto-sort-bit' ) ? function( timeout ) {
+
+                if ( !window.cur.searchStr )
+                    return;
+
+                if ( !timeout ) return SORT_FN();
+
+                clearTimeout( tId );
+                tId = setTimeout( SORT_FN, 500 );
+
             } : null;
 
 
 
         function getCacheInt( id ) {
-            return ( cache.get( id ) || {} )[ SORT_PROP ] || 0;
+            return ( cache.get( id ) || {} )[ SORT_PROP ] || -1;
         }
-
 
         function __getBitrate( url, dur, callback, needFileSize, id ) {
 
-            var res = cache.get( id );
-
-            if ( res ) {
-                callback( res, true );
+            if ( cache.has( id ) ) {
+                callback( cache.get( id ), true );
                 return 'gvik-bitrate';
             }
 
-            __getFilesSize( url, function( size ) {
+            global.VARS.GET_FILE_SIZE( url, function( size ) {
                 if ( size ) return callback( __calcBitrate( size, dur, needFileSize, id ) );
             } );
 
@@ -126,8 +123,6 @@ _GViK( {
 
 
         global.VARS.GET_BITRATE = __getBitrate;
-
-        var tId;
 
 
         function setBitrate( audioEl, callback ) {
@@ -143,8 +138,7 @@ _GViK( {
 
                 if ( fromCache ) {
                     //
-                } else
-                if ( !LOADER_DISABLED ) bitrateEl.classList.remove( 'loader' );
+                } else if ( !LOADER_DISABLED ) bitrateEl.classList.remove( 'loader' );
 
                 bitrateEl.innerText = res.formated;
 
@@ -152,29 +146,32 @@ _GViK( {
                 res.dur = data.dur;
                 res.id = data.id;
 
-                if ( !cache.has( data.id ) ) cache.set( data.id, res );
+                if ( !cache.has( data.id ) )
+                    cache.set( data.id, res );
 
-                if ( callback ) callback( bitrateEl, res, audioEl );
+                callback && callback( bitrateEl, res, audioEl );
 
             }, FILE_SIZE_ENABLED, data.id );
 
         }
 
+        if ( CONFS.get( 'auto-load-bit' ) )
+            event.bind( [
+                'audio.newRows',
+                'audio',
+                'padOpen'
+            ], function( data, evaname ) {
+
+                var audios = dom.queryAll( AUDIO_SELECTOR ),
+                    l = audios.length;
 
 
-        event.bind( [
-            'audio.newRows',
-            'audio',
-            'padOpen'
-        ], function() {
+                if ( !l ) AUTO_LOAD_BIT_FN( false );
 
-            var audios = dom.queryAll( AUDIO_SELECTOR ),
-                i = 0,
-                l = audios.length;
+                while ( l-- )
+                    setBitrate( audios[ l ], AUTO_LOAD_BIT_FN );
 
-            for ( ; i < l; i++ )
-                setBitrate( audios[ i ], AUTO_LOAD_BIT_FN );
-        }, true );
+            }, true );
 
         dom.setDelegate( document, AUDIO_SELECTOR, {
             mouseover: function( el ) {

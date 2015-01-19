@@ -84,6 +84,9 @@ _GViK( {
 				click: function( e ) {
 
 					e.stopPropagation();
+					e.preventDefault();
+
+					e._canceled = true;
 
 					chrome.download[ methodNameDownload ]( {
 						url: data.url,

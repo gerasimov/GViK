@@ -6,7 +6,8 @@
  */
 
 
-_GViK( function( appData, require, d ) {
+_GViK( function( appData, require ) {
+
 
     var core = require( 'core' ),
         event = require( 'event' ),
@@ -15,30 +16,33 @@ _GViK( function( appData, require, d ) {
         chrome = require( 'chrome' ),
         dom = require( 'dom' );
 
-    appData.getID = function() {
-        return window.vk.id;
-    };
+
 
     function __init() {
 
         var rNamespacePlugin = /js\/includes\/plugin\/([^\/]+)\/.+\.js$/,
             rPlugin = /\/([^\/]+)\.js$/;
 
-        chrome.local.get( {
-            key: 'options'
-        }, function( res ) {
+        constants.define( 'ID', window.vk.id );
 
-            options.load( res.options );
+        chrome
+            .pushID()
+            .local.get( {
+                key: 'options'
+            }, function( res ) {
 
-            core.define( appData.JS_LIST.filter( function( curFileName ) {
-                var pluginName = curFileName.match( rNamespacePlugin ) || curFileName.match( rPlugin );
-                if ( !pluginName ) return true;
-                return !( options.get( pluginName.pop(), 'enable' ) === false );
-            } ), {
-                suffix: appData.VERSION,
-                path: appData.APP_PATH,
+                options.load( res.options );
+
+                core.define( core.filter( appData.JS_LIST, function( curFileName ) {
+                    var pluginName = curFileName.match( rNamespacePlugin ) || curFileName.match( rPlugin );
+                    if ( !pluginName )
+                        return true;
+                    return !( options.get( pluginName.pop(), 'enable' ) === false );
+                } ), {
+                    suffix: appData.VERSION,
+                    path: appData.APP_PATH,
+                } );
             } );
-        } );
     }
 
     if ( options.get( 'system', 'enable-qicksett' ) )
@@ -49,12 +53,13 @@ _GViK( function( appData, require, d ) {
 
     chrome.ga( 'send', 'event', 'vk', 'init' );
 
-    event.bind( 'load', function checkID() {
-        chrome.pushID();
-        if ( appData.getID() === 0 )
-            setTimeout( checkID, constants.get( "LOADER_TIMEOUT" ) );
-        else
+    event.bind( 'load', function() {
+
+        if ( window.vk.id === 0 )
+            setTimeout( arguments.callee, constants.get( "LOADER_TIMEOUT" ) );
+        else {
             __init();
+        }
     } );
 
 } );

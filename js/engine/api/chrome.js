@@ -88,7 +88,7 @@ _GViK( function( appData, require, Add ) {
             callName = disconnected || sys.forceCS ? constants.get( "CHROME_CSREQUEST" ) : constants.get( "CHROME_REQUEST" ),
             eventTrigger;
 
-        params.uid = appData.getID();
+        params.uid = constants.get( 'ID' );
         params.callback = makeFnId( sys.callback || callback );
         params.error = makeFnId( sys.error || error );
         params.method = method;
@@ -190,7 +190,7 @@ _GViK( function( appData, require, Add ) {
         var data = {};
 
         core.each( vals, function( val, key ) {
-            data[ ( key + '::' + appData.getID() ) ] = val;
+            data[ ( key + '::' + constants.get( 'ID' ) ) ] = val;
         } );
 
         return sendRequest( storageName, {
@@ -205,7 +205,7 @@ _GViK( function( appData, require, Add ) {
     function getStorageitem( obj, callback, storageName ) {
 
         var key = obj.key ?
-            ( obj.key + '::' + appData.getID() ) :
+            ( obj.key + '::' + constants.get( 'ID' ) ) :
             null;
 
         return sendRequest( storageName, {
@@ -228,7 +228,7 @@ _GViK( function( appData, require, Add ) {
     function removeStorageitem( key, callback, storageName ) {
         return sendRequest( storageName, {
             data: {
-                key: key + '::' + appData.getID()
+                key: key + '::' +  constants.get( 'ID' )
             },
             params: {
                 forceCS: true

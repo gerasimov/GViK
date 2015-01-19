@@ -21,17 +21,14 @@ _GViK( function( gvik, require, Add ) {
 
 
     function __run( name, data ) {
+
         var fnlist = _data[ name ].events,
             l = fnlist.length;
 
-        if ( !l )
-            return;
+        if ( l === 1 ) return fnlist[ 0 ]( data, name );
 
-        if ( l === 1 )
-            return fnlist[ 0 ]( data, name );
 
-        for ( ; l--; )
-            fnlist[ l ]( data, name );
+        while ( l-- ) fnlist[ l ]( data, name );
     }
 
 
@@ -46,6 +43,7 @@ _GViK( function( gvik, require, Add ) {
 
 
     function __bind( name, fn, runnow ) {
+
         if ( !_data[ name ] )
             _data[ name ] = {
                 events: []
@@ -74,7 +72,7 @@ _GViK( function( gvik, require, Add ) {
 
         var _eventsL = [];
 
-        if ( _data[ name ] && !_data[ name ]._created )
+        if ( this.hasEvent( name ) && !_data[ name ]._created )
             _eventsL = _data[ name ].events;
 
         _data[ name ] = {
@@ -122,6 +120,12 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
+    Event.prototype.del = function( evName ) {
+        if ( this.hasEvent( evName ) )
+            delete _data[ evName ];
+    };
+
+
     Event.prototype.chromeTrigger = function( name, data ) {
         if ( chrome || ( chrome = require( 'chrome' ) ) )
             chrome.sendRequest( 'triggerEvent', {
@@ -137,25 +141,25 @@ _GViK( function( gvik, require, Add ) {
 
 
     Event.prototype.trigger = function( name, data, chromeTrigger ) {
-        if ( this.hasEvent( name ) ) {
+        if ( this.hasEvent( name ) )
             __run( name, data );
-        }
 
 
-        if ( chromeTrigger ) {
+
+        if ( chromeTrigger )
             this.chromeTrigger( name, data );
-        }
+
 
 
         return this;
     };
 
     Event.prototype.asyncTrigger = function( name, data, ms, chromeTrigger ) {
-        if ( this.hasEvent( name ) ) {
+        if ( this.hasEvent( name ) )
             return setTimeout( function() {
                 __run( name, data );
             }, ms || 15 );
-        }
+
         return this;
     };
 
@@ -169,21 +173,23 @@ _GViK( function( gvik, require, Add ) {
 
 
     _event
+
         .create( 'resize', function() {
-            return {
-                h: document.documentElement.clientHeight,
-                w: document.documentElement.clientWidth
-            };
-        }, function( fn ) {
-            window.addEventListener( 'resize', fn, false );
-        } )
-        .create( 'load', function() {
-            return document.body;
-        }, function( fn ) {
-            document.addEventListener( 'DOMContentLoaded', fn, false );
-        }, function( fn, _data ) {
-            if ( _data.initData() ) _data.events.shift()();
-        } );
+        return {
+            h: document.documentElement.clientHeight,
+            w: document.documentElement.clientWidth
+        };
+    }, function( fn ) {
+        window.addEventListener( 'resize', fn, false );
+    } )
+
+    .create( 'load', function() {
+        return document.body;
+    }, function( fn ) {
+        document.addEventListener( 'DOMContentLoaded', fn, false );
+    }, function( fn, _data ) {
+        if ( _data.initData() ) _data.events.shift()();
+    } );
 
 
 

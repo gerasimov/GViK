@@ -21,22 +21,21 @@
 
         APP_DATA = {
 
+            DEBUG: false, 
+
             APP_PATH: sessionStorage.apppath,
             APP_ID: sessionStorage.appid,
+            
             IS_GVIK: true,
 
             JS_LIST: JSON.parse( sessionStorage.jslist ),
-
-
-            DEBUG: false,
 
             VERSION: MANIFEST.version,
             VERSION_INT: MANIFEST.version.replace( /\./g, '' ),
             AUTHOR: MANIFEST.author,
 
 
-            OS: navigator.platform.match( /^[a-z]+/i )
-                .pop()
+            OS: navigator.platform.match( /^[a-z]+/i ).pop()
         },
 
         _modules = {},
@@ -60,29 +59,11 @@
 
     function Add( nameMod, fnMod, noCallFnMod ) {
 
-        if ( typeof nameMod === 'string' ) {
+        if ( typeof nameMod === 'string' )
             return add( nameMod, ( typeof fnMod === 'function' && !noCallFnMod ) ? fnMod() : fnMod );
-        }
 
-        if ( Array.isArray( nameMod ) ) {
-            if ( Array.isArray( nameMod[ 0 ] ) ) {
-                nameMod.forEach( function( curArr ) {
-                    curArr.push( true );
-                    Add.apply( this, curArr );
-                } );
-            } else {
-                nameMod.push( true );
-                Add.apply( this, nameMod );
-            }
-            return;
-        }
-
-        for ( var nameProp in nameMod ) {
-            if ( nameMod.hasOwnProperty( nameProp ) ) {
-                Add( nameProp, nameMod[ nameProp ] );
-            }
-        }
-        return;
+        for ( var nameProp in nameMod )
+            Add( nameProp, nameMod[ nameProp ] );
     }
 
     function Get() {
@@ -113,13 +94,16 @@
 
             if ( !fMods.every( function( curModuleName ) {
                     return _modules.hasOwnProperty( curModuleName );
-                } ) ) return;
+                } ) ) {
+                return;
+            }
 
             if ( require( 'options' ) !== undefined ) {
 
-                var options = require( 'options' );
+                var options = require( 'options' ),
+                    i;
 
-                for ( var i in fOpt ) {
+                for ( i in fOpt ) {
                     if ( Array.isArray( fOpt[ i ] ) ) {
                         if ( !fOpt[ i ].every( function( curOptName ) {
                                 return options.get( i, curOptName );
@@ -127,18 +111,18 @@
                             return;
                     } else if ( !options.get( i, fOpt[ i ] ) )
                         return;
-
                 }
             }
 
-            initfunc( APP_DATA, require, Add );
+            initfunc.call( _export, APP_DATA, require, Add );
         }
     }
 
-    _GViK.Get = Get;
+
+        _GViK.Get = Get;
 
     window._GViK = _GViK;
 
 
 
-} ).call( window, window );
+} ).call( null, window );

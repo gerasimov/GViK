@@ -75,6 +75,7 @@ _GViK( function( gvik, require, Add ) {
         "lastfm-searchAndPlay": true,
         "lastfm-maxbit": false,
         "lastfm-groupbyalbum": false,
+        "lastfm-autoshow": false
       },
       "system": {
         "enable-qicksett": true

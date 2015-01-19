@@ -76,7 +76,7 @@ _GViK( function( gvik, require, Add ) {
 
     Add( 'searchandplay', function( searchData, callback, opt ) {
 
-        search.audioSearch( searchData, function( result ) {
+        require( 'vkapi' ).audioSearch( searchData, function( result ) {
 
             if ( !result ) {
                 return;

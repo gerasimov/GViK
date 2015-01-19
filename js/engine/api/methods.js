@@ -14,7 +14,8 @@ _GViK( function( gvik, require, Add ) {
 
         core = require( 'core' ),
         event = require( 'event' ),
-        chrome = window.chrome;
+
+        isBackground = !!chrome.extension.getViews;
 
     function eachTabs( callback, needAll ) {
         chrome.tabs.query( {
@@ -252,10 +253,8 @@ _GViK( function( gvik, require, Add ) {
     };
 
     methods.abortAllAjax = function( o, p, c, e ) {
-
         core.abortAllXHR( c );
     };
-
 
 
     if ( SUPPORT.pageAction ) {
@@ -264,29 +263,76 @@ _GViK( function( gvik, require, Add ) {
         };
     }
 
-    methods.ga = function( o, p, c ) {
-        if ( window.ga ) {
-            window.ga.apply( this, o.arg );
+
+    if ( isBackground ) {
+
+        methods.ga = function( o, p, c ) {
+            if ( window.ga ) {
+                window.ga.apply( this, o.arg );
+            }
+        };
+
+
+        methods.pushID = function( o, p, c, e ) {
+
+            var ids = [];
+
+            if ( localStorage.ids )
+                ids = localStorage.ids.split( ',' );
+
+            localStorage.curId = p.uid;
+
+            if ( ids.indexOf( p.uid + '' ) !== -1 )
+                return;
+
+            ids.push( p.uid );
+
+            localStorage.ids = ids.toString();
+
+        };
+
+
+
+        methods.callFn = function( o, p, c, e ) {
+
+            var path = o.fn.split( '.' ),
+                curParent = window,
+                curProp,
+                i = 0,
+                l = path.length;
+
+            for ( ; i < l; i++ ) {
+
+                curProp = path[ i ];
+
+                if ( !curParent[ curProp ] )
+                    return;
+
+                if ( typeof curParent[ curProp ] !== 'function' ) {
+
+                    if ( !curParent[ curProp ] )
+                        return;
+
+                    curParent = curParent[ curProp ];
+
+                } else {
+
+                    var arg = o.arg || [],
+                        res;
+
+                    if ( o.async )
+                        arg.push( c );
+
+                    res = curParent[ curProp ].apply( curParent, arg );
+
+
+                    if ( !o.async )
+                        c( res );
+                }
+            }
         }
-    };
 
 
-    methods.pushID = function( o, p, c, e ) {
-
-        var ids = [];
-
-        if ( localStorage.ids )
-            ids = localStorage.ids.split( ',' );
-
-        localStorage.curId = p.uid;
-
-        if ( ids.indexOf( p.uid + '' ) !== -1 )
-            return;
-
-        ids.push( p.uid );
-
-        localStorage.ids = ids.toString();
-
-    };
+    }
 
 } );

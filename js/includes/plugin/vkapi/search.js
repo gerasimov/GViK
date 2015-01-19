@@ -16,22 +16,9 @@ _GViK( {}, [
         var
             core = require( 'core' ),
             vkapi = require( 'vkapi' ),
+            global = require( 'global' ),
             chrome = require( 'chrome' );
 
-        function vkcall( method, data, suc, err ) {
-            vkapi.call( method, data, suc, err );
-        }
-
-
-        function audioSearch( data, callback, opt ) {
-            vkcall( 'audio.search', {
-                q: data.q || [ data.artist, data.title ].join( ' - ' ),
-                count: data.count || 50,
-                sort: 2
-            }, function( res ) {
-                find( data, res.items, callback, opt );
-            } )
-        }
 
         var _eq = function( a, b ) {
                 return a.replace( /\s+/g, '' )
@@ -48,12 +35,7 @@ _GViK( {}, [
             };
 
         function getBitrate( data, callback, error ) {
-
-            chrome.simpleAjax( {
-                url: data.audio.url,
-                type: 'HEAD',
-                getheader: 'Content-Length'
-            }, function( len ) {
+            global.VARS.GET_FILE_SIZE( data.audio.url, function( len ) {
                 data.bit = calcBit( data.audio.duration, len );
                 callback( data );
             } );
@@ -78,9 +60,9 @@ _GViK( {}, [
                 }
 
                 getBitrate( data, function( _data ) {
-                    if ( _data.bit > 300 ) {
+                    if ( _data.bit > 300 )
                         return callback( _data );
-                    }
+
                     res.push( _data );
                     setTimeout( fn );
                 } );
@@ -93,8 +75,7 @@ _GViK( {}, [
             var res = [];
 
             core.each( arr, function( audio ) {
-                if ( fn( audio.artist, data.artist ) &&
-                    fn( audio.title, data.title ) ) {
+                if ( fn( audio.artist, data.artist ) && fn( audio.title, data.title ) ) {
                     res.push( {
                         audio: audio,
                         dur: Math.abs( audio.duration - data.dur )
@@ -123,8 +104,16 @@ _GViK( {}, [
                 callback( audioMap );
         }
 
-        Add( 'search', {
-            audioSearch: audioSearch
-        } )
+
+        vkapi._extend( 'audioSearch', function( data, callback, opt ) {
+            vkapi.call( 'audio.search', {
+                q: data.q || [ data.artist, data.title ].join( ' - ' ),
+                count: data.count || 50,
+                sort: 2
+            }, function( res ) {
+                find( data, res.items, callback, opt );
+            } )
+        } );
+
 
     } );

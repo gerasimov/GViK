@@ -14,10 +14,10 @@ _GViK( function( appData, require, Add ) {
         push = arrproto.push;
 
 
-    function each( obj, fn, likearr ) {
+    function each( obj, fn, ctx ) {
 
         var al = arguments.length,
-            isarr = ( al === 3 ) ? likearr : obj.length != null,
+            isarr = obj.length != null,
             i,
             l;
 
@@ -26,10 +26,10 @@ _GViK( function( appData, require, Add ) {
             l = obj.length;
             if ( l !== 0 )
                 for ( ; i < l; i++ )
-                    fn( obj[ i ], i, i === ( l - 1 ) );
+                    fn.call( ctx, obj[ i ], i, i === ( l - 1 ) );
         } else
             for ( i in obj )
-                fn( obj[ i ], i );
+                fn.call( ctx, obj[ i ], i );
 
         return obj;
     }
@@ -142,9 +142,8 @@ _GViK( function( appData, require, Add ) {
     function getResource( path, callback ) {
         return ajax( {
             type: 'GET',
-            async: !!callback,
             url: appData.IS_GVIK ? ( appData.APP_PATH + path ) : chrome.extension.getURL( path )
-        }, callback );
+        }, callback, callback ? false : true );
     }
 
 
@@ -193,44 +192,40 @@ _GViK( function( appData, require, Add ) {
         }() );
     }
 
-    function ajax( data, callback, error ) {
+    function ajax( data, callback, error, async ) {
 
 
         var xhr = new XMLHttpRequest(),
             type = data.type || 'GET',
+            fn,
             dataArg;
 
-        xhr.open( type, data.url, true );
+        xhr.open( type, data.url, async ? false : true );
 
-        if ( type === 'HEAD' )
-            xhr.addEventListener( 'readystatechange', function() {
-                if ( this.readyState === XMLHttpRequest.HEADERS_RECEIVED )
-                    callback( data.getheader ?
-                        this.getResponseHeader( data.getheader ) :
-                        this.getAllResponseHeaders() );
-            }, false );
-        else {
+        if ( type === 'HEAD' ) {
+            fn = function() {
+                callback( data.getheader ?
+                    this.getResponseHeader( data.getheader ) :
+                    this.getAllResponseHeaders() );
+            };
+        } else {
 
-            xhr.addEventListener( 'load', function() {
-
-
+            fn = function() {
                 if ( xhr.status >= 200 && xhr.status < 300 ) {
-
                     var ctype = this.getResponseHeader( 'Content-Type' ) || '',
                         res = this.responseText;
-
                     if ( ctype.indexOf( 'application/json' ) !== -1 || data.dataType === 'json' ) {
                         try {
                             res = JSON.parse( res );
                         } catch ( e ) {}
                     }
+                    if ( callback )
+                        return callback( res );
+                } else
+                    error( xhr.status, xhr.statusText, this.getAllResponseHeaders() );
+            };
 
-                    return callback( res );
-                }
-
-                error( xhr.status, xhr.statusText, this.getAllResponseHeaders() );
-
-            }, false );
+            xhr.addEventListener( 'error', error, false );
 
             if ( type === 'POST' ) {
 
@@ -246,6 +241,8 @@ _GViK( function( appData, require, Add ) {
 
             }
         }
+
+        xhr.addEventListener( 'load', fn, false );
 
         xhr.send( dataArg );
 

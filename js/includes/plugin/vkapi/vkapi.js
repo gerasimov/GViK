@@ -13,13 +13,15 @@ _GViK( function( appData, require, Add ) {
         core = require( 'core' ),
         chrome = require( 'chrome' ),
         options = require( 'options' ),
+        constants = require( 'constants' ),
         storage = require( 'storage' ),
 
         VKAPI = function() {
-            this.KEY_TOKEN = "vk";
-            this.ROOT_URL = "https://api.vk.com/method/";
-            this.APP_ID = "2224353";
-            this.USER_ID = appData.getID();
+
+            this.ROOT_URL = constants.get( 'VKAPI_ROOT_URL' );
+            this.KEY_TOKEN = constants.get( 'VKAPI_KEY_STORAGE' );
+            this.APP_ID = constants.get( 'VKAPI_APP_ID' );
+            this.USER_ID = constants.get( 'ID' );
 
 
             this.permission = [ 'friends',
@@ -43,7 +45,7 @@ _GViK( function( appData, require, Add ) {
     var _fnReAuth = function( method, data, success, error ) {
 
         storage.local.remove( this.KEY_TOKEN );
-        chrome.local.remove( 'vk' );
+        chrome.local.remove( this.KEY_TOKEN );
 
         this.saved.push( [ method, data, success, error ] );
         this.auth( null, null, null, false );
@@ -170,7 +172,7 @@ _GViK( function( appData, require, Add ) {
             chrome.sendRequest( "auth", {
                 data: {
                     url: 'https://oauth.vk.com/authorize?' + core.map( {
-                            client_id: 2224353,
+                            client_id: this.APP_ID,
                             scope: this.permission /* || 474367*/ ,
                             v: 5,
                             redirect_uri: 'blank.html',
@@ -196,16 +198,19 @@ _GViK( function( appData, require, Add ) {
         },
 
         auth: function( force, callback, error, focus ) {
+
             if ( force || !this.authorized ) {
 
+                var kt = this.KEY_TOKEN;
+
                 chrome.local.get( {
-                    key: 'vk'
+                    key: kt
                 }, function( val ) {
 
-                    if ( val.vk && val.vk.token && this.isOffline === val.vk.isOffline ) {
-                        this._setToken.call( this, val.vk.token );
+                    if ( !force && val[ kt ] && val[ kt ].token && this.isOffline === val[ kt ].isOffline ) {
+                        this._setToken.call( this, val[ kt ].token );
                         this._callSaved();
-                        return callback && callback( val.vk.token );
+                        return callback && callback( val[ kt ].token );
                     }
 
                     this.showWindowAuth( callback, error, false );
@@ -218,9 +223,17 @@ _GViK( function( appData, require, Add ) {
         get authorized() {
             return ( this.token && this.token.length ) &&
                 ( this.data.isOffline == this.isOffline );
+        },
+
+        _extend: function( name, fn ) {
+            if ( !this[ name ] && core.isFunction( fn ) )
+                this[ name ] = fn;
         }
     };
 
     Add( 'vkapi', new VKAPI );
+
+     
+
 
 } );

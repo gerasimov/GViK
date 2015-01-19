@@ -5,9 +5,9 @@
  *
  **/
 
-_GViK(  function(gvik, require, Add) {
+_GViK( function( gvik, require, Add ) {
 
-	Add( ['md5', function( e ) {
+	Add( 'md5', function( e ) {
 		function h( a, b ) {
 			var c, d, e, f, g;
 			e = a & 2147483648;
@@ -77,5 +77,5 @@ _GViK(  function(gvik, require, Add) {
 			d = m( d, a, b, c, f[ e + 4 ], 11, 1272893353 ), c = m( c, d, a, b, f[ e + 7 ], 16, 4139469664 ), b = m( b, c, d, a, f[ e + 10 ], 23, 3200236656 ), a = m( a, b, c, d, f[ e + 13 ], 4, 681279174 ), d = m( d, a, b, c, f[ e + 0 ], 11, 3936430074 ), c = m( c, d, a, b, f[ e + 3 ], 16, 3572445317 ), b = m( b, c, d, a, f[ e + 6 ], 23, 76029189 ), a = m( a, b, c, d, f[ e + 9 ], 4, 3654602809 ), d = m( d, a, b, c, f[ e + 12 ], 11, 3873151461 ), c = m( c, d, a, b, f[ e + 15 ], 16, 530742520 ), b = m( b, c, d, a, f[ e + 2 ], 23, 3299628645 ), a = n( a, b, c, d, f[ e + 0 ], 6, 4096336452 ), d = n( d, a, b, c, f[ e + 7 ], 10, 1126891415 ), c = n( c, d, a, b, f[ e + 14 ], 15, 2878612391 ), b = n( b, c, d, a, f[ e + 5 ], 21, 4237533241 ),
 			a = n( a, b, c, d, f[ e + 12 ], 6, 1700485571 ), d = n( d, a, b, c, f[ e + 3 ], 10, 2399980690 ), c = n( c, d, a, b, f[ e + 10 ], 15, 4293915773 ), b = n( b, c, d, a, f[ e + 1 ], 21, 2240044497 ), a = n( a, b, c, d, f[ e + 8 ], 6, 1873313359 ), d = n( d, a, b, c, f[ e + 15 ], 10, 4264355552 ), c = n( c, d, a, b, f[ e + 6 ], 15, 2734768916 ), b = n( b, c, d, a, f[ e + 13 ], 21, 1309151649 ), a = n( a, b, c, d, f[ e + 4 ], 6, 4149444226 ), d = n( d, a, b, c, f[ e + 11 ], 10, 3174756917 ), c = n( c, d, a, b, f[ e + 2 ], 15, 718787259 ), b = n( b, c, d, a, f[ e + 9 ], 21, 3951481745 ), a = h( a, q ), b = h( b, r ), c = h( c, s ), d = h( d, t );
 		return ( p( a ) + p( b ) + p( c ) + p( d ) ).toLowerCase()
-	}]);
+	}, true );
 } );

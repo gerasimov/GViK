@@ -545,20 +545,6 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
      */    background-color: #f7f7f7;
 }
 
-#gvik-wrap .tabCont > *
-{
-    display: none;
-}
-
-#gvik-wrap .tabCont.loaded > *
-{
-    display: block;
-}
-#gvik-sidebar.anim #gvik-wrap .tabCont.loaded
-{
-    -webkit-transition: opacity 400ms ease;
-}
-
 #gvik-sidebar .tabCont:after{
   position: absolute;
   z-index: 5;
@@ -570,6 +556,27 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
   -webkit-animation: options-loader .5s linear infinite alternate;
   content: ' ';
 }
+
+#gvik-wrap .tabCont > *
+{
+    display: none;
+}
+
+#gvik-wrap .tabCont.loaded > *
+{
+    display: block;
+}
+
+#gvik-wrap .tabCont.loaded:after
+{
+    display: none;
+}
+
+#gvik-sidebar.anim #gvik-wrap .tabCont.loaded
+{
+    -webkit-transition: opacity 400ms ease;
+}
+
 
 #gvik-sidebar .tabCont.loaded:after{
       -webkit-animation: 0;

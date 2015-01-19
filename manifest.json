@@ -78,14 +78,17 @@
         "js/engine/core/global.js",
         "js/engine/core/cache.js",
         "js/engine/core/core.js",
-        "js/engine/core/event.js",
-        "js/engine/core/sql.js",
+        "js/engine/core/event.js", 
+
+        "js/engine/core/callbacks.js",
         "js/engine/core/dom.js",
         "js/engine/core/storage.js",
 
         "js/engine/api/chrome.js",
 
         "js/lib/md5.js",
+
+ 
 
         "js/includes/utils.js",
         "js/includes/customEvents.js",
@@ -116,7 +119,7 @@
         "js/includes/plugin/sidebar/lastfm.js",
         "js/includes/plugin/sidebar/downloadManager.js",
 
-        "js/includes/plugin/video/download.js",
+        "js/includes/plugin/im/backup.js",
 
         "js/includes/common.js",
 

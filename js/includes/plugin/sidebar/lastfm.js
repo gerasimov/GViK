@@ -398,10 +398,13 @@ _GViK( {
 
         .bind( 'lastfm.newtrack', function( data ) {
 
-            if ( !sidebar.shown )
-                sidebar.show();
 
-            showCurTab();
+            if ( cnfg.get( 'lastfm-autoshow' ) ) {
+                if ( !sidebar.shown )
+                    sidebar.show();
+
+                showCurTab();
+            }
 
 
             if ( __xhr )

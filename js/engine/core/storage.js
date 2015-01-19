@@ -10,6 +10,7 @@ _GViK( function( gvik, require, Add ) {
     "use strict";
 
     var core = require( 'core' ),
+        constants = require( 'constants' ),
 
 
         storages = {},
@@ -27,7 +28,7 @@ _GViK( function( gvik, require, Add ) {
             };
 
             this._setPrefix = function( key ) {
-                return [ 'gvik', key, gvik.getID() || '' ].join( '-' );
+                return [ 'gvik', key, constants.get( 'ID' ) || '' ].join( '-' );
             };
 
         };
@@ -48,19 +49,22 @@ _GViK( function( gvik, require, Add ) {
     Storage.prototype.set = function( key, val, fn ) {
         switch ( arguments.length ) {
             case 1:
-                if ( core.isPlainObject( key ) ) core.each( key, function( _v, _k ) {
-                    this.set( _k, _v );
-                }.bind( this ) );
+                if ( core.isPlainObject( key ) )
+                    core.each( key, function( _v, _k ) {
+                        this.set( _k, _v );
+                    }.bind( this ) );
                 break;
             case 2:
-                if ( core.isPlainObject( key ) ) core.each( key, function( _v, _k ) {
-                    this.set( _k, _v, val );
-                }.bind( this ) );
+                if ( core.isPlainObject( key ) )
+                    core.each( key, function( _v, _k ) {
+                        this.set( _k, _v, val );
+                    }.bind( this ) );
                 else
                     this._storage().setItem( this._setPrefix( key ), val );
                 break;
             case 3:
-                if ( core.isFunction( fn ) ) this.set( key, fn( val ) );
+                if ( core.isFunction( fn ) )
+                    this.set( key, fn( val ) );
                 break;
             default:
                 break;

@@ -15,8 +15,8 @@ _GViK( function( gvik, require, Add ) {
         constants = require( 'constants' ),
         appPath = chrome.extension.getURL( '' ),
 
-        rIsJs = /\.js$/,
-        rIsIncludes = /^js\/includes\//;
+        risEngine = /^js\/engine\//,
+        rIsIncludes = /^js\/(?:includes|lib)\//;
 
 
     function __init( manifest ) {
@@ -27,15 +27,10 @@ _GViK( function( gvik, require, Add ) {
 
         core.each( manifest.web_accessible_resources, function( fileName ) {
 
-            if ( !rIsJs.test( fileName ) )
-                return;
-
-            if ( rIsIncludes.test( fileName ) ) {
+            if ( rIsIncludes.test( fileName ) )
                 includesJSList.push( fileName );
-                return;
-            }
-
-            engineJSList.push( fileName );
+            else if ( risEngine.test( fileName ) )
+                engineJSList.push( fileName );
         } );
 
 
@@ -57,13 +52,12 @@ _GViK( function( gvik, require, Add ) {
 
     }
 
-    if ( SUPPORT.runtime ) {
+    if ( SUPPORT.runtime )
         __init( chrome.runtime.getManifest() );
-    } else {
+    else
         core.getResource( 'manifest.json', function( res ) {
             __init( JSON.parse( res ) );
         } );
-    }
 
 
 } );
