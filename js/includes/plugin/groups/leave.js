@@ -24,7 +24,8 @@ _GViK( {
 
         var el = dom.byId( 'groups_list_summary' );
 
-        if ( !el ) return;
+        if ( !el ) 
+            return;
 
         dom.append( el, [
 
@@ -47,7 +48,7 @@ _GViK( {
 
 
                             if ( ( prompt( "Введите слово \"" + key + "\", чтобы подтвердить действие." ) || '' ).toLowerCase().trim() === key )
-                                vkapi.call();
+                                vkapi.call('execute.allGroupsLeave');
                         }
                     }
                 } )

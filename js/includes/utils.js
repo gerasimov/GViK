@@ -19,7 +19,13 @@ _GViK( function( gvik, require, Add ) {
         cache = require( 'cache' ),
         event = require( 'event' ),
         global = require( 'global' ),
-        constants = require( 'constants' );
+        constants = require( 'constants' ),
+
+        rId = /^audio\-?|\_pad$/gi;
+
+    global.VARS.CLEAN_ID = function ( id ) {
+        return id.replace( rId, '' );
+    };
 
     global.VARS.PARSE_AUDIO_DATA = function( el, id ) {
 
@@ -28,7 +34,7 @@ _GViK( function( gvik, require, Add ) {
 
 
         if ( !id )
-            id = el.id;
+            id =  global.VARS.CLEAN_ID( el.id );
 
         if ( ( data = cache.get( id ) ) ) {
             url = data.url;

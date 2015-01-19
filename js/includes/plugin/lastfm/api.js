@@ -109,7 +109,7 @@ _GViK( function( gvik, require, Add ) {
             '6': function() {}
         },
 
-        call: function( method, data, _callback, _error ) {
+        call: function( method, data, _callback, _error, nocross ) {
 
             data = data || {};
 
@@ -128,9 +128,7 @@ _GViK( function( gvik, require, Add ) {
 
 
 
-            /*chrome.simpleAjax*/
-
-            return core.ajax( {
+            return ( nocross ? core.ajax : chrome.simpleAjax )( {
                     type: 'POST',
                     url: this.ROOT_URL,
                     dataType: 'json',

@@ -54,7 +54,7 @@ _GViK( function( gvik, require, Add ) {
 
     function connect( name, fn ) {
         document.addEventListener( name, function( e ) {
-            fn( e.detail );
+            fn( e.detail || {} );
         }, false );
     }
 

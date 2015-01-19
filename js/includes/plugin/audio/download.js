@@ -25,7 +25,7 @@ _GViK( {
 		FROM_CACHE = CONFS.get( 'download-fromCache' ),
 		SAVE_AS = CONFS.get( 'download-saveAs' ),
 
-		rExtTest = /\.(?:\%e|mp3)/,
+		rExtTest = /\.(?:\%e|mp3)/, 
 
 		fileNamePattern = CONFS.get( 'format-filename' ),
 		methodNameDownload = FROM_CACHE ? 'downloadFromCache' : 'download';
@@ -46,7 +46,7 @@ _GViK( {
 			t: data.title,
 			e: data.ext,
 			d: data.dur,
-			i: data.id
+			i: data.id 
 		} );
 
 		if ( fName.length === ext.length )
@@ -63,6 +63,7 @@ _GViK( {
 
 		var infoEl = dom.byClass( 'info', audioEl ).item( 0 ),
 			artistEl = dom.byTag( 'b', infoEl ).item( 0 ),
+
 			titleEl = artistEl.nextElementSibling,
 
 			data = global.VARS.PARSE_AUDIO_DATA( audioEl );

@@ -79,8 +79,7 @@
         "js/engine/core/cache.js",
         "js/engine/core/core.js",
         "js/engine/core/event.js", 
-
-        "js/engine/core/callbacks.js",
+ 
         "js/engine/core/dom.js",
         "js/engine/core/storage.js",
 
@@ -105,21 +104,14 @@
         "js/includes/plugin/groups/leave.js",
 
         "js/includes/plugin/audio/download.js",
-        "js/includes/plugin/audio/bitrate.js",
-        "js/includes/plugin/audio/common.js",
-        "js/includes/plugin/audio/searchAndPlay.js",
-
-        "js/includes/plugin/audio/contextMenu.js",
-
-        "js/includes/plugin/audio/autocomplete.js",
+        "js/includes/plugin/audio/bitrate.js", 
+        "js/includes/plugin/audio/searchAndPlay.js", 
 
         "js/includes/plugin/sidebar/sidebar.js",
 
         "js/includes/plugin/sidebar/friends.js",
-        "js/includes/plugin/sidebar/lastfm.js",
-        "js/includes/plugin/sidebar/downloadManager.js",
-
-        "js/includes/plugin/im/backup.js",
+        "js/includes/plugin/sidebar/lastfm.js", 
+ 
 
         "js/includes/common.js",
 

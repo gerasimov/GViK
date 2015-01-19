@@ -272,7 +272,7 @@ _GViK( {
             }, function() {
                 event.trigger( method + '.error' );
 
-            } );
+            }, true );
         }
 
         function render( tmpl, arr, fn ) {

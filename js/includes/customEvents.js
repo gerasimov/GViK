@@ -204,7 +204,7 @@ _GViK( function( gvik, require, Add ) {
             'Audio.scrollCheck'
         ], function( fnName ) {
             bindHandle( fnName, function( arg, res ) {
-                event.trigger( 'audio.newRows', [ arg, res ], 50 );
+                event.trigger( 'audio.newRows', [ arg, res ]  );
             }, false, true );
         } );
 

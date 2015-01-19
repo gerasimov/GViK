@@ -74,7 +74,7 @@ _GViK( {
 
             SORT_FN = function() {
 
- 
+
                 var audios = [].slice.call( window.cur.sContent.children ).sort( function( a, b ) {
                     return getCacheInt( b.id ) - getCacheInt( a.id );
                 } );
@@ -91,20 +91,25 @@ _GViK( {
 
             AUTO_LOAD_BIT_FN = CONFS.get( 'auto-sort-bit' ) ? function( timeout ) {
 
+                clearTimeout( tId );
+                tId = null;
+
+
                 if ( !window.cur.searchStr )
                     return;
 
-                if ( !timeout ) return SORT_FN();
+                if ( !timeout )
+                    return SORT_FN();
 
-                clearTimeout( tId );
-                tId = setTimeout( SORT_FN, 500 );
+                if ( !tId )
+                    tId = setTimeout( SORT_FN, 500 );
 
             } : null;
 
 
 
         function getCacheInt( id ) {
-            return ( cache.get( id ) || {} )[ SORT_PROP ] || -1;
+            return ( cache.get( global.VARS.CLEAN_ID( id ) ) || {} )[ SORT_PROP ] || -1;
         }
 
         function __getBitrate( url, dur, callback, needFileSize, id ) {
@@ -160,21 +165,47 @@ _GViK( {
                 'audio.newRows',
                 'audio',
                 'padOpen'
-            ], function( data, evaname ) {
+            ], function( data, evaname ) { 
+                
+                var fromPad = data ? !!(data.el || data[0][0]) : false;
 
                 var audios = dom.queryAll( AUDIO_SELECTOR ),
-                    l = audios.length;
+                    l = audios.length; 
 
-
-                if ( !l ) AUTO_LOAD_BIT_FN( false );
+                if ( !fromPad )
+                    if ( !l )
+                        AUTO_LOAD_BIT_FN( false );
 
                 while ( l-- )
-                    setBitrate( audios[ l ], AUTO_LOAD_BIT_FN );
+                    setBitrate( audios[ l ], fromPad ? null : AUTO_LOAD_BIT_FN );
 
             }, true );
 
-        dom.setDelegate( document, AUDIO_SELECTOR, {
-            mouseover: function( el ) {
+
+        var BIT_SELECTORS = core.map( [
+            "",
+            ".play_new",
+            ".gvik-download"
+        ], function( val ) {
+            return ( AUDIO_SELECTOR + " " + val ).trim();
+        } )
+
+        if ( CONFS.get( 'bitrate-audio' ) )
+            var BIT_SELECTOR = BIT_SELECTORS[ 0 ];
+        else if ( CONFS.get( 'bitrate-playBtn' ) )
+            BIT_SELECTOR = BIT_SELECTORS[ 1 ];
+
+        else if ( CONFS.get( 'bitrate-downloadBtn' ) )
+            BIT_SELECTOR = BIT_SELECTORS[ 2 ];
+
+
+
+        dom.setDelegate( document, BIT_SELECTOR, {
+            mouseover: function( el, e ) {
+
+                if ( !dom.is( el, AUDIO_SELECTOR ) )
+                    el = dom.parent( e, AUDIO_SELECTOR );
+
                 setBitrate( el );
             }
         } );
