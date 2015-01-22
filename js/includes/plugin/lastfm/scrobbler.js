@@ -18,7 +18,7 @@ _GViK( {
         options = require( 'options' ),
         lastfmAPI = require( 'lastfmAPI' ),
         storage = require( 'storage' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
 
         state = lastfmAPI.state,
         scrobble,
@@ -83,7 +83,7 @@ _GViK( {
             this.UPDATE_DELAY = 20;
 
 
-            event.bind( 'audio', function( ev ) {
+            events.bind( 'audio', function( ev ) {
 
                 var ac = document.getElementById( 'ac' );
 
@@ -131,7 +131,7 @@ _GViK( {
                 this.maxStep = Math.max( 1, Math.floor( this.startScrobble / this.UPDATE_DELAY ) - 1 );
                 this.readyD = false;
 
-                event.trigger( 'lastfm.newtrack', {
+                events.trigger( 'lastfm.newtrack', {
                     artist: this.artist,
                     title: this.title,
                     url: this.info()[ 2 ],
@@ -177,7 +177,7 @@ _GViK( {
             this.timestamp = Math.floor( Date.now() / 1000 );
             this.position = -1;
 
-            event.trigger( 'starttrack', {
+            events.trigger( 'starttrack', {
                 artist: this.artist,
                 title: this.title,
                 duration: audioPlayer.duration,

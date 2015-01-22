@@ -20,6 +20,10 @@ _GViK( {}, [
             chrome = require( 'chrome' );
 
 
+
+        vkapi.pushPermission( 'audio' );
+
+
         var _eq = function( a, b ) {
                 return a.replace( /\s+/g, '' )
                     .toLowerCase() === b.replace( /\s+/g, '' )

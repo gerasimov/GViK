@@ -16,7 +16,7 @@ _GViK( {
 		chrome = require( 'chrome' ),
 		dom = require( 'dom' ),
 		options = require( 'options' ),
-		event = require( 'event' ),
+		events = require( 'events' ),
 		global = require( 'global' ),
 
 
@@ -25,7 +25,7 @@ _GViK( {
 		FROM_CACHE = CONFS.get( 'download-fromCache' ),
 		SAVE_AS = CONFS.get( 'download-saveAs' ),
 
-		rExtTest = /\.(?:\%e|mp3)/, 
+		rExtTest = /\.(?:\%e|mp3)/,
 
 		fileNamePattern = CONFS.get( 'format-filename' ),
 		methodNameDownload = FROM_CACHE ? 'downloadFromCache' : 'download';
@@ -46,7 +46,7 @@ _GViK( {
 			t: data.title,
 			e: data.ext,
 			d: data.dur,
-			i: data.id 
+			i: data.id
 		} );
 
 		if ( fName.length === ext.length )
@@ -57,7 +57,8 @@ _GViK( {
 	}
 
 
-	function __setDownloadButton( audioEl ) {
+
+	dom.setDelegate( document, '.audio:not([id=audio_global]):not([data-gvik-download])', 'mouseover', function( audioEl ) {
 
 		audioEl.setAttribute( 'data-gvik-download', true );
 
@@ -95,7 +96,7 @@ _GViK( {
 						saveAs: SAVE_AS
 					}, function( downloadItemId ) {
 						chrome.download.search( downloadItemId, function( downloadItem ) {
-							event.trigger( 'AUDIO_downloaded', {
+							events.trigger( 'AUDIO_downloaded', {
 								downloadItem: downloadItem,
 								data: data
 							} );
@@ -109,13 +110,7 @@ _GViK( {
 
 		return data;
 
-	}
-
-
-	dom.setDelegate( document, {
-		'.audio:not([id=audio_global]):not([data-gvik-download])': {
-			'mouseover': __setDownloadButton
-		}
 	} );
+ 
 
 } );

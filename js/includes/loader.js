@@ -10,7 +10,7 @@ _GViK( function( appData, require ) {
 
 
     var core = require( 'core' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
         options = require( 'options' ),
         constants = require( 'constants' ),
         chrome = require( 'chrome' ),
@@ -46,14 +46,14 @@ _GViK( function( appData, require ) {
     }
 
     if ( options.get( 'system', 'enable-qicksett' ) )
-        event.bind( "changeURL", function() {
+        events.bind( "changeURL", function() {
             chrome.sendRequest( "showPageAction", {} );
         }, true );
 
 
     chrome.ga( 'send', 'event', 'vk', 'init' );
 
-    event.bind( 'load', function() {
+    events.bind( 'load', function() {
 
         if ( window.vk.id === 0 )
             setTimeout( arguments.callee, constants.get( "LOADER_TIMEOUT" ) );

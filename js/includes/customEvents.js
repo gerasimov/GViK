@@ -14,12 +14,12 @@ _GViK( function( gvik, require, Add ) {
     var dom = require( 'dom' ),
         core = require( 'core' ),
         options = require( 'options' ),
-        event = require( 'event' );
+        events = require( 'events' );
 
 
 
     // id element => event name
-    var events = {
+    var _events_map = {
         'gp': 'playerOpen',
         'pad_cont': 'padOpen',
         'wrap3': 'changePage',
@@ -42,9 +42,9 @@ _GViK( function( gvik, require, Add ) {
 
                 id = ( curEl = mutations[ l ].target ).id;
 
-                if ( id && lastId !== id && ( ev = events[ id ] ) ) {
+                if ( id && lastId !== id && ( ev = _events_map[ id ] ) ) {
 
-                    event.trigger( ev, {
+                    events.trigger( ev, {
                         el: curEl
                     } );
 
@@ -110,43 +110,43 @@ _GViK( function( gvik, require, Add ) {
     }
 
     bindHandle( 'showBox', function( arg, res ) {
-        event.trigger( 'openBox', {
+        events.trigger( 'openBox', {
             arg: arg,
             res: res
         } );
     } );
 
     bindHandle( 'hab.setLoc', function( _ ) {
-        event.trigger( 'changeURL', _ );
+        events.trigger( 'changeURL', _ );
     } );
 
     bindHandle( 'ajax.plainpost', function( arg ) {
 
         if ( arg[ 2 ] ) {
             arg[ 2 ] = arg[ 2 ].bindFuncBefore( function( arg ) {
-                event.trigger( 'vk.ajax.done', arg );
+                events.trigger( 'vk.ajax.done', arg );
             } );
         }
 
         if ( arg[ 3 ] ) {
             arg[ 3 ] = arg[ 3 ].bindFuncBefore( function( arg ) {
-                event.trigger( 'vk.ajax.error', arg );
+                events.trigger( 'vk.ajax.error', arg );
             } );
         }
     }, true );
 
     bindHandle( 'stManager.add', function( arg ) {
 
-        event.trigger( 'stManager.add', arg );
+        events.trigger( 'stManager.add', arg );
 
         if ( arg[ 1 ] ) {
             arg[ 1 ] = arg[ 1 ].bindFuncBefore( function() {
 
                 core.each( arg[ 0 ], function( fName ) {
-                    event.trigger( fName + '.clb' );
+                    events.trigger( fName + '.clb' );
                 } );
 
-                event.trigger( 'stManager.add.clb' );
+                events.trigger( 'stManager.add.clb' );
             } );
         }
 
@@ -158,7 +158,7 @@ _GViK( function( gvik, require, Add ) {
         if ( arg[ 2 ] ) {
             if ( !arg[ 2 ].onDone ) {
                 arg[ 2 ].onDone = function() {
-                    event.trigger( 'nav.go.clb' );
+                    events.trigger( 'nav.go.clb' );
                 };
             }else {
                 arg[ 2 ].onDone = arg[ 2 ].onDone.bindFuncBefore( function() {} );
@@ -166,7 +166,7 @@ _GViK( function( gvik, require, Add ) {
         }
     }, true );
 
-    event.bind( 'changePage', function( even, cnt ) {
+    events.bind( 'changePage', function( even, cnt ) {
         if ( ( cnt = document.getElementById( 'content' ) ) === null ) return;
 
         var el, elid, ev, ch = cnt.children,
@@ -175,15 +175,15 @@ _GViK( function( gvik, require, Add ) {
         for ( ; l--; )
             if ( ( el = ch[ l ] ) &&
                 ( elid = el.id ) &&
-                ( ev = events[ elid ] ) )
-                event.trigger( ev );
+                ( ev = _events_map[ elid ] ) )
+                events.trigger( ev );
     } )
 
     .bind( 'openBox', function( _ ) {
         var arg = _.arg,
             res = _.res;
 
-        event.trigger( arg[ 1 ].act, _ );
+        events.trigger( arg[ 1 ].act, _ );
     } )
 
 
@@ -204,7 +204,7 @@ _GViK( function( gvik, require, Add ) {
             'Audio.scrollCheck'
         ], function( fnName ) {
             bindHandle( fnName, function( arg, res ) {
-                event.trigger( 'audio.newRows', [ arg, res ]  );
+                events.trigger( 'audio.newRows', [ arg, res ]  );
             }, false, true );
         } );
 
@@ -218,10 +218,10 @@ _GViK( function( gvik, require, Add ) {
             core.each( data, function( curData ) {
                 switch ( curData.name ) {
                     case 'id':
-                        event.trigger( 'audio.onNewTrack', curData.object.id, true );
+                        events.trigger( 'audio.onNewTrack', curData.object.id, true );
                         break;
                     case 'curTime':
-                        event.trigger( 'audio.onPlayProgress', curData.object.curTime, true );
+                        events.trigger( 'audio.onPlayProgress', curData.object.curTime, true );
                         break;
                     default:
                         break;
@@ -230,7 +230,7 @@ _GViK( function( gvik, require, Add ) {
         } );
 
         bindHandle( 'audioPlayer.operate', function( arg, res ) {
-            if ( this && this.player ) event.trigger( ( this.player.paused() ? 'audio.onPause' : 'audio.onPlay' ), arg[ 0 ] );
+            if ( this && this.player ) events.trigger( ( this.player.paused() ? 'audio.onPause' : 'audio.onPlay' ), arg[ 0 ] );
         } );
 
     } );
@@ -240,7 +240,7 @@ _GViK( function( gvik, require, Add ) {
         core.each( data, function( curData ) {
             switch ( curData.name ) {
                 case 'searchOffset':
-                    event.trigger( 'audio.search' );
+                    events.trigger( 'audio.search' );
                     break;
 
                 default:

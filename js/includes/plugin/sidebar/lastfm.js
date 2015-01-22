@@ -21,7 +21,7 @@ _GViK( {
             core = require( 'core' ),
             dom = require( 'dom' ),
             cache = require( 'cache' ),
-            event = require( 'event' ),
+            events = require( 'events' ),
             chrome = require( 'chrome' ),
             lastfmAPI = require( 'lastfmapi' ),
             constants = require( 'constants' ),
@@ -249,7 +249,7 @@ _GViK( {
             clb && clb( !!cacheVal );
 
             if ( cacheVal )
-                event.trigger( method, cacheVal );
+                events.trigger( method, cacheVal );
             else {
                 lfapiCall( method, prop );
             }
@@ -267,10 +267,10 @@ _GViK( {
                 track: nameTrack || '',
                 correction: 1
             }, function( res, isError ) {
-                if ( isError ) return event.trigger( method + '.error' );
-                event.trigger( method, res[ prop ] );
+                if ( isError ) return events.trigger( method + '.error' );
+                events.trigger( method, res[ prop ] );
             }, function() {
-                event.trigger( method + '.error' );
+                events.trigger( method + '.error' );
 
             }, true );
         }
@@ -283,7 +283,7 @@ _GViK( {
         }
 
 
-        event.bind( 'track.getInfo', function( track, evname ) {
+        events.bind( 'track.getInfo', function( track, evname ) {
 
             nameTrack = track.name;
 

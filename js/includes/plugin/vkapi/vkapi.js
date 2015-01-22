@@ -24,11 +24,7 @@ _GViK( function( appData, require, Add ) {
             this.USER_ID = constants.get( 'ID' );
 
 
-            this.permission = [ 'friends',
-                'groups',
-                'audio',
-                'video'
-            ];
+            this.permission = [  ];
 
             this.isOffline = options.get( 'vkapi', 'offline' );
 

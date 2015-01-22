@@ -12,7 +12,7 @@ _GViK( function( gvik, require, Add ) {
 
     "use strict";
 
-    var event = require( 'event' ),
+    var events = require( 'events' ),
         dom = require( 'dom' ),
         core = require( 'core' ),
         constants = require( 'constants' ),
@@ -37,7 +37,7 @@ _GViK( function( gvik, require, Add ) {
             constants.define( 'ID', res.user.id );
 
             core.define( 'ui.js', 'main.js', function() {
-                event.trigger( 'init' );
+                events.trigger( 'init' );
             } );
         } );
     else {
@@ -45,7 +45,7 @@ _GViK( function( gvik, require, Add ) {
         constants.define( 'ID', localStorage.curId );
 
         core.define( [ 'ui.js', 'main.js' ], function() {
-            event.asyncTrigger( 'init' );
+            events.asyncTrigger( 'init' );
         } );
     }
 

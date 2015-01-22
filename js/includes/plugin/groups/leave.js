@@ -16,15 +16,18 @@ _GViK( {
         dom = require( 'dom' ),
         chrome = require( 'chrome' ),
         vkapi = require( 'vkapi' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
         core = require( 'core' );
 
 
-    event.bind( 'groups', function() {
+    vkapi.pushPermission( 'groups' );
+
+
+    events.bind( 'groups', function() {
 
         var el = dom.byId( 'groups_list_summary' );
 
-        if ( !el ) 
+        if ( !el )
             return;
 
         dom.append( el, [
@@ -48,7 +51,7 @@ _GViK( {
 
 
                             if ( ( prompt( "Введите слово \"" + key + "\", чтобы подтвердить действие." ) || '' ).toLowerCase().trim() === key )
-                                vkapi.call('execute.allGroupsLeave');
+                                vkapi.call( 'execute.allGroupsLeave' );
                         }
                     }
                 } )

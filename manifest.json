@@ -8,7 +8,7 @@
             "js/engine/constants.js",
 
             "js/engine/core/core.js",
-            "js/engine/core/event.js",
+            "js/engine/core/events.js",
             "js/engine/api/support.js",
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
@@ -28,7 +28,7 @@
             "js/engine/constants.js",
 
             "js/engine/core/core.js",
-            "js/engine/core/event.js",
+            "js/engine/core/events.js",
             "js/engine/core/dom.js",
 
             "js/engine/api/support.js",
@@ -78,7 +78,7 @@
         "js/engine/core/global.js",
         "js/engine/core/cache.js",
         "js/engine/core/core.js",
-        "js/engine/core/event.js", 
+        "js/engine/core/events.js", 
  
         "js/engine/core/dom.js",
         "js/engine/core/storage.js",

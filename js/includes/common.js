@@ -14,7 +14,8 @@ _GViK( function( gvik, require, Add ) {
         dom = require( 'dom' ),
         chrome = require( 'chrome' ),
         vkapi = require( 'vkapi' ),
-        event = require( 'event' ),
+        global = require( 'global' ),
+        events = require( 'events' ),
         core = require( 'core' );
 
 
@@ -31,7 +32,7 @@ _GViK( function( gvik, require, Add ) {
             .join( '' )
     } );
 
-    event.bind( 'IM', function( e ) {
+    events.bind( 'IM', function( e ) {
         var cfs = options.get( 'im' );
         if ( cfs.get( 'mark-read' ) ) {
             IM.markRead = function( uid, msgIds ) {};
@@ -45,7 +46,7 @@ _GViK( function( gvik, require, Add ) {
     if ( options.get( 'common', 'state-onlineChange' ) ) {
 
         if ( options.get( 'common', 'set-offline' ) ) {
-            event.bind( 'changePage', function() {
+            events.bind( 'changePage', function() {
                 vkapi.call( 'account.setOffline' );
             }, true );
 
@@ -60,7 +61,9 @@ _GViK( function( gvik, require, Add ) {
             }() );
         }
     }
+ 
 
 
+    window.rs = core.tmpl3;
 
 } );

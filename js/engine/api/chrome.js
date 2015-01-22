@@ -14,7 +14,7 @@ _GViK( function( appData, require, Add ) {
 
         core = require( 'core' ),
         constants = require( 'constants' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
 
         disconnected = false;
 
@@ -43,7 +43,7 @@ _GViK( function( appData, require, Add ) {
 
     connect( constants.get( "CHROME_DISCONNECT" ), function() {
         disconnected = true;
-        event.trigger( 'disconnect' );
+        events.trigger( 'disconnect' );
     } );
 
     var callbackContainer = [

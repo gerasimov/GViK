@@ -14,7 +14,7 @@ _GViK( function( gvik, require, Add ) {
         core = require( 'core' ),
         chrome = require( 'chrome' ),
         options = require( 'options' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
 
 
         _shown = false,
@@ -65,13 +65,13 @@ _GViK( function( gvik, require, Add ) {
         ] )
     );
 
-    event.bind( 'resize', function( s ) {
+    events.bind( 'resize', function( s ) {
         wrap.style[ 'max-height' ] = s.h + 'px';
     }, true );
 
 
     var ontogglestate = function() {
-            event.trigger( _shown ? 'SIDEBAR_show' : 'SIDEBAR_hide' );
+            events.trigger( _shown ? 'SIDEBAR_show' : 'SIDEBAR_hide' );
         },
 
         tabs = [];

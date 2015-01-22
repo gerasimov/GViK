@@ -13,7 +13,7 @@ _GViK( function( gvik, require, Add ) {
     var methods = window.methods = {},
 
         core = require( 'core' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
 
         isBackground = !!chrome.extension.getViews;
 
@@ -54,7 +54,7 @@ _GViK( function( gvik, require, Add ) {
 
     methods.triggerEvent = function( o, p, c ) {
         if ( event )
-            event.trigger( o.ev, o.dt );
+            events.trigger( o.ev, o.dt );
     };
 
     methods.getSupport = function( o, p, c ) {

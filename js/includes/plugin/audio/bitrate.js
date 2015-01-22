@@ -19,7 +19,7 @@ _GViK( {
 
         var core = require( 'core' ),
             dom = require( 'dom' ),
-            event = require( 'event' ),
+            events = require( 'events' ),
             global = require( 'global' ),
             options = require( 'options' ),
             cache = require( 'cache' ),
@@ -161,20 +161,20 @@ _GViK( {
         }
 
         if ( CONFS.get( 'auto-load-bit' ) )
-            event.bind( [
+            events.bind( [
                 'audio.newRows',
                 'audio',
                 'padOpen'
-            ], function( data, evaname ) { 
-                
-                var fromPad = data ? !!(data.el || data[0][0]) : false;
+            ], function( data, evaname ) {
 
-                var audios = dom.queryAll( AUDIO_SELECTOR ),
-                    l = audios.length; 
+                var fromPad = data ? !!( data.el || data[ 0 ][ 0 ] ) : false,
+
+                    audios = dom.queryAll( AUDIO_SELECTOR ),
+                    l = audios.length;
 
                 if ( !fromPad )
                     if ( !l )
-                        AUTO_LOAD_BIT_FN( false );
+                        AUTO_LOAD_BIT_FN && AUTO_LOAD_BIT_FN( false );
 
                 while ( l-- )
                     setBitrate( audios[ l ], fromPad ? null : AUTO_LOAD_BIT_FN );
@@ -200,14 +200,12 @@ _GViK( {
 
 
 
-        dom.setDelegate( document, BIT_SELECTOR, {
-            mouseover: function( el, e ) {
+        dom.setDelegate( document, BIT_SELECTOR, 'mouseover', function( el, e ) {
 
-                if ( !dom.is( el, AUDIO_SELECTOR ) )
-                    el = dom.parent( e, AUDIO_SELECTOR );
+            if ( !dom.is( el, AUDIO_SELECTOR ) )
+                el = dom.parent( e, AUDIO_SELECTOR );
 
-                setBitrate( el );
-            }
+            setBitrate( el );
         } );
 
     } );

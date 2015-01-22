@@ -36,17 +36,15 @@ _GViK( function( appData, require, Add ) {
 
     function extend( target ) {
 
-        var i = 1,
+        var z,
+            i = 1,
             arg = arguments,
-            l = arg.length,
-
-            fnLoop = function( val, key ) {
-                target[ key ] = val;
-            };
+            l = arg.length;
 
         if ( l > 1 )
             for ( ; i < l; i++ )
-                each( arg[ i ], fnLoop );
+                for ( z in arg[ i ] )
+                    target[ z ] = arg[ i ][ z ];
 
         return target;
     }
@@ -249,26 +247,23 @@ _GViK( function( appData, require, Add ) {
         return xhr;
     }
 
-
-    function jsonp() {
-
-
-
-    };
-
-
     function tmpl( str, obj ) {
-        return str.replace( /<\%\=[^>]*>/gi, function( key ) {
-            return obj[ key.slice( 3, -1 ) ];
-        } );
+        return template( str, /<\%\=[^>]*>/gi, [ 3, -1 ], obj );
     }
 
     function tmpl2( str, obj ) {
-        return str.replace( /\%\w/gi, function( key ) {
-            return obj[ key.slice( 1 ) ] || '';
-        } );
+        return template( str, /\%\w/gi, [ 1 ], obj );
     }
 
+    function tmpl3( str, obj ) {
+        return template( str, /\%\w+\%/gi, [ 1, -1 ], obj );
+    }
+
+    function template( str, rexp, offset, obj ) {
+        return str.replace( rexp, function( k ) {
+            return obj[ k.slice( offset[ 0 ], offset[ 1 ] ) ] || '';
+        } );
+    }
 
 
     Add( 'core', {
@@ -278,6 +273,8 @@ _GViK( function( appData, require, Add ) {
         map: map,
         tmpl: tmpl,
         tmpl2: tmpl2,
+        tmpl3: tmpl3,
+        template: template,
         isPlainObject: isPlainObject,
         isEmpty: isEmpty,
         isFunction: isFunction,

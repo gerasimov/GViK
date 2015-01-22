@@ -19,7 +19,7 @@ _GViK( {
 
             core = require( 'core' ),
             dom = require( 'dom' ),
-            event = require( 'event' ),
+            events = require( 'events' ),
             vkapi = require( 'vkapi' ),
             sidebar = require( 'sidebar' ),
             options = require( 'options' ),
@@ -51,7 +51,11 @@ _GViK( {
             },
             API_METHOD = 'fave.getUsers';
 
-        if ( cnfg.get( 'friends' ) ) API_METHOD = 'friends.get';;
+        if ( cnfg.get( 'friends' ) ) API_METHOD = 'friends.get';
+
+
+
+        vkapi.pushPermission( 'friends' );
 
 
         function vkcall( method, data, success, error ) {
@@ -126,8 +130,7 @@ _GViK( {
         } );
 
 
-        event
-            .bind( 'SIDEBAR_show', function() {
+        events.bind( 'SIDEBAR_show', function() {
                 stateLoad ?
                     update() :
                     load()

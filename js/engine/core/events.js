@@ -17,7 +17,7 @@ _GViK( function( gvik, require, Add ) {
 
         _data = {},
 
-        Event = function() {};
+        Events = function() {};
 
 
     function __run( name, data ) {
@@ -62,13 +62,13 @@ _GViK( function( gvik, require, Add ) {
     }
 
 
-    Event.prototype.hasEvent = function( name ) {
+    Events.prototype.hasEvent = function( name ) {
         return _data.hasOwnProperty( name );
     };
 
 
 
-    Event.prototype.create = function( name, initData, initEvent, onAdd ) {
+    Events.prototype.create = function( name, initData, initEvent, onAdd ) {
 
         var _eventsL = [];
 
@@ -99,7 +99,7 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
-    Event.prototype.bind = function( name, fn, runnow ) {
+    Events.prototype.bind = function( name, fn, runnow ) {
         if ( core.isPlainObject( name ) )
             core.each( name, function( _fn, _name ) {
                 __bind( _name, _fn, fn );
@@ -120,13 +120,13 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
-    Event.prototype.del = function( evName ) {
+    Events.prototype.del = function( evName ) {
         if ( this.hasEvent( evName ) )
             delete _data[ evName ];
     };
 
 
-    Event.prototype.chromeTrigger = function( name, data ) {
+    Events.prototype.chromeTrigger = function( name, data ) {
         if ( chrome || ( chrome = require( 'chrome' ) ) )
             chrome.sendRequest( 'triggerEvent', {
                 data: {
@@ -140,7 +140,7 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
-    Event.prototype.trigger = function( name, data, chromeTrigger ) {
+    Events.prototype.trigger = function( name, data, chromeTrigger ) {
         if ( this.hasEvent( name ) )
             __run( name, data );
 
@@ -154,7 +154,7 @@ _GViK( function( gvik, require, Add ) {
         return this;
     };
 
-    Event.prototype.asyncTrigger = function( name, data, ms, chromeTrigger ) {
+    Events.prototype.asyncTrigger = function( name, data, ms, chromeTrigger ) {
         if ( this.hasEvent( name ) )
             return setTimeout( function() {
                 __run( name, data );
@@ -164,12 +164,12 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
-    Event.prototype.getEvent = function() {
+    Events.prototype.getEvent = function() {
         return _data;
     };
 
 
-    var _event = new Event();
+    var _event = new Events();
 
 
     _event
@@ -193,7 +193,7 @@ _GViK( function( gvik, require, Add ) {
 
 
 
-    Add( 'event', _event );
+    Add( 'events', _event );
 
 
 } );

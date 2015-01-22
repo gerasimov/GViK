@@ -10,7 +10,7 @@ _GViK( function( gvik, require, Add ) {
     "use strict";
 
     var storage = require( 'storage' ),
-        event = require( 'event' ),
+        events = require( 'events' ),
         core = require( 'core' ),
         dom = require( 'dom' ),
         lastfmAPI = require( 'lastfmAPI' ),
@@ -97,14 +97,14 @@ _GViK( function( gvik, require, Add ) {
             el.value;
 
 
-        event.trigger( 'change_option', {
+        events.trigger( 'change_option', {
             namespace: namespace,
             optName: optName,
             optVal: optVal
         } );
     };
 
-    event.bind( 'change_option', function( data ) {
+    events.bind( 'change_option', function( data ) {
 
         options.set( data.namespace,
             data.optName,
