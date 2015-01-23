@@ -67,7 +67,7 @@
         "*://*.audioscrobbler.com/*",
         "*://*.vk.me/*"
     ],
-    "version": "1.0.7.2",
+    "version": "1.0.9.0",
     "web_accessible_resources": [
 
         "js/includes/preloader.js",

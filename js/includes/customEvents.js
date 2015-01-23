@@ -160,16 +160,20 @@ _GViK( function( gvik, require, Add ) {
                 arg[ 2 ].onDone = function() {
                     events.trigger( 'nav.go.clb' );
                 };
-            }else {
+            } else {
                 arg[ 2 ].onDone = arg[ 2 ].onDone.bindFuncBefore( function() {} );
             }
         }
     }, true );
 
     events.bind( 'changePage', function( even, cnt ) {
+       
         if ( ( cnt = document.getElementById( 'content' ) ) === null ) return;
 
-        var el, elid, ev, ch = cnt.children,
+        var el, 
+            elid, 
+            ev, 
+            ch = cnt.children,
             l = ch.length;
 
         for ( ; l--; )
@@ -204,7 +208,7 @@ _GViK( function( gvik, require, Add ) {
             'Audio.scrollCheck'
         ], function( fnName ) {
             bindHandle( fnName, function( arg, res ) {
-                events.trigger( 'audio.newRows', [ arg, res ]  );
+                events.trigger( 'audio.newRows', [ arg, res ] );
             }, false, true );
         } );
 
@@ -231,21 +235,6 @@ _GViK( function( gvik, require, Add ) {
 
         bindHandle( 'audioPlayer.operate', function( arg, res ) {
             if ( this && this.player ) events.trigger( ( this.player.paused() ? 'audio.onPause' : 'audio.onPlay' ), arg[ 0 ] );
-        } );
-
-    } );
-
-    Object.observe( window.cur, function( data ) {
-
-        core.each( data, function( curData ) {
-            switch ( curData.name ) {
-                case 'searchOffset':
-                    events.trigger( 'audio.search' );
-                    break;
-
-                default:
-                    break;
-            }
         } );
 
     } );

@@ -25,10 +25,12 @@ _GViK( function( gvik, require, Add ) {
         var fnlist = _data[ name ].events,
             l = fnlist.length;
 
-        if ( l === 1 ) return fnlist[ 0 ]( data, name );
+        if ( l === 1 ) 
+            return fnlist[ 0 ]( data, name );
 
 
-        while ( l-- ) fnlist[ l ]( data, name );
+        while ( l-- ) 
+            fnlist[ l ]( data, name );
     }
 
 

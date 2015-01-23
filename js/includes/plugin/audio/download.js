@@ -25,7 +25,7 @@ _GViK( {
 		FROM_CACHE = CONFS.get( 'download-fromCache' ),
 		SAVE_AS = CONFS.get( 'download-saveAs' ),
 
-		rExtTest = /\.(?:\%e|mp3)/,
+		rExtTest = /\.(?:\%e|mp3)$/,
 
 		fileNamePattern = CONFS.get( 'format-filename' ),
 		methodNameDownload = FROM_CACHE ? 'downloadFromCache' : 'download';
@@ -49,9 +49,12 @@ _GViK( {
 			i: data.id
 		} );
 
-		if ( fName.length === ext.length )
-			fName = "Name" + fName;
+		fName = fName.replace(/[\\\/\:\*\?\"\<\>\|]+/gi, '').trim();
 
+		if ( fName.length === ext.length )
+			fName = data.artist + ' - ' + data.title + ext;
+
+ 
 
 		return fName;
 	}

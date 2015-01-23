@@ -51,6 +51,7 @@ _GViK( {
 
             FILE_SIZE_ENABLED = CONFS.get( 'file-size' ),
             LOADER_DISABLED = CONFS.get( 'loader-disable' ),
+            MIN_BIT = CONFS.get( 'min-bitrate' ),
 
             CLASS_BITRATE = [ 'gvik-bitrate', ( LOADER_DISABLED ? '' : ' loader' ) ].join( '' ),
             NAME_ATTR = [ 'data-gvik-bitrate', ( FILE_SIZE_ENABLED ? '-filesize' : '' ) ].join( '' ),
@@ -60,19 +61,21 @@ _GViK( {
 
             SORT_PROP = "bitInt",
 
-            HIDE_SMALL_BIT_FN = CONFS.get( 'auto-hide-bit' ) ? function( audios ) {
-                for ( var i = audios.length; i--; ) {
-                    if ( getCacheInt( audios[ i ].id ) > 260 )
-                        break;
 
-                    audios[ i ].style.display = "none";
-                }
+            HIDE_SMALL_BIT_FN = CONFS.get( 'auto-hide-bit' ) ? function( audios ) {
+
+                audios = audios || window.cur.sContent.children;
+
+                for ( var i = audios.length; i--; )
+                    if ( getCacheInt( audios[ i ].id ) < MIN_BIT )
+                        audios[ i ].style.display = "none";
+
             } : null,
 
 
             tId,
 
-            SORT_FN = function() {
+            SORT_FN = CONFS.get( 'auto-sort-bit' ) ? function() {
 
 
                 var audios = [].slice.call( window.cur.sContent.children ).sort( function( a, b ) {
@@ -82,30 +85,33 @@ _GViK( {
                 if ( !audios.length )
                     return;
 
-                HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN( audios );
-
 
                 dom.append( window.cur.sContent, audios );
 
-            },
+                return audios;
 
-            AUTO_LOAD_BIT_FN = CONFS.get( 'auto-sort-bit' ) ? function( timeout ) {
+            } : null,
+
+            AUTO_LOAD_BIT_FN = ( HIDE_SMALL_BIT_FN || SORT_FN ) ? function( timeout ) {
+
 
                 clearTimeout( tId );
-                tId = null;
 
 
-                if ( !window.cur.searchStr )
+                if ( !window.cur.searchStr ) return;
+
+                if ( !timeout ) {
+                    SORT_FN && SORT_FN();
+                    HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN();
                     return;
+                }
 
-                if ( !timeout )
-                    return SORT_FN();
-
-                if ( !tId )
-                    tId = setTimeout( SORT_FN, 500 );
+                tId = setTimeout( function() {
+                    SORT_FN && SORT_FN();
+                    HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN();
+                }, 500 );
 
             } : null;
-
 
 
         function getCacheInt( id ) {

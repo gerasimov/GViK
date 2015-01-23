@@ -36,19 +36,31 @@ _GViK( function( gvik, require, Add ) {
 
             constants.define( 'ID', res.user.id );
 
-            core.define( 'ui.js', 'main.js', function() {
+            core.define( [  'main.js'], function() {
                 events.trigger( 'init' );
             } );
+
         } );
     else {
 
         constants.define( 'ID', localStorage.curId );
 
-        core.define( [ 'ui.js', 'main.js' ], function() {
+        core.define( [  'main.js' ], function() {
             events.asyncTrigger( 'init' );
         } );
     }
 
+    dom.setDelegate( document, '[data-href]', 'click', function( el, e ) {
+        e.stopPropagation();
+        e.preventDefault();
 
+        e._canceled = true;
+
+
+        chrome.tabs.create( {
+            url: el.getAttribute( 'data-href' )
+        } )
+
+    } );
 
 } );
