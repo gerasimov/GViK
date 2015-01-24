@@ -40,6 +40,12 @@ _GViK( function( gvik, require, Add ) {
                 "min-bitrate": 256,
                 "out-hide": false
             },
+
+            "im": {
+                "mark-read": false,
+                "send-notify": false
+            },
+
             "common": {
                 "remove-ads": true,
                 "remove-white-heart": true,
@@ -50,10 +56,7 @@ _GViK( function( gvik, require, Add ) {
             "groups": {
                 "fast-exit": true
             },
-            "im": {
-                "mark-read": false,
-                "send-notify": false
-            },
+
             "instagram": {
                 "enable": false
             },
@@ -142,6 +145,14 @@ _GViK( function( gvik, require, Add ) {
 
         return false;
 
+    };
+
+
+    Options.prototype.save = function() {
+        if ( require( 'chrome' ) ) {
+            require( 'chrome' ).local.set( 'options', this.options, function() {} );
+            return true;
+        }
     };
 
 

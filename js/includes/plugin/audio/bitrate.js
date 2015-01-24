@@ -127,7 +127,8 @@ _GViK( {
             }
 
             global.VARS.GET_FILE_SIZE( url, function( size ) {
-                if ( size ) return callback( __calcBitrate( size, dur, needFileSize, id ) );
+                if ( size )
+                    return callback( __calcBitrate( size, dur, needFileSize, id ) );
             } );
 
             return CLASS_BITRATE;

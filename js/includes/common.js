@@ -32,16 +32,6 @@ _GViK( function( gvik, require, Add ) {
             .join( '' )
     } );
 
-    events.bind( 'IM', function( e ) {
-        var cfs = options.get( 'im' );
-        if ( cfs.get( 'mark-read' ) ) {
-            IM.markRead = function( uid, msgIds ) {};
-            IM.markPeer = function() {};
-        }
-        if ( cfs.get( 'send-notify' ) ) {
-            IM.onMyTyping = function( uid ) {};
-        }
-    }, true );
 
     if ( options.get( 'common', 'state-onlineChange' ) ) {
 

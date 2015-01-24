@@ -33,6 +33,7 @@ _GViK( function( appData, require, Add ) {
 
     connect( constants.get( "CHROME_RESPONSE" ), function( data ) {
         if ( has( data.callback ) ) {
+
             get( data.callback )
                 .apply( this, data.arg );
 

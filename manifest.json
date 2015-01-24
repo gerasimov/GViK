@@ -98,6 +98,9 @@
         "js/includes/plugin/lastfm/api.js",
         "js/includes/plugin/lastfm/scrobbler.js",
 
+        "js/includes/plugin/im/common.js",
+
+
         "js/includes/plugin/vkapi/vkapi.js",
         "js/includes/plugin/vkapi/search.js",
 
