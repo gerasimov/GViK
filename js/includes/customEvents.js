@@ -167,12 +167,12 @@ _GViK( function( gvik, require, Add ) {
     }, true );
 
     events.bind( 'changePage', function( even, cnt ) {
-       
+
         if ( ( cnt = document.getElementById( 'content' ) ) === null ) return;
 
-        var el, 
-            elid, 
-            ev, 
+        var el,
+            elid,
+            ev,
             ch = cnt.children,
             l = ch.length;
 
@@ -217,25 +217,37 @@ _GViK( function( gvik, require, Add ) {
 
     .bind( 'playerOpen', function() {
 
-        Object.observe( window.audioPlayer, function( data ) {
 
-            core.each( data, function( curData ) {
-                switch ( curData.name ) {
-                    case 'id':
-                        events.trigger( 'audio.onNewTrack', curData.object.id, true );
-                        break;
-                    case 'curTime':
-                        events.trigger( 'audio.onPlayProgress', curData.object.curTime, true );
-                        break;
-                    default:
-                        break;
-                }
-            } )
-        } );
+        var lastId,
+            lastTime;
 
-        bindHandle( 'audioPlayer.operate', function( arg, res ) {
-            if ( this && this.player ) events.trigger( ( this.player.paused() ? 'audio.onPause' : 'audio.onPlay' ), arg[ 0 ] );
-        } );
+        bindHandle( 'audioPlayer.setCurTime', function( arg ) {
+
+            var curTime = arg[ 0 ],
+                curId = audioPlayer.id;
+
+
+            if ( curId !== lastId ) {
+                events.trigger( 'audio.onNewTrack', curId );
+
+                lastId = curId;
+
+            } else {
+
+                if ( curTime < lastTime )
+                    events.trigger( 'audio.onChangePos', {
+                        id: curId,
+                        curTime: curTime,
+                        lastTime: lastTime
+                    } );
+                else if ( curTime > lastTime )
+                    events.trigger( 'audio.onPlayProgress', arg );
+
+            }
+
+            lastTime = curTime;
+
+        }, true );
 
     } );
 

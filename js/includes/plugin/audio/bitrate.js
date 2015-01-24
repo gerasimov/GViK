@@ -23,6 +23,7 @@ _GViK( {
             global = require( 'global' ),
             options = require( 'options' ),
             cache = require( 'cache' ),
+            constants = require( 'constants' ),
             chrome = require( 'chrome' );
 
 
@@ -109,7 +110,7 @@ _GViK( {
                 tId = setTimeout( function() {
                     SORT_FN && SORT_FN();
                     HIDE_SMALL_BIT_FN && HIDE_SMALL_BIT_FN();
-                }, 500 );
+                }, constants.get( 'BITRATE_TIMEOUT' ) );
 
             } : null;
 
@@ -213,5 +214,7 @@ _GViK( {
 
             setBitrate( el );
         } );
+
+
 
     } );

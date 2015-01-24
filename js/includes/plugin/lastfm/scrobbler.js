@@ -102,12 +102,19 @@ _GViK( {
 
             }.bind( this ), true )
 
-            .bind( 'audio.onPlayProgress', this.playProgress.bind( this ) )
+            .bind( 'audio.onPlayProgress', function( arg ) {
+                this.playProgress.apply( this, arg );
+            }.bind( this ) )
 
             .bind( 'playerOpen', function( ev ) {
                 var gpW = document.getElementById( 'gp_wrap' );
                 if ( gpW ) gpW.appendChild( scrobbleMini );
                 ev.el.classList.add( 'gvik' );
+            }.bind( this ) )
+
+            .bind( 'audio.onChangePos', function() {
+
+
             }.bind( this ) )
 
             .bind( 'padOpen', function( ev ) {
