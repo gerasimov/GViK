@@ -48,8 +48,8 @@ _GViK( function( gvik, require, Add ) {
                         el: curEl
                     } );
 
-                    lastId = id;
                 }
+                lastId = id;
             }
 
         } )
