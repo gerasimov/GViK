@@ -31,15 +31,13 @@ _GViK( function( gvik, require, Add ) {
         dom.setAttr( document.body, locArg );
     }
 
-    var bg = chrome.extension.getBackgroundPage(),
-        els = document.querySelectorAll( 'input:not([type="button"]), select' ),
+    var els = document.querySelectorAll( 'input:not([type="button"]), select' ),
 
         ischeckedpropreg = /^(?:radio|checkbox)$/;
 
 
-    bg.ga( 'send', 'pageview', '/options.html' );
 
-
+    _chrome.ga( 'send', 'pageview', '/options.html' );
 
     function restore( setts ) {
         core.each( setts, function( _v, _k ) {

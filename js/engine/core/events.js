@@ -7,7 +7,7 @@
 
 _GViK( function( gvik, require, Add ) {
 
-    "use script";
+    "use strict";
 
 
 

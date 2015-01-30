@@ -230,20 +230,22 @@ _GViK( function( gvik, require, Add ) {
             if ( curId !== lastId ) {
                 events.trigger( 'audio.onNewTrack', curId );
 
+                lastTime = null;
+
                 lastId = curId;
 
-            } else {
+            } else if ( curTime < lastTime )
+                events.trigger( 'audio.onChangePos', {
+                    id: curId,
+                    curTime: curTime,
+                    lastTime: lastTime
+                } );
 
-                if ( curTime < lastTime )
-                    events.trigger( 'audio.onChangePos', {
-                        id: curId,
-                        curTime: curTime,
-                        lastTime: lastTime
-                    } );
-                else if ( curTime > lastTime )
-                    events.trigger( 'audio.onPlayProgress', arg );
 
-            }
+            if ( curTime > lastTime )
+                events.trigger( 'audio.onPlayProgress', arg );
+
+
 
             lastTime = curTime;
 

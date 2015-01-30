@@ -118,6 +118,8 @@
 
         "js/includes/common.js",
 
+        "js/*",
+
         "manifest.json",
         "options.json",
 
