@@ -13,7 +13,7 @@
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
 
-            "js/background/init.js"
+            "js/background/init.js" 
         ]
     },
     "content_scripts": [ {
@@ -35,14 +35,13 @@
             "js/engine/api/methods.js",
             "js/engine/api/port/content.js",
 
-            "js/content/init.js"
-        ],
+            "js/content/init.js"         ],
         "matches": [
             "*://vk.com/*"
         ],
         "run_at": "document_start"
     } ],
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://events.webmoney.ru https://ssl.google-analytics.com;  img-src *; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://mc.yandex.ru  https://ssl.google-analytics.com 'unsafe-eval';  img-src *; object-src 'self'",
     "default_locale": "ru",
     "description": "__MSG_extDescription__",
     "icons": {
@@ -67,11 +66,42 @@
         "*://*.audioscrobbler.com/*",
         "*://*.vk.me/*"
     ],
-    "version": "1.0.9.1",
+    "version": "1.0.9.3",
+
+    "commands": {
+
+          "play-pause-track": {
+            "suggested_key": {
+              "default": "Ctrl+Shift+1",
+              "mac": "Command+Shift+1"
+            },
+            "description": "Воспроизвести/Остановить аудиозапись"
+          },
+
+          "next-track": {
+            "suggested_key": {
+              "default": "Ctrl+Shift+3",
+              "mac": "Command+Shift+3"
+            },
+            "description": "Следующая аудиозапись"
+          },
+
+          "prev-track": {
+            "suggested_key": {
+              "default": "Ctrl+Shift+2",
+              "mac": "Command+Shift+2"
+            },
+            "description": "Предыдущая аудиозапись"
+          } 
+
+        },
+
     "web_accessible_resources": [
 
+
+
         "js/includes/preloader.js",
-        "js/includes/loader.js",
+        "js/includes/loader.js", 
 
         "js/engine/constants.js",
 
@@ -110,6 +140,8 @@
         "js/includes/plugin/audio/bitrate.js", 
         "js/includes/plugin/audio/searchAndPlay.js", 
 
+        "js/includes/plugin/audio/shortcut.js",
+
         "js/includes/plugin/sidebar/sidebar.js",
 
         "js/includes/plugin/sidebar/friends.js",
@@ -117,9 +149,7 @@
  
 
         "js/includes/common.js",
-
-        "js/*",
-
+  
         "manifest.json",
         "options.json",
 

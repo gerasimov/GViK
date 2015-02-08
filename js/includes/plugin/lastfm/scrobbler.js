@@ -17,6 +17,7 @@ _GViK( {
         chrome = require( 'chrome' ),
         options = require( 'options' ),
         lastfmAPI = require( 'lastfmAPI' ),
+        constants = require( 'constants' ),
         storage = require( 'storage' ),
         events = require( 'events' ),
 
@@ -29,7 +30,10 @@ _GViK( {
 
         LastFM = function() {
 
-            this.CLASS_NAMES = {
+
+            var $self = this;
+
+            $self.CLASS_NAMES = {
                 scrobble: 'gvik-scrobble icon-lastfm',
                 like: 'gvik-like icon-heart',
                 on: 'on',
@@ -39,24 +43,55 @@ _GViK( {
 
             scrobble = dom.create( 'div', {
                 attr: {
-                    'class': this.CLASS_NAMES.scrobble
+                    'class': $self.CLASS_NAMES.scrobble
                 },
                 events: {
-                    click: this._sevent.bind( this )
+                    click: function( event ) {
+
+                        if ( !lastfmAPI.authorized ) {
+                            $self._setDisableState( true )
+                            return lastfmAPI.auth();
+                        }
+
+                        $self._toggle()
+                            ._setDisableState( false )
+                            ._setErrorState( false )
+                            ._setScrobbleState( false );
+
+                        return chrome.sendTabs( 'LASTFM_changestate', state, 1 );
+
+                    }
                 }
             } );
 
             like = dom.create( 'div', {
                 attr: {
-                    'class': this.CLASS_NAMES.like
+                    'class': $self.CLASS_NAMES.like
                 },
                 events: {
-                    click: this._levent.bind( this )
+                    click: function( event ) {
+
+                        if ( !lastfmAPI.authorized ) {
+                            $self._setDisableState( true )
+                            return lastfmAPI.auth();
+                        }
+
+
+                        if ( !$self.artist || $self.title )
+                            return;
+
+                        var liked = storage.session.get( $self.trackId );
+
+                        return lastfmAPI[ ( liked ? 'un' : '' ) + 'love' ]( {
+                            artist: $self.artist,
+                            track: $self.title
+                        }, ( liked ? $self._removedLiked : $self._liked ) );
+                    }
                 }
             } );
 
             if ( state ) {
-                scrobble.classList.add( this.CLASS_NAMES.on );
+                scrobble.classList.add( $self.CLASS_NAMES.on );
             }
 
             likePad = dom.clone( like, true );
@@ -65,105 +100,150 @@ _GViK( {
 
             scrobbleMini.classList.add( 'mp' );
 
-            this.ELEMENTS = {
+            $self.ELEMENTS = {
                 like: [ like, likePad ],
                 scrobble: [ scrobble, scrobblePad, scrobbleMini ]
             };
 
-            if ( !this.api.authorized ) {
-                this._setDisableState( true );
+            if ( !lastfmAPI.authorized ) {
+                $self._setDisableState( true );
             }
 
-            this.PERCENT = parseInt( options.get( 'lastfm', 'percent' ) ) || 50;
+            $self.PERCENT = parseInt( options.get( 'lastfm', 'percent' ) ) || 50;
 
-            if ( this.PERCENT < 40 || this.PERCENT > 90 ) {
-                this.PERCENT = 50;
+            $self.DISABLE_REPEAT_SCROBBLE = options.get( 'lastfm', 'disable-repeatScrobble' );
+
+
+            if ( $self.PERCENT < 40 || $self.PERCENT > 90 ) {
+                $self.PERCENT = 50;
             }
 
-            this.UPDATE_DELAY = 20;
+            $self.UPDATE_DELAY = constants.get( 'LASTFM_UPDATE_DELAY' );
 
 
-            events.bind( 'audio', function( ev ) {
+            events
 
-                var ac = document.getElementById( 'ac' );
 
-                if ( !ac ) {
-                    return;
+                .bind( 'LASTFM_connect', function( res ) {
+                chrome
+                    .sendTabs( 'LASTFM_enablebutton', null, 1 )
+                    .sendTabs( 'LASTFM_changestate', true, 1 );
+            } )
+
+            .bind( 'audio', function( ev ) {
+                var ac = dom.byId( 'ac' );
+                if ( ac ) {
+                    dom.addClass( ac, 'gvik' );
+                    dom.append( dom.byClass( 'extra_ctrls', ac ).item( 0 ), [ like, scrobble ] );
                 }
-
-                ac.classList.add( 'gvik' );
-
-
-                var exct = ac.querySelector( '.extra_ctrls' );
-
-                if ( exct ) {
-                    dom.append( exct, [ like, scrobble ] );
-                }
-
-            }.bind( this ), true )
-
-            .bind( 'audio.onPlayProgress', function( arg ) {
-                this.playProgress.apply( this, arg );
-            }.bind( this ) )
+            }, true )
 
             .bind( 'playerOpen', function( ev ) {
-                var gpW = document.getElementById( 'gp_wrap' );
-                if ( gpW ) gpW.appendChild( scrobbleMini );
+                dom.byId( 'gp_wrap' ).appendChild( scrobbleMini );
                 ev.el.classList.add( 'gvik' );
-            }.bind( this ) )
-
-            .bind( 'audio.onChangePos', function() {
-
-
-            }.bind( this ) )
+            } )
 
             .bind( 'padOpen', function( ev ) {
-                var pd = document.getElementById( 'pd' );
+                var pd = dom.byId( 'pd' );
+                if ( pd ) {
+                    dom.addClass( pd, 'gvik' );
+                    dom.append( dom.byClass( 'extra_ctrls', pd ).item( 0 ), [ likePad, scrobblePad ] );
+                }
+            } )
 
-                if ( !pd ) return;
 
-                pd.classList.add( 'gvik' );
+            .bind( 'audio.onPlayProgress', function( pos ) {
 
-                var exct = pd.querySelector( '.extra_ctrls' );
+                if ( !state || $self.scrobbled )
+                    return;
 
-                if ( exct ) dom.append( exct, [ likePad, scrobblePad ] );
-            }.bind( this ) )
+                if ( !( pos % $self.UPDATE_DELAY ) && pos <= $self.startScrobble - $self.UPDATE_DELAY ) {
+                    lastfmAPI.update( {
+                        artist: $self.artist,
+                        track: $self.title
+                    }, function() {
+                        $self._setErrorState( false ).step++;
+                    }, function( err ) {
+                        $self._setErrorState( true, ( err && err.message ) || chrome.lang( 'error' ) );
+                    } );
+                }
 
-            .bind( 'audio.onNewTrack', function( trackId ) {
+                if ( $self.step >= $self.maxStep && pos >= $self.startScrobble ) {
+                    $self.scrobbled = true;
 
-                this.trackId = trackId;
-                this.artist = dom.unes( this.info()[ 5 ] );
-                this.title = dom.unes( this.info()[ 6 ] );
-                this.startScrobble = ~~( ( window.audioPlayer.duration / 100 ) * this.PERCENT );
-                this.maxStep = Math.max( 1, Math.floor( this.startScrobble / this.UPDATE_DELAY ) - 1 );
-                this.readyD = false;
+                    lastfmAPI.scrobble( {
+                        artist: $self.artist,
+                        track: $self.title,
+                        timestamp: $self.timestamp
+                    }, function() {
+                        $self._setErrorState( false )._setScrobbleState( true );
+                    }, function() {
+                        $self._setErrorState( true );
+                    } );
+                }
+            } )
 
-                events.trigger( 'lastfm.newtrack', {
-                    artist: this.artist,
-                    title: this.title,
-                    url: this.info()[ 2 ],
-                    duration: window.audioPlayer.duration,
-                    trackId: this.trackId
+
+
+            .bind( 'audio.onStartPlay', function() {
+
+                if ( !$self.DISABLE_REPEAT_SCROBBLE ) {
+                    $self.step = 0;
+                    $self.scrobbled = false;
+                    $self._setScrobbleState( false )
+                        ._setErrorState( false );
+                }
+
+                $self.timestamp = Math.floor( Date.now() / 1000 );
+
+                events.trigger( 'lastfm.starttrack', {
+                    artist: $self.artist,
+                    title: $self.title,
+                    duration: audioPlayer.duration,
+                    trackId: $self.trackId
                 } );
 
 
-                storage.session.get( this.trackId ) ? this._liked() : this._removedLiked();
-            }.bind( this ) );
+            } )
+
+            .bind( 'audio.onNewTrack', function( trackId ) {
+
+                $self.trackId = trackId;
+                $self.artist = dom.unes( $self.info()[ 5 ] );
+                $self.title = dom.unes( $self.info()[ 6 ] );
+                $self.startScrobble = ~~( ( window.audioPlayer.duration / 100 ) * $self.PERCENT );
+                $self.maxStep = Math.max( 1, Math.floor( $self.startScrobble / $self.UPDATE_DELAY ) - 1 );
+                
+                $self.step = 0;
+                $self.scrobbled = false;
+                $self._setScrobbleState( false )
+                        ._setErrorState( false );
+
+                events.trigger( 'lastfm.newtrack', {
+                    artist: $self.artist,
+                    title: $self.title,
+                    url: $self.info()[ 2 ],
+                    duration: window.audioPlayer.duration,
+                    trackId: $self.trackId
+                } );
+
+
+                storage.session.get( $self.trackId ) ? $self._liked() : $self._removedLiked();
+            } );
 
 
 
             chrome
                 .globalFn( 'LASTFM_enablebutton', function() {
-                    this._setDisableState( false );
-                }, this )
-                .globalFn( 'LASTFM_changestate', function( response ) {
-                    response.data ? this._on() : this._off();
-                }, this );
+                    $self._setDisableState( false );
+                } )
+                .globalFn( 'LASTFM_changestate', function( _state ) {
+                    _state ? $self._on() : $self._off();
+                } );
 
         };
 
     LastFM.prototype = {
-        api: lastfmAPI,
         _each: function( props, _callback ) {
             var _this = this;
             core.each( Array.isArray( props ) ? props : [ props ], function( curProp ) {
@@ -176,36 +256,15 @@ _GViK( {
         info: function() {
             return window.audioPlayer.lastSong || window.audioPlaylist[ audioPlayer.id ];
         },
-        reset: function( changeslider ) {
-
-            this.step = !changeslider ? 0 : 1;
-
-            this.scrobbled = false;
-            this.timestamp = Math.floor( Date.now() / 1000 );
-            this.position = -1;
-
-            events.trigger( 'starttrack', {
-                artist: this.artist,
-                title: this.title,
-                duration: audioPlayer.duration,
-                trackId: this.trackId
-            } );
-
-            return this._setScrobbleState( false )
-                ._setErrorState( false );
-        },
-
 
         _on: function() {
             state = true;
-            this._addClass( 'scrobble', this.CLASS_NAMES.on )
-                ._setScrobbleState( false );
+            this._addClass( 'scrobble', this.CLASS_NAMES.on )._setScrobbleState( false );
         },
 
         _off: function() {
             state = false;
-            this._removeClass( 'scrobble', this.CLASS_NAMES.on )
-                ._setScrobbleState( false );
+            this._removeClass( 'scrobble', this.CLASS_NAMES.on )._setScrobbleState( false );
         },
 
         _addClass: function( key, clas, fn ) {
@@ -224,7 +283,7 @@ _GViK( {
 
         _toggle: function() {
             !state ? this._on() : this._off();
-            this.api.setConfig( {
+            lastfmAPI.setConfig( {
                 state: state
             } );
             return this;
@@ -240,14 +299,11 @@ _GViK( {
 
         _setErrorState: function( errState, msg ) {
 
-            if ( !errState ) {
-                return this._removeClass( 'scrobble', 'errors', function( el ) {
+            return this[ ( errState ? '_addClass' : '_removeClass' ) ]( 'scrobble', 'errors', function( el ) {
+                if ( errState )
+                    el.title = msg;
+                else
                     el.removeAttribute( 'title' );
-                } );
-            }
-
-            return this._addClass( 'scrobble', 'errors', function( el ) {
-                el.title = msg;
             } );
         },
 
@@ -256,9 +312,7 @@ _GViK( {
         },
 
         _setScrobbleState: function( scrState ) {
-            return scrState ?
-                this._addClass( 'scrobble', this.CLASS_NAMES.scrobbled ) :
-                this._removeClass( 'scrobble', this.CLASS_NAMES.scrobbled );
+            return this[ ( scrState ? '_addClass' : '_removeClass' ) ]( 'scrobble', this.CLASS_NAMES.scrobbled );
         },
 
         _toggleScrobbled: function() {
@@ -273,101 +327,6 @@ _GViK( {
         _removedLiked: function() {
             storage.session.remove( this.trackId );
             return this._removeClass( 'like', this.CLASS_NAMES.on );
-        },
-
-        _sevent: function( event ) {
-
-            if ( !this.api.authorized ) {
-                return this._setDisableState( true )
-                    .api.auth();
-            } else {
-                this._setDisableState( false );
-            }
-
-            this._toggle()._setErrorState( false )._setScrobbleState( false );
-
-            return chrome.sendTabs( 'LASTFM_changestate', {
-                data: state
-            }, true );
-
-        },
-
-        _levent: function( event ) {
-
-            if ( !this.api.authorized ) {
-                return this._setDisableState( true )
-                    .api.auth();
-            }
-
-            var liked = storage.session.get( this.trackId );
-
-            return this.api[ ( liked ? 'un' : '' ) + 'love' ]( {
-                artist: this.artist,
-                track: this.title
-            }, function() {
-                liked ?
-                    this._removedLiked() :
-                    this._liked();
-            }.bind( this ) );
-        },
-
-        _update_: function( callback ) {
-            return this.api.update( {
-                artist: this.artist,
-                track: this.title
-            }, function() {
-                this._setErrorState( false )
-                    .step++;
-
-                callback && callback.call( this );
-            }.bind( this ), function( err ) {
-                this._setErrorState( true, ( err && err.message ) || chrome.lang( 'error' ) );
-            }.bind( this ) );
-
-        },
-
-        _scrobble_: function( callback ) {
-            return this.api.scrobble( {
-                artist: this.artist,
-                track: this.title,
-                timestamp: this.timestamp
-            }, function() {
-                this._setErrorState( false )
-                    ._setScrobbleState( true );
-                callback && callback.call( this );
-            }.bind( this ), function() {
-                this._setErrorState( true );
-            }.bind( this ) );
-        },
-
-        playProgress: function( pos ) {
-
-            if ( pos === this.position )
-                return;
-
-
-            if ( pos < this.UPDATE_DELAY ) {
-
-                var changeslider = pos < this.position;
-
-                if ( !this.readyD ) {
-                    this.reset( changeslider );
-                    this.readyD = true;
-                    if ( state ) this._update_();
-                }
-
-            };
-
-            this.position = pos;
-
-            if ( !state || this.scrobbled ) return;
-            if ( !( pos % this.UPDATE_DELAY ) && pos <= this.startScrobble - this.UPDATE_DELAY ) this._update_();
-
-            if ( this.step >= this.maxStep && pos >= this.startScrobble ) {
-                this.scrobbled = true;
-                this._scrobble_();
-            }
-
         }
     };
 

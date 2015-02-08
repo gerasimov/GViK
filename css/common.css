@@ -174,7 +174,7 @@ body[data-gvik-os='Linux'] .gvik-like
 }
 #audio.new .audio[data-gvik-download] .gvik-download
 {
-    margin: 6px 6px 6px 0;
+    margin: 6px 4px 4px 0px;
     padding: 4px;
 }
 .audio[data-gvik-download].over .gvik-download
@@ -249,16 +249,15 @@ body[data-gvik-os='Linux'] .gvik-like
     padding: 4px;
 }
 #search_content .audio .gvik-bitrate,
-#search_content .audio .gvik-download
-{
-    margin: 8px;
-}
+#search_content .audio .gvik-download,
+
 #pad_search_list .audio .gvik-bitrate,
 #pad_search_list .audio .gvik-download
 {
-    padding: 10px;
+    margin: 4px 4px 4px 0;
+    padding: 4px;
 }
-.gvik-download > a > div
+.gvik-download 
 {
     width: 11px;
     height: 13px;
@@ -266,29 +265,29 @@ body[data-gvik-os='Linux'] .gvik-like
     -webkit-transition: opacity .2s ease-in;
 
     opacity: .5;
-    background: url('chrome-extension://__MSG_@@extension_id__/img/sprite.png') 2px 2px no-repeat;
+    background: url('chrome-extension://__MSG_@@extension_id__/img/sprite.png') 6px 6px no-repeat;
 }
 .audio:not(:hover) .gvik-download
 {
     display: none;
 }
-.audio.current .gvik-download > a > div
-{
-    background-position: 0 -57px;
+.audio.current .gvik-download 
+{ 
+    background-position: 5px -53px;
 }
 .audios_module .audio .gvik-bitrate
 {
     padding: 8px 2px;
 }
-div[class^=post_media] .audio.current .gvik-download > a > div
+div[class^=post_media] .audio.current .gvik-download 
 {
-    background-position: 0 0;
+    /* background-position: 0 0; */
 }
-.results .audio.current .gvik-download > a > div
+.results .audio.current .gvik-download 
 {
-    background-position: 0 0;
+   /*  background-position: 0 0; */
 }
-.audio .gvik-download > a > div:hover
+.audio .gvik-download:hover
 {
     -webkit-transition: opacity .2s ease-in;
 
@@ -308,7 +307,8 @@ div[class^=post_media] .audio.current .gvik-download > a > div
 .post_media .audio .gvik-bitrate,
 .post_media .audio .gvik-download
 {
-    margin-top: 8px;
+    margin: 4px 4px 4px 0;
+    padding: 4px;
 }
 #audio.new .audio .actions
 {
@@ -358,7 +358,8 @@ body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize][data-gv
 }
 .narrow_column .gvik-download
 {
-    margin: 8px;
+    margin: 4px 4px 4px 0;
+    padding: 4px;
 }
 .narrow_column .audio .title_wrap
 {

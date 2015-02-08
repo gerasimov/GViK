@@ -25,8 +25,16 @@ _GViK( function( appData, require ) {
 
         constants.define( 'ID', window.vk.id );
 
+
+        if ( options.get( 'system', 'enable-qicksett' ) )
+            events.bind( "changeURL", function() {
+                chrome.sendRequest( "showPageAction", {} );
+            }, true );
+
+
         chrome
             .pushID()
+            .ga( 'send', 'event', 'vk', 'init' )
             .local.get( {
                 key: 'options'
             }, function( res ) {
@@ -45,13 +53,7 @@ _GViK( function( appData, require ) {
             } );
     }
 
-    if ( options.get( 'system', 'enable-qicksett' ) )
-        events.bind( "changeURL", function() {
-            chrome.sendRequest( "showPageAction", {} );
-        }, true );
 
-
-    chrome.ga( 'send', 'event', 'vk', 'init' );
 
     events.bind( 'load', function() {
 

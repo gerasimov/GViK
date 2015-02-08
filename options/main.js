@@ -129,4 +129,18 @@ _GViK( function( gvik, require, Add ) {
     } );
 
 
+
+    chrome.commands.getAll( function( s ) {
+        var html = '<ul>';
+        core.each( s, function( cur ) {
+            html += '<li>' + cur.description + ': ' + cur.shortcut + '</li>';
+        } )
+
+        html+='</ul>';
+
+        dom.byId( 'shortcut' ).innerHTML = html;
+    } )
+
+
+
 } );

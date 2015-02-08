@@ -14,6 +14,7 @@ _GViK( function( gvik, require, Add ) {
     var dom = require( 'dom' ),
         core = require( 'core' ),
         options = require( 'options' ),
+        chrome = require( 'chrome' ),
         events = require( 'events' );
 
 
@@ -217,40 +218,87 @@ _GViK( function( gvik, require, Add ) {
 
     .bind( 'playerOpen', function() {
 
-
-        var lastId,
-            lastTime;
-
-        bindHandle( 'audioPlayer.setCurTime', function( arg ) {
-
-            var curTime = arg[ 0 ],
-                curId = audioPlayer.id;
+        var startReady = false,
+            lastId;
 
 
-            if ( curId !== lastId ) {
-                events.trigger( 'audio.onNewTrack', curId );
+        Object.observe( audioPlayer, function( props ) {
 
-                lastTime = null;
+            var i = 0,
+                l = props.length,
 
-                lastId = curId;
+                curProp;
 
-            } else if ( curTime < lastTime )
-                events.trigger( 'audio.onChangePos', {
-                    id: curId,
-                    curTime: curTime,
-                    lastTime: lastTime
-                } );
+            for ( ; i < l; i++ ) {
+
+                curProp = props[ i ];
+
+                switch ( curProp.name ) {
+
+                    case 'id':
+                        if ( lastId !== curProp.object.id ) {
+                            lastId = curProp.object.id;
+                            events.trigger( 'audio.onNewTrack', curProp.object.id );
+                        }
+
+                        startReady = false;
+                        break;
+
+                    case 'curTime':
+
+                        var curtime = curProp.object.curTime;
+
+                        if ( curProp.object.curTime !== curProp.object.oldValue ) {
+
+                            if ( curProp.object.prClicked ) {
+                                if ( curtime <= ( audioPlayer.duration * 0.2 ) ) {
+                                    events.trigger( 'audio.onStartPlay' );
+                                }
+                                startReady = false;
+                            } else {
+                                if ( curtime <= 5 ) {
+                                    if ( !startReady ) {
+                                        startReady = true;
+                                        events.trigger( 'audio.onStartPlay' );
+                                    }
+                                } else
+                                    startReady = false;
+                            }
+
+                            events.trigger( 'audio.onPlayProgress', curtime );
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+
+        } );
 
 
-            if ( curTime > lastTime )
-                events.trigger( 'audio.onPlayProgress', arg );
+
+    } )
 
 
+    function checkAudio() {
+        if ( window.audioPlayer && window.audioPlayer.player ) {
 
-            lastTime = curTime;
+            var aid = ( localStorage.audio_id );
 
-        }, true );
 
+            if ( !aid || aid.slice( 1, -1 ) === audioPlayer.id )
+                return true
+        }
+
+        return false;
+    }
+
+
+    chrome.globalFn( 'globalKey', function( command ) {
+        if ( checkAudio() )
+            events.trigger( 'globalKey.' + command );
     } );
 
 

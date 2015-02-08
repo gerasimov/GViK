@@ -267,19 +267,30 @@ _GViK( {
                 track: nameTrack || '',
                 correction: 1
             }, function( res, isError ) {
-                if ( isError ) return events.trigger( method + '.error' );
+                if ( isError )
+                    return events.trigger( method + '.error', res );
                 events.trigger( method, res[ prop ] );
-            }, function() {
-                events.trigger( method + '.error' );
+            }, function( err ) {
+                events.trigger( method + '.error', err );
 
             }, true );
         }
 
         function render( tmpl, arr, fn ) {
-            if ( arr )
+
+
+            if ( arr ) {
+
+                if ( !Array.isArray( arr ) )
+                    arr = [ arr ];
+
                 return arr.map( function( val ) {
                     return core.tmpl( tmpl, fn( val ) );
                 } ).join( '' );
+
+            } else {
+                return '';
+            }
         }
 
 
@@ -369,6 +380,13 @@ _GViK( {
             tracksCont.innerHTML = html.join( '' );
 
             checkCache( 'track.getInfo', 'track', [ nameArtist, nameTrack ] )
+
+        } )
+
+        .bind( 'artist.getInfo.error', function( err ) {
+
+
+            dom.addClass( tabCont, 'loaded' );
 
         } )
 

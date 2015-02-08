@@ -8,14 +8,13 @@
 
 _GViK( function( gvik, require, Add ) {
 
-    'use strict';
-
     var options = require( 'options' ),
         dom = require( 'dom' ),
         chrome = require( 'chrome' ),
         vkapi = require( 'vkapi' ),
         global = require( 'global' ),
         events = require( 'events' ),
+        constants = require( 'constants' ),
         core = require( 'core' );
 
 
@@ -40,18 +39,39 @@ _GViK( function( gvik, require, Add ) {
                 vkapi.call( 'account.setOffline' );
             }, true );
 
-        }
-
-
-        if ( options.get( 'common', 'set-online' ) ) {
-            ( function _setOnline() {
-                setTimeout( function() {
-                    vkapi.call( 'account.setOnline', {}, _setOnline, _setOnline );
-                }, ( 14 * 60 ) * 1000 );
+        } else if ( options.get( 'common', 'set-online' ) ) {
+            ( function() {
+                var fn = arguments.callee;
+                vkapi.call( 'account.setOnline', {}, function() {
+                    setTimeout( fn, ( 14 * 60 ) * 1000 );
+                } );
             }() );
         }
     }
+
+    if ( options.get( 'wall', 'disable-wide' ) ) {
+
+        var blockedClasses = [
+            'wide_wall_module',
+            'page_wide_no_narrow'
+        ];
+
+        window.addClass = function( obj, name ) {
+            if ( blockedClasses.indexOf( name ) === -1 )
+                if ( ( obj = ge( obj ) ) && !hasClass( obj, name ) ) {
+                    obj.className = ( obj.className ? obj.className + ' ' : '' ) + name;
+                }
+        };
  
+        core.each( blockedClasses, function( cls ) {
+            var els = dom.byClass( cls );
+            core.each( els, function( el ) {
+                dom.removeClass( el, cls );
+            } );
+        } );
+
+    }
+
 
 
     window.rs = core.tmpl3;

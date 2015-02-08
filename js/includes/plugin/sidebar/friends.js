@@ -112,6 +112,9 @@ _GViK( {
         }
 
 
+        events.bind( 'changePage', update );
+
+
         sidebar.addPage( function( _switcher, _tabCont, _wrap ) {
 
             switcher = _switcher;

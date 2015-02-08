@@ -17,10 +17,17 @@ _GViK( function( gvik, require, Add ) {
 
         isBackground = !!chrome.extension.getViews;
 
-    function eachTabs( callback, needAll ) {
-        chrome.tabs.query( {
+    function eachTabs( winId, callback, needAll ) {
+        var query = {
             url: '*://vk.com/*'
-        }, function( tabs ) {
+        };
+
+
+        if ( winId )
+            query.windowId = winId
+
+
+        chrome.tabs.query( query, function( tabs ) {
 
             chrome.tabs.query( {
                 url: chrome.extension.getURL( '' ) + '*'
@@ -37,18 +44,12 @@ _GViK( function( gvik, require, Add ) {
         } );
     }
 
-    function sendMessageEx( suc, arg, type, senderId ) {
-        eachTabs( function( tab ) {
-
-            if ( type === 0 && ( tab.id == senderId ) )
-                return;
-            else if ( type === 1 && tab.id !== senderId )
-                return;
-
+    function sendMessageEx( suc, arg, tabId, winId, clb ) {
+        eachTabs( winId, function( tab ) {
             chrome.tabs.sendMessage( tab.id, {
                 callback: suc,
                 arg: arg
-            } );
+            }, clb );
         } );
     }
 
@@ -87,10 +88,10 @@ _GViK( function( gvik, require, Add ) {
             } );
         };
 
-
-        methods.sendTabs = function( o, p ) {
-            sendMessageEx( p.eventName, [ o ], p.needCur, p.tabId );
-        };
+        if ( isBackground )
+            methods.sendTabs = function( o, p, c ) {
+                sendMessageEx( p.eventName, [ o.data ], p.tabId, p.winId, c );
+            };
 
     }
 
@@ -221,8 +222,8 @@ _GViK( function( gvik, require, Add ) {
             chrome.storage.sync.get( o.key, c );
         };
 
-        methods.removeSync = function( o, p ) {
-            chrome.storage.sync.remove( o.key );
+        methods.removeSync = function( o, p, c ) {
+            chrome.storage.sync.remove( o.key, c );
         };
 
         methods.setLocal = function( o, p, c ) {
@@ -233,8 +234,8 @@ _GViK( function( gvik, require, Add ) {
             chrome.storage.local.get( o.key, c );
         };
 
-        methods.removeLocal = function( o, p ) {
-            chrome.storage.local.remove( o.key );
+        methods.removeLocal = function( o, p, c ) {
+            chrome.storage.local.remove( o.key, c );
         };
     }
 
@@ -265,6 +266,13 @@ _GViK( function( gvik, require, Add ) {
 
 
     if ( isBackground ) {
+
+
+
+        chrome.commands.onCommand.addListener( function( command ) {
+            sendMessageEx( 'globalKey', [ command ] );
+        } );
+
 
         methods.ga = function( o, p, c ) {
             if ( window.ga ) {

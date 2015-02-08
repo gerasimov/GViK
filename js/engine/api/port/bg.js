@@ -21,7 +21,9 @@ _GViK( function( gvik, require, Add ) {
 
             if ( port.sender.tab ) {
                 params.tabId = port.sender.tab.id;
+                params.winId = port.sender.tab.windowId;
             }
+ 
 
             if ( method )
                 method( data.data, params, function() {

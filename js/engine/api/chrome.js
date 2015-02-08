@@ -54,7 +54,9 @@ _GViK( function( appData, require, Add ) {
             }
         ],
 
-        defaultFn = 0;
+        defaultFn = 0,
+
+        globalCallbackContainer = {};
 
     function makeFnId( fn ) {
 
@@ -66,11 +68,11 @@ _GViK( function( appData, require, Add ) {
     }
 
     function get( fnId ) {
-        return callbackContainer[ fnId ];
+        return globalCallbackContainer[ fnId ] || callbackContainer[ fnId ];
     }
 
     function has( fnId ) {
-        return callbackContainer[ fnId ] !== undefined;
+        return callbackContainer[ fnId ] !== undefined || globalCallbackContainer[ fnId ] !== undefined;
     }
 
     function remove( fnId ) {
@@ -88,6 +90,7 @@ _GViK( function( appData, require, Add ) {
         var params = sys.params || {},
             callName = disconnected || sys.forceCS ? constants.get( "CHROME_CSREQUEST" ) : constants.get( "CHROME_REQUEST" ),
             eventTrigger;
+
 
         params.uid = constants.get( 'ID' );
         params.callback = makeFnId( sys.callback || callback );
@@ -150,7 +153,9 @@ _GViK( function( appData, require, Add ) {
 
     _chrome.sendTabs = function( eventName, data, needCur, callback, error ) {
         return sendRequest( 'sendTabs', {
-            data: data,
+            data: {
+                data: data
+            },
             params: {
                 eventName: eventName,
                 needCur: needCur
@@ -183,7 +188,7 @@ _GViK( function( appData, require, Add ) {
     }
 
     _chrome.globalFn = function( key, fn, context ) {
-        callbackContainer[ key ] = context ? fn.bind( context ) : fn;
+        globalCallbackContainer[ key ] = context ? fn.bind( context ) : fn;
         return this;
     };
 
@@ -229,7 +234,7 @@ _GViK( function( appData, require, Add ) {
     function removeStorageitem( key, callback, storageName ) {
         return sendRequest( storageName, {
             data: {
-                key: key + '::' +  constants.get( 'ID' )
+                key: key + '::' + constants.get( 'ID' )
             },
             params: {
                 forceCS: true

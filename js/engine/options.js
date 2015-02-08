@@ -36,6 +36,8 @@ _GViK( function( gvik, require, Add ) {
 
                 "format-filename": "%a - %t",
 
+                "shortcut": true,
+
                 "loader-disable": false,
                 "min-bitrate": 256,
                 "out-hide": false
@@ -44,6 +46,10 @@ _GViK( function( gvik, require, Add ) {
             "im": {
                 "mark-read": false,
                 "send-notify": false
+            },
+
+            "wall": {
+                "disable-wide": false
             },
 
             "common": {
@@ -56,12 +62,10 @@ _GViK( function( gvik, require, Add ) {
             "groups": {
                 "fast-exit": true
             },
-
-            "instagram": {
-                "enable": false
-            },
+ 
             "lastfm": {
                 "enable": true,
+                "disable-repeatScrobble": false,
                 "percent": 50
             },
             "sidebar": {

@@ -77,9 +77,6 @@ _GViK( {
 		data.ext = "mp3";
 
 		var butEl = dom.create( 'div', {
-			append: dom.create( 'a', {
-				append: document.createElement( 'div' )
-			} ),
 
 			prop: {
 				'className': 'gvik-download'

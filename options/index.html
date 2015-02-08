@@ -4,11 +4,9 @@
         <meta charset="UTF-8">
         <title>Options</title>
         <link rel="stylesheet" type="text/css" href="style.css">
-
         <link rel="stylesheet" type="text/css" href="/css/animation.css">
         <link rel="stylesheet" type="text/css" href="ui.css">
         <script src="/js/engine/migrate.js"></script>
-
         <script src="/js/engine/constants.js"></script>
         <script src="/js/engine/core/core.js"></script>
         <script src="/js/engine/core/dom.js"></script>
@@ -19,8 +17,6 @@
         <script src="/js/engine/api/port/content.js"></script>
         <script src="/js/engine/api/chrome.js"></script>
         <script src="/js/engine/options.js"></script>
-
-
     </head>
     <body>
         <div id="container">
@@ -46,24 +42,26 @@
                                     <input type="checkbox" id="lastfm-enable">
                                     <label class="stl" for="lastfm-enable" i18n-content="lastfm_enable"></label>
                                     <div class="hidden-el">
-                                        <div>
-                                            <div class="block">
-                                                <span i18n-content="start_scrobble"></span>
-                                                <select id="lastfm-percent">
-                                                    <option value="40">40</option>
-                                                    <option value="45">45</option>
-                                                    <option value="50">50</option>
-                                                    <option value="55">55</option>
-                                                    <option value="60">60</option>
-                                                    <option value="65">65</option>
-                                                    <option value="70">70</option>
-                                                    <option value="75">75</option>
-                                                    <option value="80">80</option>
-                                                    <option value="85">85</option>
-                                                    <option value="90">90</option>
-                                                </select>
-                                                <span>%</span>
-                                            </div>
+                                        <div class="block">
+                                            <input type="checkbox" id="lastfm-disable-repeatScrobble">
+                                            <label class="stl" for="lastfm-disabel-repeatScrobble">Скробблить аудиозаписи на повторе только 1 раз</label>
+                                        </div>
+                                        <div class="block">
+                                            <span i18n-content="start_scrobble"></span>
+                                            <select id="lastfm-percent">
+                                                <option value="40">40</option>
+                                                <option value="45">45</option>
+                                                <option value="50">50</option>
+                                                <option value="55">55</option>
+                                                <option value="60">60</option>
+                                                <option value="65">65</option>
+                                                <option value="70">70</option>
+                                                <option value="75">75</option>
+                                                <option value="80">80</option>
+                                                <option value="85">85</option>
+                                                <option value="90">90</option>
+                                            </select>
+                                            <span>%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -80,23 +78,22 @@
                                             <label class="stl" for="sidebar-animation" i18n-content="sidebar_enable_anim"></label>
                                         </div>
                                         <div class="block grey">
-
-                                        <div>
-                                            Открывать ссылки в
-                                        </div>
+                                            <div>
+                                                Открывать ссылки в
+                                            </div>
                                             
-                                        <div class="block">
-                                            <input type="radio" id="sidebar-open-newTab" name="sidebar_open">
-                                            <label class="stl radio" for="sidebar-open-newTab" i18n-content="sidebar_open_newTab"></label>
-                                        </div>
-                                        <div class="block">
-                                            <input type="radio" id="sidebar-open-ajax" name="sidebar_open">
-                                            <label class="stl radio" for="sidebar-open-ajax" i18n-content="sidebar_open_ajax"></label>
-                                        </div>
-                                        <div class="block">
-                                            <input type="radio" id="sidebar-open-cur" name="sidebar_open">
-                                            <label class="stl radio" for="sidebar-open-cur" i18n-content="sidebar_open_cur"></label>
-                                        </div>
+                                            <div class="block">
+                                                <input type="radio" id="sidebar-open-newTab" name="sidebar_open">
+                                                <label class="stl radio" for="sidebar-open-newTab" i18n-content="sidebar_open_newTab"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input type="radio" id="sidebar-open-ajax" name="sidebar_open">
+                                                <label class="stl radio" for="sidebar-open-ajax" i18n-content="sidebar_open_ajax"></label>
+                                            </div>
+                                            <div class="block">
+                                                <input type="radio" id="sidebar-open-cur" name="sidebar_open">
+                                                <label class="stl radio" for="sidebar-open-cur" i18n-content="sidebar_open_cur"></label>
+                                            </div>
                                         </div>
                                         <div class="block">
                                             <input type="checkbox" id="sidebar-friendsfaves-module">
@@ -104,7 +101,6 @@
                                                 <span class="labelx green">Требуется доступ к VK API</span>
                                             </label>
                                             <div class="hidden-el">
-
                                                 <div class="block">
                                                     <input id="sidebar-faves" type="radio" name="sidebar_list" />
                                                     <label for="sidebar-faves" class="stl radio" i18n-content="sidebar_faves"></label>
@@ -125,13 +121,11 @@
                                                 <span class="labelx green">Требуется доступ к Last.fm API</span>
                                             </label>
                                             <div class="hidden-el">
-
                                                 <div class="block">
                                                     <input type="checkbox" id="sidebar-lastfm-autoshow">
                                                     <label class="stl" for="sidebar-lastfm-autoshow">Автоматически открывать сайдбар.
                                                     </label>
                                                 </div>
-
                                                 <div class="block">
                                                     <input type="checkbox" id="sidebar-lastfm-groupbyalbum">
                                                     <label class="stl" for="sidebar-lastfm-groupbyalbum">Группировать треки по альбомам
@@ -156,7 +150,7 @@
                             </div>
                         </div>
                         <div id="common-tab">
-                            <div class="tab-content"> 
+                            <div class="tab-content">
                                 <div class="block">
                                     <input type="checkbox" id="groups-fast-exit">
                                     <label class="stl" for="groups-fast-exit" i18n-content="group_exit"></label>
@@ -168,7 +162,7 @@
                                 <div class="block">
                                     <input type="checkbox" id="common-remove-ads">
                                     <label class="stl" for="common-remove-ads" i18n-content="remove_ads"></label>
-                                </div> 
+                                </div>
                                 <div class="block">
                                     <input type="checkbox" id="common-state-onlineChange">
                                     <label class="stl" for="common-state-onlineChange" i18n-content="common_state_onlineChange"></label>
@@ -183,21 +177,45 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                <h2>Стена</h2>
+                                <div class="block">
+                                    <input type="checkbox" id="wall-disable-wide">
+                                    <label class="stl" for="wall-disable-wide">Отключить увеличение стены при прокрутке.</label>
+                                </div>
                                 <h2>Сообщения</h2>
                                 <div class="block">
                                     <input type="checkbox" id="im-mark-read">
                                     <label class="stl" for="im-mark-read" i18n-content="im_mark_read"></label>
-                                       
+                                    
                                 </div>
-
                                 <div class="block">
-                                   <input type="checkbox" id="im-send-notify">
+                                    <input type="checkbox" id="im-send-notify">
                                     <label class="stl" for="im-send-notify" i18n-content="im_send_notify"></label>
-                                        
+                                    
                                 </div>
                                 
                                 <h2>Аудиозаписи</h2>
+                                <div class="block">
+                                    <input type="checkbox" id="audio-shortcut">
+                                    <label class="stl" for="audio-shortcut">Включить глобальные горячие клавиши управления плеером</label>
+                                    <div class="hidden-el ">
+                                        <div class="block grey">       
+
+
+                                            <div id="shortcut">
+                                                
+                                            </div>
+
+
+
+                                            <p> Для того, чтобы настроить горячие клавиши, необходимо:</p>
+                                                            
+                                            <p>1) Перейти по адресу <a href="" data-href="chrome://extensions/">chrome://extension/</a></p>
+                                            <p>2) Внизу страницы найти кнопку со словами "Быстрые клавиши" (chrome) или "Горячие клавишы для расширений" (opera)</p>
+
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="block">
                                     <input type="checkbox" id="audio-download-enable">
                                     <label class="stl" for="audio-download-enable" i18n-content="audio_download_enable"></label>
@@ -220,14 +238,14 @@
                                                         </ul>
                                                     </div>
                                                 </div>
-                                                    <div class="block">
-                                                        <input type="checkbox" id="audio-download-fromCache">
-                                                        <label class="stl" for="audio-download-fromCache" i18n-content="audio_download_fromCache"></label>
-                                                    </div>
-                                                    <div class="block">
-                                                        <input type="checkbox" id="audio-download-saveAs">
-                                                        <label class="stl" for="audio-download-saveAs" i18n-content="audio_download_saveAs"></label>
-                                                    </div>
+                                                <div class="block">
+                                                    <input type="checkbox" id="audio-download-fromCache">
+                                                    <label class="stl" for="audio-download-fromCache" i18n-content="audio_download_fromCache"></label>
+                                                </div>
+                                                <div class="block">
+                                                    <input type="checkbox" id="audio-download-saveAs">
+                                                    <label class="stl" for="audio-download-saveAs" i18n-content="audio_download_saveAs"></label>
+                                                </div>
                                             </div>
                                         </div>
                                         <input type="checkbox" id="audio-add-bit">
@@ -235,18 +253,18 @@
                                         <div class="hidden-el">
                                             <div class="block grey">
                                                 <div>Отображать битрейт при наведении на </div>
-                                            <div class="block">
-                                                <input id="audio-bitrate-audio" type="radio" name="audio_bit" />
-                                                <label for="audio-bitrate-audio" class="stl radio" i18n-content="audio_bitrate_audio"></label>
-                                            </div>
-                                            <div class="block">
-                                                <input id="audio-bitrate-playBtn" type="radio" name="audio_bit" />
-                                                <label for="audio-bitrate-playBtn" class="stl radio" i18n-content="audio_bitrate_playBtn"></label>
-                                            </div>
-                                            <div class="block">
-                                                <input id="audio-bitrate-downloadBtn" type="radio" name="audio_bit" />
-                                                <label for="audio-bitrate-downloadBtn" class="stl radio" i18n-content="audio_bitrate_downloadBtn"></label>
-                                            </div>
+                                                <div class="block">
+                                                    <input id="audio-bitrate-audio" type="radio" name="audio_bit" />
+                                                    <label for="audio-bitrate-audio" class="stl radio" i18n-content="audio_bitrate_audio"></label>
+                                                </div>
+                                                <div class="block">
+                                                    <input id="audio-bitrate-playBtn" type="radio" name="audio_bit" />
+                                                    <label for="audio-bitrate-playBtn" class="stl radio" i18n-content="audio_bitrate_playBtn"></label>
+                                                </div>
+                                                <div class="block">
+                                                    <input id="audio-bitrate-downloadBtn" type="radio" name="audio_bit" />
+                                                    <label for="audio-bitrate-downloadBtn" class="stl radio" i18n-content="audio_bitrate_downloadBtn"></label>
+                                                </div>
                                             </div>
                                             <div class="block">
                                                 <input id="audio-loader-disable" type="checkbox" />
@@ -282,29 +300,27 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                                 </div>
-
-
                             </div>
                         </div>
                         <div id="donate-tab">
                             <div class="tab-content">
                                 <div>
                                     <p>
-                                        Поддержать проект.
+                                    Поддержать проект.
                                     </p>
                                     <span class="donate-label">Webmoney:</span>
                                     <div class="donate-val">
-                                    <ul>
-                                        <li><span>
-                                            R203002426724 
-                                        </span></li>
-                                        <li><span>
-                                            Z207801396756 
-                                        </span></li>
-                                    </ul>
-                                         
+                                        <ul>
+                                            <li><span>
+                                                R203002426724
+                                            </span></li>
+                                            <li><span>
+                                                Z207801396756
+                                            </span></li>
+                                        </ul>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -312,7 +328,7 @@
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
         
         <script src="ui.js"></script>
         <script src="init.js"></script>

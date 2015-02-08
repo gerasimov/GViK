@@ -14,6 +14,7 @@ _GViK( function( gvik, require, Add ) {
     var chrome = require( 'chrome' ),
         md5 = require( 'md5' ),
         storage = require( 'storage' ),
+        events = require( 'events' ),
         core = require( 'core' );
 
     function LastFMAPI() {
@@ -28,6 +29,7 @@ _GViK( function( gvik, require, Add ) {
             } catch ( e ) {}
 
             this.getSession( token[ 1 ], function( res ) {
+
                 var response = {
                     sk: res.session.key,
                     name: res.session.name,
@@ -37,12 +39,10 @@ _GViK( function( gvik, require, Add ) {
                 this.setConfig( response );
 
                 chrome.sync.set( {
-                        lastfm: response
-                    } )
-                    .sendTabs( 'LASTFM_enablebutton' )
-                    .sendTabs( 'LASTFM_changestate', {
-                        data: true
-                    } );
+                    lastfm: response
+                } );
+
+                events.trigger( 'LASTFM_connect', response );
 
             }.bind( this ) );
         }
