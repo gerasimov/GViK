@@ -77,7 +77,7 @@ _GViK( {
                         }
 
 
-                        if ( !$self.artist || $self.title )
+                        if ( !$self.artist || !$self.title )
                             return;
 
                         var liked = storage.session.get( $self.trackId );
@@ -85,7 +85,7 @@ _GViK( {
                         return lastfmAPI[ ( liked ? 'un' : '' ) + 'love' ]( {
                             artist: $self.artist,
                             track: $self.title
-                        }, ( liked ? $self._removedLiked : $self._liked ) );
+                        }, ( liked ? $self._removedLiked.bind( $self ) : $self._liked.bind( $self ) ) );
                     }
                 }
             } );
@@ -213,11 +213,11 @@ _GViK( {
                 $self.title = dom.unes( $self.info()[ 6 ] );
                 $self.startScrobble = ~~( ( window.audioPlayer.duration / 100 ) * $self.PERCENT );
                 $self.maxStep = Math.max( 1, Math.floor( $self.startScrobble / $self.UPDATE_DELAY ) - 1 );
-                
+
                 $self.step = 0;
                 $self.scrobbled = false;
                 $self._setScrobbleState( false )
-                        ._setErrorState( false );
+                    ._setErrorState( false );
 
                 events.trigger( 'lastfm.newtrack', {
                     artist: $self.artist,
