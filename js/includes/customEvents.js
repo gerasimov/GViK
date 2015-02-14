@@ -61,19 +61,17 @@ _GViK( function( gvik, require, Add ) {
 
 
 
-    Function.prototype.bindFuncAfter = function( fn ) {
-        var curFn = this;
+    function bindFuncAfter( curFn, fn, ctx ) {
         return function() {
             var res = curFn.apply( this, arguments );
-            res = fn.apply( this, [ arguments, res ] ) || res;
+            res = fn.apply( ctx, [ arguments, res ] ) || res;
             return res;
         };
     };
 
-    Function.prototype.bindFuncBefore = function( fn ) {
-        var curFn = this;
+    function bindFuncBefore( curFn, fn, ctx ) {
         return function() {
-            return curFn.apply( this, fn.apply( this, [ arguments ] ) || arguments );
+            return curFn.apply( ctx, fn.apply( ctx, [ arguments ] ) || arguments );
         };
     };
 
@@ -86,7 +84,7 @@ _GViK( function( gvik, require, Add ) {
             curProp,
 
             curK = bef ? '_bef_ready' : '_aft_ready',
-            curNameFn = bef ? 'bindFuncBefore' : 'bindFuncAfter',
+            Fn = bef ? bindFuncBefore : bindFuncAfter,
             i = 0,
             l = path.length;
 
@@ -105,7 +103,7 @@ _GViK( function( gvik, require, Add ) {
             if ( noallowrebind && curParent[ curProp ][ curK ] )
                 return;
 
-            curParent[ curProp ] = curParent[ curProp ][ curNameFn ]( fn );
+            curParent[ curProp ] = Fn( curParent[ curProp ], fn, curParent );
             curParent[ curProp ][ curK ] = 1;
         }
     }
@@ -115,13 +113,13 @@ _GViK( function( gvik, require, Add ) {
             arg: arg,
             res: res
         } );
-    } );
+    }, true );
 
     bindHandle( 'hab.setLoc', function( _ ) {
         events.trigger( 'changeURL', _ );
     } );
- 
- 
+
+
 
     events.bind( 'changePage', function( even, cnt ) {
 
@@ -143,14 +141,11 @@ _GViK( function( gvik, require, Add ) {
     .bind( 'openBox', function( _ ) {
         var arg = _.arg,
             res = _.res;
-
         events.trigger( arg[ 1 ].act, _ );
     } )
 
 
-    .bind( 'audioEditBox', function( _ ) {
-
-    } )
+    .bind( 'audio_edit_box', function( _ ) {} )
 
     .bind( 'disconnect', function() {
         console.error( 'disconnected GViK! Please reload VK pages!' );
@@ -172,85 +167,61 @@ _GViK( function( gvik, require, Add ) {
     }, true )
 
 
-    .bind( 'playerOpen', function() {
+    .bind( 'playerOpen', function( data, evname, scope ) {
 
-        var startReady = false,
-            lastId;
-
-
-            bindHandle('audioPlayer.operate', function(arg){
-
-                var trackId = arg[0];
-
-                if(!lastId) {
-                    events.trigger('audio.globalStart');
-                } else if(trackId !== lastId) {
-                    events.trigger( 'audio.onNewTrack', trackId );
-                    startReady = false;
-                    lastId = trackId;
-                }
- 
- 
-                if(audioPlayer.player.paused()) {
-                    events.trigger('audio.pause', trackId);
-                } else {
-                    events.trigger('audio.start', trackId);
-                }
-            });
+        scope.startReady = false;
+        scope.lastId = "";
 
 
+        bindHandle( 'audioPlayer.operate', function( arg ) {
 
-        Object.observe( audioPlayer, function( props ) {
+            scope.trackId = arg[ 0 ];
 
-            var i = 0,
-                l = props.length,
+            if ( !scope.lastId )
+                events.trigger( 'audio.globalStart' );
 
-                curProp;
 
-            for ( ; i < l; i++ ) {
-
-                curProp = props[ i ];
-
-                switch ( curProp.name ) {
-
-     
-                    case 'curTime':
-
-                        var curtime = curProp.object.curTime;
-
-                        if ( curProp.object.curTime !== curProp.object.oldValue ) {
-
-                            if ( curProp.object.prClicked ) {
-                                if ( curtime <= ( audioPlayer.duration * 0.2 ) ) {
-                                    events.trigger( 'audio.onStartPlay' );
-                                }
-                                startReady = false;
-                            } else {
-                                if ( curtime <= 5 ) {
-                                    if ( !startReady ) {
-                                        startReady = true;
-                                        events.trigger( 'audio.onStartPlay' );
-                                    }
-                                } else
-                                    startReady = false;
-                            }
-
-                            events.trigger( 'audio.onPlayProgress', curtime );
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-
+            if ( scope.trackId !== scope.lastId ) {
+                events.trigger( 'audio.onNewTrack', scope.trackId );
+                scope.startReady = false;
+                scope.lastId = scope.trackId;
             }
 
-        } ); 
+
+            if ( audioPlayer.player.paused() )
+                events.trigger( 'audio.pause', scope.trackId );
+            else
+                events.trigger( 'audio.start', scope.trackId );
+
+        } );
+
+
+
+        bindHandle( 'audioPlayer.setCurTime', function( arg ) {
+
+            scope.curtime = arg[ 0 ];
+
+            if ( scope.curtime < 20 ) {
+                if ( !scope.startReady ) {
+                    scope.startReady = true;
+                    events.trigger( 'audio.onStartPlay' );
+                }
+            } else
+                scope.startReady = false;
+
+            events.trigger( 'audio.onPlayProgress', scope.curtime );
+        }, true );
+
+
+
     } )
 
 
     chrome.globalFn( 'globalKey', function( command, res ) {
-        events.trigger( 'globalKey', {command:command, res:res} );
+        events.trigger( 'globalKey', {
+            command: command,
+            res: res
+        } );
     } );
 
 

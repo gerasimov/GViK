@@ -9,7 +9,7 @@ _GViK( function( gvik, require, Add ) {
 	"use strict";
 
 	window.ga = function() {};
-	window.yandex_metrika_callbacks = [];
+	
 
 	require( 'core' ).define( [ 
 		'https://www.google-analytics.com/analytics.js'
