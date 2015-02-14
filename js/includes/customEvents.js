@@ -120,52 +120,8 @@ _GViK( function( gvik, require, Add ) {
     bindHandle( 'hab.setLoc', function( _ ) {
         events.trigger( 'changeURL', _ );
     } );
-
-    bindHandle( 'ajax.plainpost', function( arg ) {
-
-        if ( arg[ 2 ] ) {
-            arg[ 2 ] = arg[ 2 ].bindFuncBefore( function( arg ) {
-                events.trigger( 'vk.ajax.done', arg );
-            } );
-        }
-
-        if ( arg[ 3 ] ) {
-            arg[ 3 ] = arg[ 3 ].bindFuncBefore( function( arg ) {
-                events.trigger( 'vk.ajax.error', arg );
-            } );
-        }
-    }, true );
-
-    bindHandle( 'stManager.add', function( arg ) {
-
-        events.trigger( 'stManager.add', arg );
-
-        if ( arg[ 1 ] ) {
-            arg[ 1 ] = arg[ 1 ].bindFuncBefore( function() {
-
-                core.each( arg[ 0 ], function( fName ) {
-                    events.trigger( fName + '.clb' );
-                } );
-
-                events.trigger( 'stManager.add.clb' );
-            } );
-        }
-
-        return arg;
-    }, true );
-
-
-    bindHandle( 'nav.go', function( arg ) {
-        if ( arg[ 2 ] ) {
-            if ( !arg[ 2 ].onDone ) {
-                arg[ 2 ].onDone = function() {
-                    events.trigger( 'nav.go.clb' );
-                };
-            } else {
-                arg[ 2 ].onDone = arg[ 2 ].onDone.bindFuncBefore( function() {} );
-            }
-        }
-    }, true );
+ 
+ 
 
     events.bind( 'changePage', function( even, cnt ) {
 
@@ -222,6 +178,28 @@ _GViK( function( gvik, require, Add ) {
             lastId;
 
 
+            bindHandle('audioPlayer.operate', function(arg){
+
+                var trackId = arg[0];
+
+                if(!lastId) {
+                    events.trigger('audio.globalStart');
+                } else if(trackId !== lastId) {
+                    events.trigger( 'audio.onNewTrack', trackId );
+                    startReady = false;
+                    lastId = trackId;
+                }
+ 
+ 
+                if(audioPlayer.player.paused()) {
+                    events.trigger('audio.pause', trackId);
+                } else {
+                    events.trigger('audio.start', trackId);
+                }
+            });
+
+
+
         Object.observe( audioPlayer, function( props ) {
 
             var i = 0,
@@ -235,15 +213,7 @@ _GViK( function( gvik, require, Add ) {
 
                 switch ( curProp.name ) {
 
-                    case 'id':
-                        if ( lastId !== curProp.object.id ) {
-                            lastId = curProp.object.id;
-                            events.trigger( 'audio.onNewTrack', curProp.object.id );
-                        }
-
-                        startReady = false;
-                        break;
-
+     
                     case 'curTime':
 
                         var curtime = curProp.object.curTime;
@@ -275,30 +245,12 @@ _GViK( function( gvik, require, Add ) {
 
             }
 
-        } );
-
-
-
+        } ); 
     } )
 
 
-    function checkAudio() {
-        if ( window.audioPlayer && window.audioPlayer.player ) {
-
-            var aid = ( localStorage.audio_id );
-
-
-            if ( !aid || aid.slice( 1, -1 ) === audioPlayer.id )
-                return true
-        }
-
-        return false;
-    }
-
-
-    chrome.globalFn( 'globalKey', function( command ) {
-        if ( checkAudio() )
-            events.trigger( 'globalKey.' + command );
+    chrome.globalFn( 'globalKey', function( command, res ) {
+        events.trigger( 'globalKey', {command:command, res:res} );
     } );
 
 

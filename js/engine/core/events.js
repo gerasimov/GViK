@@ -23,24 +23,25 @@ _GViK( function( gvik, require, Add ) {
     function __run( name, data ) {
 
         var fnlist = _data[ name ].events,
+            $scope = _data[ name ].$scope,
+            i = 0,
             l = fnlist.length;
 
-        if ( l === 1 ) 
-            return fnlist[ 0 ]( data, name );
+        if ( l === 1 )
+            return fnlist[ 0 ]( data, name, $scope );
 
-
-        while ( l-- ) 
-            fnlist[ l ]( data, name );
+        for ( ; i < l; i++ )
+            fnlist[ i ]( data, name, $scope );
     }
 
 
-    function __init( _n, _fn ) {
+    function __init( name, fn ) {
         var argdt;
 
-        if ( _data[ _n ].initData )
-            argdt = _data[ _n ].initData();
+        if ( _data[ name ].initData )
+            argdt = _data[ name ].initData();
 
-        _fn( argdt );
+        fn( argdt, name, _data[ name ].$scope );
     }
 
 
@@ -48,7 +49,13 @@ _GViK( function( gvik, require, Add ) {
 
         if ( !_data[ name ] )
             _data[ name ] = {
-                events: []
+                events: [],
+                $scope: {
+
+                    _get: function( name ) {
+                        return _data[ name ].$scope
+                    }
+                }
             };
 
 
@@ -72,13 +79,21 @@ _GViK( function( gvik, require, Add ) {
 
     Events.prototype.create = function( name, initData, initEvent, onAdd ) {
 
-        var _eventsL = [];
+        var _eventsL = [],
+            $scope = {
+                _get: function( name ) {
+                    return _data[ name ].$scope
+                }
+            };
 
-        if ( this.hasEvent( name ) && !_data[ name ]._created )
+        if ( this.hasEvent( name ) && !_data[ name ]._created ) {
             _eventsL = _data[ name ].events;
+            $scope = _data[ name ].$scope;
+        }
 
         _data[ name ] = {
             events: _eventsL,
+            $scope: $scope,
             _created: true
         };
 

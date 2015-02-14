@@ -44,17 +44,21 @@ _GViK( function( gvik, require, Add ) {
         } );
     }
 
-    function sendMessageEx( suc, arg, tabId, winId, clb ) {
-        eachTabs( winId, function( tab ) {
-            chrome.tabs.sendMessage( tab.id, {
-                callback: suc,
+    function sendMessageToTab(tabId, clbResp, arg, clb) {
+        chrome.tabs.sendMessage( tabId, {
+                callback: clbResp,
                 arg: arg
             }, clb );
+    }
+
+    function sendMessageEx( clbResp, arg, tabId, winId, clb ) {
+        eachTabs( winId, function( tab ) {
+            sendMessageToTab(tab.id, clbResp, arg, clb)
         } );
     }
 
     methods.triggerEvent = function( o, p, c ) {
-        if ( event )
+        if ( events )
             events.trigger( o.ev, o.dt );
     };
 
@@ -249,14 +253,6 @@ _GViK( function( gvik, require, Add ) {
         core.ajax( o, c, e );
     };
 
-    methods.abortAjax = function( o, p, c, e ) {
-        core.abortXHR( o.xhrId, c );
-    };
-
-    methods.abortAllAjax = function( o, p, c, e ) {
-        core.abortAllXHR( c );
-    };
-
 
     if ( SUPPORT.pageAction ) {
         methods.showPageAction = function( o, p ) {
@@ -266,11 +262,17 @@ _GViK( function( gvik, require, Add ) {
 
 
     if ( isBackground ) {
+ 
+        var commandsResponse = {};
 
-
+        methods.initShortcut = function(o, p, c){ 
+             commandsResponse.trackId =  o.trackId;
+             commandsResponse.tabId = p.tabId;
+        };
+ 
 
         chrome.commands.onCommand.addListener( function( command ) {
-            sendMessageEx( 'globalKey', [ command ] );
+            sendMessageToTab(commandsResponse.tabId, 'globalKey', [ command, commandsResponse ] );
         } );
 
 
@@ -298,47 +300,6 @@ _GViK( function( gvik, require, Add ) {
             localStorage.ids = ids.toString();
 
         };
-
-
-
-        methods.callFn = function( o, p, c, e ) {
-
-            var path = o.fn.split( '.' ),
-                curParent = window,
-                curProp,
-                i = 0,
-                l = path.length;
-
-            for ( ; i < l; i++ ) {
-
-                curProp = path[ i ];
-
-                if ( !curParent[ curProp ] )
-                    return;
-
-                if ( typeof curParent[ curProp ] !== 'function' ) {
-
-                    if ( !curParent[ curProp ] )
-                        return;
-
-                    curParent = curParent[ curProp ];
-
-                } else {
-
-                    var arg = o.arg || [],
-                        res;
-
-                    if ( o.async )
-                        arg.push( c );
-
-                    res = curParent[ curProp ].apply( curParent, arg );
-
-
-                    if ( !o.async )
-                        c( res );
-                }
-            }
-        }
 
 
     }

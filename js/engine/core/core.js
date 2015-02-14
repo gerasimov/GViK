@@ -258,7 +258,7 @@ _GViK( function( appData, require, Add ) {
     function tmpl3( str, obj ) {
         return template( str, /\%\w+\%/gi, [ 1, -1 ], obj );
     }
-
+ 
     function template( str, rexp, offset, obj ) {
         return str.replace( rexp, function( k ) {
             return obj[ k.slice( offset[ 0 ], offset[ 1 ] ) ] || '';

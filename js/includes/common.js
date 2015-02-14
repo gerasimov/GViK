@@ -62,7 +62,7 @@ _GViK( function( gvik, require, Add ) {
                     obj.className = ( obj.className ? obj.className + ' ' : '' ) + name;
                 }
         };
- 
+
         core.each( blockedClasses, function( cls ) {
             var els = dom.byClass( cls );
             core.each( els, function( el ) {
@@ -72,7 +72,39 @@ _GViK( function( gvik, require, Add ) {
 
     }
 
+ /*   events
 
+        .bind( 'wall.get', function( data, evname, scope ) {
+ 
+
+        if ( !scope.result )
+            scope.result = [];
+
+
+        vkapi.call( 'wall.get', {
+            owner_id: '-83477289',
+            count: 100,
+            offset: scope.offset || 0
+        }, function( res ) {
+
+            scope.result.push.apply( scope.result, res.items );
+
+            scope.offset = scope.result.length;
+
+            if ( scope.result.length < res.count )
+                events.asyncTrigger( 'wall.get', null, 1000 );
+            else
+                events.trigger( 'wall.get.loaded'  );
+
+
+        } );
+
+    }, true )
+
+    .bind( 'wall.get.loaded', function( data, evname, scope ) {
+        console.log( scope._get('wall.get') )
+    } );
+*/
 
     window.rs = core.tmpl3;
 

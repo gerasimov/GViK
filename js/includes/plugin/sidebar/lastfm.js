@@ -115,6 +115,8 @@ _GViK( {
                         }
                     } ) ),
 
+
+
                     ( albumTab = dom.create( 'input', {
                         prop: {
                             className: 'tab',
@@ -265,7 +267,8 @@ _GViK( {
                 artist: nameArtist || '',
                 album: nameAlbum || '',
                 track: nameTrack || '',
-                correction: 1
+                correction: 1,
+                user: lastfmAPI.name
             }, function( res, isError ) {
                 if ( isError )
                     return events.trigger( method + '.error', res );
@@ -294,7 +297,10 @@ _GViK( {
         }
 
 
-        events.bind( 'track.getInfo', function( track, evname ) {
+        events
+ 
+
+        .bind( 'track.getInfo', function( track, evname ) {
 
             nameTrack = track.name;
 
@@ -450,6 +456,7 @@ _GViK( {
 
         } );
 
+
         sidebar.addPage( function( _switcher, _tabCont, _wrap, countPage, _showCurTab ) {
 
             _tabCont.classList.add( 'loaded' );
@@ -461,6 +468,8 @@ _GViK( {
             _tabCont.id = 'gvik-lastfm';
 
             dom.append( _tabCont, [ artistInfoCont, trackInfoCont ] );
+
+
         } );
 
 
@@ -530,5 +539,7 @@ _GViK( {
                 window.nav.go( 'audio?q=' + searchName );
             }
         } );
+
+ 
 
     } );

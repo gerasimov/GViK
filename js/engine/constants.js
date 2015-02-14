@@ -28,12 +28,14 @@ _GViK( function( gvik, require, Add ) {
         CACHE_CLEAR_TIMEOUT: 10 * ( 60 * 1000 ),
 
 
-        SIDEBAR_LASTFM_TOP_TRACKS_LIMIT: 100,
+        SIDEBAR_LASTFM_TOP_TRACKS_LIMIT: 500,
 
 
-        GOOGLE_ANALYTICS_CODE: 'UA-51509924-1', 
+        GOOGLE_ANALYTICS_CODE: 'UA-51509924-1',
+
+        GLOBAL_KEY_AUDIOPLAYER_TIMEOUT: 30,
+
  
-
 
         VKAPI_APP_ID: 2224353,
         VKAPI_KEY_STORAGE: "vk",
@@ -59,7 +61,7 @@ _GViK( function( gvik, require, Add ) {
     Add( 'constants', {
         get: function( key ) {
             if ( !__constants.hasOwnProperty( key ) )
-                 throw new Error( 'Not defined ' + key );
+                throw new Error( 'Not defined ' + key );
 
             return __constants[ key ];
         },
