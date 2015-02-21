@@ -76,7 +76,7 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
-    function bindHandle( fnPath, fn, bef, noallowrebind ) {
+    function decorator( fnPath, fn, bef, noallowrebind ) {
 
         var path = fnPath.split( '.' ),
             curParent = window,
@@ -108,14 +108,14 @@ _GViK( function( gvik, require, Add ) {
         }
     }
 
-    bindHandle( 'showBox', function( arg, res ) {
+    decorator( 'showBox', function( arg, res ) {
         events.trigger( 'openBox', {
             arg: arg,
             res: res
         } );
     }, true );
 
-    bindHandle( 'hab.setLoc', function( _ ) {
+    decorator( 'hab.setLoc', function( _ ) {
         events.trigger( 'changeURL', _ );
     } );
 
@@ -132,9 +132,7 @@ _GViK( function( gvik, require, Add ) {
             l = ch.length;
 
         for ( ; l--; )
-            if ( ( el = ch[ l ] ) &&
-                ( elid = el.id ) &&
-                ( ev = _events_map[ elid ] ) )
+            if ( ( el = ch[ l ] ) &&  ( elid = el.id ) &&  ( ev = _events_map[ elid ] ) )
                 events.trigger( ev );
     } )
 
@@ -159,7 +157,7 @@ _GViK( function( gvik, require, Add ) {
             'Audio.showRows',
             'Audio.scrollCheck'
         ], function( fnName ) {
-            bindHandle( fnName, function( arg, res ) {
+            decorator( fnName, function( arg, res ) {
                 events.trigger( 'audio.newRows', [ arg, res ] );
             }, false, true );
         } );
@@ -173,13 +171,20 @@ _GViK( function( gvik, require, Add ) {
         scope.lastId = "";
 
 
-        bindHandle( 'audioPlayer.operate', function( arg ) {
+        decorator( 'audioPlayer.operate', function( arg ) {
+            if ( audioPlayer.player.paused() )
+                events.trigger( 'audio.pause', scope.trackId );
+            else
+                events.trigger( 'audio.start', scope.trackId );
+        } );
+ 
+        decorator( 'audioPlayer.setCurTime', function( arg ) {
 
-            scope.trackId = arg[ 0 ];
+            scope.curtime = arg[ 0 ];
+            scope.trackId = audioPlayer.id;
 
             if ( !scope.lastId )
                 events.trigger( 'audio.globalStart' );
-
 
             if ( scope.trackId !== scope.lastId ) {
                 events.trigger( 'audio.onNewTrack', scope.trackId );
@@ -187,23 +192,10 @@ _GViK( function( gvik, require, Add ) {
                 scope.lastId = scope.trackId;
             }
 
-
-            if ( audioPlayer.player.paused() )
-                events.trigger( 'audio.pause', scope.trackId );
-            else
-                events.trigger( 'audio.start', scope.trackId );
-
-        } );
-
-
-
-        bindHandle( 'audioPlayer.setCurTime', function( arg ) {
-
-            scope.curtime = arg[ 0 ];
-
-            if ( scope.curtime < 20 ) {
+            if ( scope.curtime < 10 ) {
                 if ( !scope.startReady ) {
                     scope.startReady = true;
+
                     events.trigger( 'audio.onStartPlay' );
                 }
             } else
@@ -215,6 +207,7 @@ _GViK( function( gvik, require, Add ) {
 
 
     } )
+
 
 
     chrome.globalFn( 'globalKey', function( command, res ) {
