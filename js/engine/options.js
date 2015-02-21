@@ -62,11 +62,13 @@ _GViK( function( gvik, require, Add ) {
             "groups": {
                 "fast-exit": true
             },
- 
+
             "lastfm": {
                 "enable": true,
                 "disable-repeatScrobble": false,
-                "percent": 50
+                "percent": 50,
+                'disable-russian': false,
+                'update-nowplaying': true
             },
             "sidebar": {
                 "animation": false,

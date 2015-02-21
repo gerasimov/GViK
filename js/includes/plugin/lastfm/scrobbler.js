@@ -112,7 +112,8 @@ _GViK( {
             $self.PERCENT = parseInt( options.get( 'lastfm', 'percent' ) ) || 50;
 
             $self.DISABLE_REPEAT_SCROBBLE = options.get( 'lastfm', 'disable-repeatScrobble' );
-
+            $self.DISABLE_RUSSIAN = options.get( 'lastfm', 'disable-russian' );
+            $self.UPDATE_NOW_PLAYING = options.get( 'lastfm', 'update-nowplaying' );
 
             if ( $self.PERCENT < 40 || $self.PERCENT > 90 ) {
                 $self.PERCENT = 50;
@@ -122,7 +123,6 @@ _GViK( {
 
 
             events
-
 
                 .bind( 'LASTFM_connect', function( res ) {
                 chrome
@@ -158,19 +158,28 @@ _GViK( {
                     return;
 
                 if ( !( pos % $self.UPDATE_DELAY ) && pos <= $self.startScrobble - $self.UPDATE_DELAY ) {
-                    lastfmAPI.update( {
-                        artist: $self.artist,
-                        track: $self.title
-                    }, function() {
-                        $self._setErrorState( false ).step++;
-                    }, function( err ) {
-                        $self._setErrorState( true, ( err && err.message ) || chrome.lang( 'error' ) );
-                    } );
+
+                    if ( !$self.UPDATE_NOW_PLAYING ) {
+
+                        $self.step++;
+
+                    } else
+                        lastfmAPI.update( {
+                            artist: $self.artist,
+                            track: $self.title
+                        }, function() {
+                            $self._setErrorState( false ).step++;
+                        }, function( err ) {
+                            $self._setErrorState( true, ( err && err.message ) || chrome.lang( 'error' ) );
+                        } );
                 }
 
                 if ( $self.step >= $self.maxStep && pos >= $self.startScrobble ) {
+
                     $self.scrobbled = true;
 
+                    $self.countPlaying++;
+ 
                     lastfmAPI.scrobble( {
                         artist: $self.artist,
                         track: $self.title,
@@ -186,6 +195,24 @@ _GViK( {
 
 
             .bind( 'audio.onStartPlay', function() {
+
+
+                if ( $self.DISABLE_RUSSIAN ) {
+                    if ( $self.hasRussianChars ) {
+                        if ( !$self._dis ) {
+                            $self._off();
+                            $self._dis = true;
+                        }
+                    } else {
+                        if ( $self._dis ) {
+                            $self._on();
+                            $self._dis = false;
+                        }
+                    }
+                }
+                x
+
+
 
                 if ( !$self.DISABLE_REPEAT_SCROBBLE ) {
                     $self.step = 0;
@@ -208,16 +235,22 @@ _GViK( {
 
             .bind( 'audio.onNewTrack', function( trackId ) {
 
+
                 $self.trackId = trackId;
                 $self.artist = dom.unes( $self.info()[ 5 ] );
                 $self.title = dom.unes( $self.info()[ 6 ] );
                 $self.startScrobble = ~~( ( window.audioPlayer.duration / 100 ) * $self.PERCENT );
                 $self.maxStep = Math.max( 1, Math.floor( $self.startScrobble / $self.UPDATE_DELAY ) - 1 );
+                $self.countPlaying = 0;
+
 
                 $self.step = 0;
                 $self.scrobbled = false;
                 $self._setScrobbleState( false )
                     ._setErrorState( false );
+
+
+                $self.hasRussianChars = /[а-я]/i.test( $self.artist + $self.title );
 
                 events.trigger( 'lastfm.newtrack', {
                     artist: $self.artist,
@@ -260,11 +293,13 @@ _GViK( {
         _on: function() {
             state = true;
             this._addClass( 'scrobble', this.CLASS_NAMES.on )._setScrobbleState( false );
+
         },
 
         _off: function() {
             state = false;
             this._removeClass( 'scrobble', this.CLASS_NAMES.on )._setScrobbleState( false );
+
         },
 
         _addClass: function( key, clas, fn ) {
