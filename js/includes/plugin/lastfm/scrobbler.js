@@ -209,8 +209,7 @@ _GViK( {
                             $self._dis = false;
                         }
                     }
-                }
-                x
+                } 
 
 
 
