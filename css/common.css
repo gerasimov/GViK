@@ -919,16 +919,17 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
       background: #F7F7F7;
     height: auto;
     width: auto;
-    z-index: 1540;
+    z-index: 9999;
     display: none;
     box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.22);
     border: 1px solid #DAE2E8;
+ 
 }
 
 .gvik-contextmenu ul
 {
     list-style: none;
-    margin: 0;
+    margin: auto;
     padding: 0;
     height: auto;
     width: 150px;
@@ -945,8 +946,9 @@ body:not([data-gvik-options*='_heart_']) #pv_hh
 .gvik-contextmenu ul li a
 {
     text-decoration: none;
-    height: 23px;
-    line-height: 23px;
+    height: 30px;
+    line-height: 30px;
+    min-width: 100px;
     display: block;
 
 }

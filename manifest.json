@@ -41,7 +41,7 @@
         ],
         "run_at": "document_start"
     } ],
-    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://mc.yandex.ru  https://ssl.google-analytics.com 'unsafe-eval';  img-src *; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://www.google-analytics.com https://cdnjs.cloudflare.com  https://ssl.google-analytics.com 'unsafe-eval';  img-src *; object-src 'self'",
     "default_locale": "ru",
     "description": "__MSG_extDescription__",
     "icons": {
@@ -61,8 +61,10 @@
         "tabs",
         "downloads",
         "storage",
+        "notifications",
         "*://*.vk.com/*",
         "*://*.vk-cdn.net/*",
+        "*://*.di.fm/*",
         "*://*.audioscrobbler.com/*",
         "*://*.vk.me/*"
     ],
@@ -99,8 +101,7 @@
     "web_accessible_resources": [
 
 
-
-        "js/includes/preloader.js",
+                "js/includes/preloader.js",
         "js/includes/loader.js", 
 
         "js/engine/constants.js",
@@ -124,6 +125,7 @@
 
         "js/engine/options.js",
 
+        "js/includes/ui/contextMenu.js",
 
         "js/includes/plugin/lastfm/api.js",
         "js/includes/plugin/lastfm/scrobbler.js",
@@ -137,19 +139,29 @@
         "js/includes/plugin/groups/leave.js",
 
         "js/includes/plugin/audio/download.js",
+
         "js/includes/plugin/audio/bitrate.js", 
         "js/includes/plugin/audio/searchAndPlay.js", 
 
         "js/includes/plugin/audio/shortcut.js",
 
+
         "js/includes/plugin/sidebar/sidebar.js",
+
 
         "js/includes/plugin/sidebar/friends.js",
         "js/includes/plugin/sidebar/lastfm.js", 
+
+        "js/includes/plugin/audio/queque.js",
+
+
+        "js/includes/plugin/im/stats.js",
+
  
 
         "js/includes/common.js",
-  
+
+
         "manifest.json",
         "options.json",
 

@@ -5,7 +5,7 @@
  *
  **/
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
 	Add( 'md5', function( e ) {
 		function h( a, b ) {

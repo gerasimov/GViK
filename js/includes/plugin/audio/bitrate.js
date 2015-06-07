@@ -7,7 +7,7 @@
 
 
 
-_GViK( {
+GViK( {
         'audio': [
             'download-enable',
             'add-bit'

@@ -7,7 +7,7 @@
  */
 
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
 	var core = require( 'core' ),
 		_chrome = require( 'chrome' ),

@@ -5,7 +5,7 @@
  */
 
 
-_GViK( function( appData, require, Add ) {
+GViK( function( appData, require, Add ) {
 
     "use strict";
 
@@ -258,11 +258,62 @@ _GViK( function( appData, require, Add ) {
     function tmpl3( str, obj ) {
         return template( str, /\%\w+\%/gi, [ 1, -1 ], obj );
     }
- 
+
     function template( str, rexp, offset, obj ) {
         return str.replace( rexp, function( k ) {
             return obj[ k.slice( offset[ 0 ], offset[ 1 ] ) ] || '';
         } );
+    }
+
+
+
+    function bindFuncAfter( curFn, fn, ctx ) {
+        return function() {
+            var res = curFn.apply( this, arguments );
+            res = fn.apply( ctx, [ arguments, res, curFn ] ) || res;
+            return res;
+        };
+    };
+
+    function bindFuncBefore( curFn, fn, ctx ) {
+        return function() {
+            var res = fn.apply( ctx, [ arguments, curFn ] ) || arguments;
+            if ( !res.__disabled )
+                return curFn.apply( ctx, res );
+        };
+    };
+
+
+    function decorator( fnPath, fn, bef, noallowrebind ) {
+
+        var path = fnPath.split( '.' ),
+            curParent = window,
+            curFn,
+            curProp,
+
+            curK = bef ? '_bef_ready' : '_aft_ready',
+            Fn = bef ? bindFuncBefore : bindFuncAfter,
+            i = 0,
+            l = path.length;
+
+        for ( ; i < l; i++ ) {
+
+            curProp = path[ i ];
+
+            if ( !curParent[ curProp ] )
+                return;
+
+            if ( typeof curParent[ curProp ] !== 'function' ) {
+                curParent = curParent[ curProp ];
+                continue;
+            }
+
+            if ( noallowrebind && curParent[ curProp ][ curK ] )
+                return;
+
+            curParent[ curProp ] = Fn( curParent[ curProp ], fn, curParent );
+            curParent[ curProp ][ curK ] = 1;
+        }
     }
 
 
@@ -282,7 +333,11 @@ _GViK( function( appData, require, Add ) {
         toArray: toArray,
         getResource: getResource,
         define: define,
-        ajax: ajax
+        ajax: ajax,
+
+        decorator: decorator,
+        bindFuncBefore: bindFuncBefore,
+        bindFuncAfter: bindFuncAfter
 
     } );
 

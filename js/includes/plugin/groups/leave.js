@@ -6,7 +6,7 @@
 
 
 
-_GViK( {
+GViK( {
     'groups': 'fast-exit'
 }, function( gvik, require, Add ) {
 
@@ -90,5 +90,6 @@ _GViK( {
 
     } );
 
+ 
 
 } );

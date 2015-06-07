@@ -5,7 +5,7 @@
  *
  */
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
     "use strict";
 
@@ -190,15 +190,14 @@ _GViK( function( gvik, require, Add ) {
 
 
     _event
-
         .create( 'resize', function() {
-        return {
-            h: document.documentElement.clientHeight,
-            w: document.documentElement.clientWidth
-        };
-    }, function( fn ) {
-        window.addEventListener( 'resize', fn, false );
-    } )
+            return {
+                h: document.documentElement.clientHeight,
+                w: document.documentElement.clientWidth
+            };
+        }, function( fn ) {
+            window.addEventListener( 'resize', fn, false );
+        } )
 
     .create( 'load', function() {
         return document.body;

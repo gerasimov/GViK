@@ -5,7 +5,7 @@
  */
 
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
 	"use strict";
 
@@ -55,10 +55,13 @@ _GViK( function( gvik, require, Add ) {
 
 			var _ev = eventsContainer[ evId ][ evName ],
 				l = _ev.length,
-				i = 0;
+				i = 0,
+				lr;
 
 			for ( ; i < l; i++ )
-				_ev[ i ].apply( this, arguments );
+				lr = _ev[ i ].apply( this, arguments );
+
+			return lr;
 
 		}, false );
 		return element;
@@ -146,11 +149,13 @@ _GViK( function( gvik, require, Add ) {
 
 		var cloneElement = element.cloneNode( true );
 
-		if ( !cloneEvent ) return cloneElement;
+		if ( !cloneEvent ) 
+			return cloneElement;
 
 		var id = element[ expando ];
 
-		if ( id === undefined ) return cloneElement;
+		if ( id === undefined ) 
+			return cloneElement;
 
 		cloneElement[ expando ] = id;
 
@@ -183,13 +188,15 @@ _GViK( function( gvik, require, Add ) {
 				}
 				setEvent( parentEl, evName, function( ev ) {
 
-					if ( ev._canceled ) return false;
+					if ( ev._canceled )
+						return false;
 
 
 					var curEl = ev.target || ev.srcElement,
 						prnt = curEl.webkitMatchesSelector( selector ) ? curEl : parent( ev, selector );
 
-					if ( prnt ) return evFn.call( prnt, prnt, ev, curEl );
+					if ( prnt )
+						return evFn.call( prnt, prnt, ev, curEl );
 				} );
 				break;
 		}
@@ -314,7 +321,7 @@ _GViK( function( gvik, require, Add ) {
 			for ( i in data )
 				if ( ( f = assaciateFn[ i ] ) )
 					f( element, data[ i ] );
-			
+
 		return element;
 	}
 

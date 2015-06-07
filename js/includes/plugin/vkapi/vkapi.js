@@ -4,7 +4,7 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
-_GViK( function( appData, require, Add ) {
+GViK( function( appData, require, Add ) {
 
     "use strict";
 

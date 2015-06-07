@@ -7,7 +7,7 @@
  *
  */
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
     "use strict";
 
@@ -61,61 +61,14 @@ _GViK( function( gvik, require, Add ) {
 
 
 
-    function bindFuncAfter( curFn, fn, ctx ) {
-        return function() {
-            var res = curFn.apply( this, arguments );
-            res = fn.apply( ctx, [ arguments, res ] ) || res;
-            return res;
-        };
-    };
-
-    function bindFuncBefore( curFn, fn, ctx ) {
-        return function() {
-            return curFn.apply( ctx, fn.apply( ctx, [ arguments ] ) || arguments );
-        };
-    };
-
-
-    function decorator( fnPath, fn, bef, noallowrebind ) {
-
-        var path = fnPath.split( '.' ),
-            curParent = window,
-            curFn,
-            curProp,
-
-            curK = bef ? '_bef_ready' : '_aft_ready',
-            Fn = bef ? bindFuncBefore : bindFuncAfter,
-            i = 0,
-            l = path.length;
-
-        for ( ; i < l; i++ ) {
-
-            curProp = path[ i ];
-
-            if ( !curParent[ curProp ] )
-                return;
-
-            if ( typeof curParent[ curProp ] !== 'function' ) {
-                curParent = curParent[ curProp ];
-                continue;
-            }
-
-            if ( noallowrebind && curParent[ curProp ][ curK ] )
-                return;
-
-            curParent[ curProp ] = Fn( curParent[ curProp ], fn, curParent );
-            curParent[ curProp ][ curK ] = 1;
-        }
-    }
-
-    decorator( 'showBox', function( arg, res ) {
+    core.decorator( 'showBox', function( arg, res ) {
         events.trigger( 'openBox', {
             arg: arg,
             res: res
         } );
     }, true );
 
-    decorator( 'hab.setLoc', function( _ ) {
+    core.decorator( 'hab.setLoc', function( _ ) {
         events.trigger( 'changeURL', _ );
     } );
 
@@ -132,7 +85,7 @@ _GViK( function( gvik, require, Add ) {
             l = ch.length;
 
         for ( ; l--; )
-            if ( ( el = ch[ l ] ) &&  ( elid = el.id ) &&  ( ev = _events_map[ elid ] ) )
+            if ( ( el = ch[ l ] ) && ( elid = el.id ) && ( ev = _events_map[ elid ] ) )
                 events.trigger( ev );
     } )
 
@@ -157,7 +110,7 @@ _GViK( function( gvik, require, Add ) {
             'Audio.showRows',
             'Audio.scrollCheck'
         ], function( fnName ) {
-            decorator( fnName, function( arg, res ) {
+            core.decorator( fnName, function( arg, res ) {
                 events.trigger( 'audio.newRows', [ arg, res ] );
             }, false, true );
         } );
@@ -170,15 +123,14 @@ _GViK( function( gvik, require, Add ) {
         scope.startReady = false;
         scope.lastId = "";
 
-
-        decorator( 'audioPlayer.operate', function( arg ) {
+        core.decorator( 'audioPlayer.operate', function( arg ) { 
             if ( audioPlayer.player.paused() )
-                events.trigger( 'audio.pause', scope.trackId );
+                events.asyncTrigger( 'audio.pause', scope.trackId );
             else
-                events.trigger( 'audio.start', scope.trackId );
+                events.asyncTrigger( 'audio.start', scope.trackId );
         } );
- 
-        decorator( 'audioPlayer.setCurTime', function( arg ) {
+
+        core.decorator( 'audioPlayer.setCurTime', function( arg ) {
 
             scope.curtime = arg[ 0 ];
             scope.trackId = audioPlayer.id;

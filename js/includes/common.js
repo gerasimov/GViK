@@ -6,7 +6,7 @@
 
 
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
     var options = require( 'options' ),
         dom = require( 'dom' ),

@@ -12,7 +12,7 @@
     "use strict";
 
 
-    if ( window._GViK )
+    if ( window.GViK )
         return;
 
     var
@@ -20,8 +20,6 @@
         MANIFEST = JSON.parse( sessionStorage.manifest ),
 
         APP_DATA = {
-
-            DEBUG: false, 
 
             APP_PATH: sessionStorage.apppath,
             APP_ID: sessionStorage.appid,
@@ -71,7 +69,7 @@
     }
 
 
-    function _GViK( fOpt, fMods, initfunc ) {
+    function GViK( fOpt, fMods, initfunc ) {
 
 
         if ( typeof fOpt === 'function' ) {
@@ -119,9 +117,9 @@
     }
 
 
-        _GViK.Get = Get;
+        GViK.Get = Get;
 
-    window._GViK = _GViK;
+    window.GViK = GViK;
 
 
 

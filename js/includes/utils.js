@@ -7,7 +7,7 @@
  */
 
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
 
     "use strict";
@@ -21,7 +21,7 @@ _GViK( function( gvik, require, Add ) {
         global = require( 'global' ),
         constants = require( 'constants' ),
 
-        rId = /^audio\-?|\_pad$/gi;
+        rId = /^audio|\_pad$/gi;
 
     global.VARS.CLEAN_ID = function( id ) {
         return id.replace( rId, '' );
@@ -53,6 +53,47 @@ _GViK( function( gvik, require, Add ) {
             url: url,
             dur: dur
         };
+    };
+
+
+    global.VARS.PARSE_AUDIO = function( el ) {
+
+        var id = global.VARS.CLEAN_ID( el.id );
+
+        if ( dom.is( el, '#audio_global' ) ) {
+            id = window.audioPlayer.id;
+        }
+
+
+        if ( window.audioPlaylist && window.audioPlaylist[ id ] ) {
+            return window.audioPlaylist[ id ];
+        }
+
+
+
+        var infoEl = dom.byClass( 'info', el ).item( 0 ),
+            artistEl = dom.byTag( 'b', infoEl ).item( 0 ),
+
+            titleEl = artistEl.nextElementSibling,
+
+            input = dom.byTag( 'input', el ).item( 0 ),
+            parsedData = input.value.split( ',' ),
+
+            splitedId = id.split( '_' );
+
+
+        return [
+            splitedId[ 0 ],
+            splitedId[ 1 ],
+            parsedData[ 0 ],
+            parsedData[ 1 ],
+            global.VARS.FORMAT_TIME( parsedData[ 1 ] ),
+            artistEl.innerText,
+            titleEl.innerText,
+            0,
+            0,
+            1
+        ]
     };
 
 
@@ -117,21 +158,22 @@ _GViK( function( gvik, require, Add ) {
     };
 
 
+    global.VARS._DRAW_AUDIO = function( audio ) {
+
+        return core.tmpl3( TMPL.audio, {
+            audio_id: audio[ 0 ] + '_' + audio[ 1 ],
+            performer: audio[ 5 ],
+            title: audio[ 6 ],
+            url: audio[ 2 ],
+            playtime: audio[ 3 ],
+            duration: audio[ 4 ]
+        } );
+    }
+
+
     global.VARS.DRAW_AUDIO = function( audio, callback ) {
 
-        var _drawAudio = function( audio ) {
-            return core.tmpl3( TMPL.audio, {
-                audio_id: audio[ 0 ] + '_' + audio[ 1 ],
-                performer: audio[ 5 ],
-                title: audio[ 6 ],
-                url: audio[ 2 ],
-                playtime: audio[ 3 ],
-                duration: audio[ 4 ]
-            } );
-        };
-
-
-        return _drawAudio( [
+        return global.VARS._DRAW_AUDIO( [
             audio.owner_id,
             audio.id,
             audio.url,

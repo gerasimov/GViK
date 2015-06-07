@@ -6,7 +6,7 @@
  */
 
 
-_GViK( function( appData, require ) {
+GViK( function( appData, require ) {
 
 
     var core = require( 'core' ),
@@ -26,18 +26,17 @@ _GViK( function( appData, require ) {
         constants.define( 'ID', window.vk.id );
 
 
-        if ( options.get( 'system', 'enable-qicksett' ) )
-            events.bind( "changeURL", function() {
-                chrome.sendRequest( "showPageAction", {} );
-            }, true );
-
-
         chrome
             .pushID()
             .ga( 'send', 'event', 'vk', 'init' )
             .local.get( {
                 key: 'options'
             }, function( res ) {
+
+                if ( options.get( 'system', 'enable-qicksett' ) )
+                    events.bind( "changeURL", function() {
+                        chrome.sendRequest( "showPageAction", {} );
+                    }, true );
 
                 options.load( res.options );
 

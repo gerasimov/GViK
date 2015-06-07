@@ -5,7 +5,7 @@
  */
 
 
-_GViK( {
+GViK( {
         'sidebar': 'lastfm-module'
     }, [
         'lastfm',
@@ -42,6 +42,7 @@ _GViK( {
             tabCont,
             topTab,
             albumTab,
+            tagTab,
 
             showCurTab,
 
@@ -92,6 +93,12 @@ _GViK( {
                 }
             } ),
 
+            tagCont = dom.create( 'div', {
+                prop: {
+                    className: 'tracks gvik-none'
+                }
+            } ),
+
             tabs = dom.create( 'div', {
                 prop: {
                     className: 'tabs gvik-none'
@@ -110,6 +117,7 @@ _GViK( {
                         events: {
                             change: function() {
                                 albTracksCont.classList.add( 'gvik-none' );
+                                tagCont.classList.add( 'gvik-none' );
                                 tracksCont.classList.remove( 'gvik-none' );
                             }
                         }
@@ -129,7 +137,27 @@ _GViK( {
                         events: {
                             change: function() {
                                 tracksCont.classList.add( 'gvik-none' );
+                                tagCont.classList.add( 'gvik-none' );
                                 albTracksCont.classList.remove( 'gvik-none' );
+                            }
+                        }
+                    } ) ),
+
+
+                    ( tagTab = dom.create( 'input', {
+                        prop: {
+                            className: 'tab',
+                            type: 'radio',
+                            name: 'gvik_lastfm_tabs'
+                        },
+                        data: {
+                            label: 'Tag'
+                        },
+                        events: {
+                            change: function() {
+                                tracksCont.classList.add( 'gvik-none' );
+                                albTracksCont.classList.add( 'gvik-none' );
+                                tagCont.classList.remove( 'gvik-none' );
                             }
                         }
                     } ) )
@@ -137,7 +165,7 @@ _GViK( {
             } ),
 
             trackInfoCont = dom.create( 'div', {
-                append: [ tabs, tracksCont, albTracksCont ]
+                append: [ tabs, tracksCont, albTracksCont, tagCont ]
             } ),
 
             TMPL = {
@@ -260,16 +288,23 @@ _GViK( {
         var __xhr;
 
 
-        function lfapiCall( method, prop ) {
+        function lfapiCall( method, prop, ext ) {
 
 
-            __xhr = lastfmAPI.call( method, {
+            var opt = {
                 artist: nameArtist || '',
                 album: nameAlbum || '',
                 track: nameTrack || '',
                 correction: 1,
                 user: lastfmAPI.name
-            }, function( res, isError ) {
+            };
+
+
+            if ( core.isPlainObject( ext ) )
+                core.extend( opt, ext );
+
+
+            __xhr = lastfmAPI.call( method, opt, function( res, isError ) {
                 if ( isError )
                     return events.trigger( method + '.error', res );
                 events.trigger( method, res[ prop ] );
@@ -297,8 +332,16 @@ _GViK( {
         }
 
 
+
         events
- 
+
+
+            .bind( 'tag.getTopTracks', function( tracks ) {
+
+
+            tagCont.innerHTML = render( TMPL.item, tracks.track || [], TMPL.renderTrack )
+
+        } )
 
         .bind( 'track.getInfo', function( track, evname ) {
 
@@ -511,35 +554,54 @@ _GViK( {
             } );
         }
 
-        dom.setDelegate( tabCont, '.gvikLastfm', 'click', function( el, e ) {
+        dom.setDelegate( tabCont, {
+            '.gvikLastfm': {
+                'click': function( el, e ) {
 
-            e.stopPropagation();
-            e.preventDefault();
+                    e.stopPropagation();
+                    e.preventDefault();
 
-            var searchName = nameArtist + ' – ' + this.getAttribute( 'data-trackname' ),
-                from_pad = window._pads.shown == 'mus',
-                __cur = window._pads && _pads.cur || window.cur;
+                    var searchName = nameArtist + ' – ' + this.getAttribute( 'data-trackname' ),
+                        from_pad = window._pads.shown == 'mus',
+                        __cur = window._pads && _pads.cur || window.cur;
 
-            if ( window.cur.aSearch || from_pad ) {
+                    if ( window.cur.aSearch || from_pad ) {
 
-                __cur.searchTypeChanged( {
-                    target: {
-                        index: 0
+                        __cur.searchTypeChanged( {
+                            target: {
+                                index: 0
+                            }
+                        }, true );
+
+                        __cur.searchTypeMenu.value = 0;
+
+                        Audio.selectPerformer( {
+                            from_pad: from_pad,
+                            event: 0,
+                            name: searchName
+                        } );
+                    } else {
+                        window.nav.go( 'audio?q=' + searchName );
                     }
-                }, true );
+                }
+            },
 
-                __cur.searchTypeMenu.value = 0;
+            '.tag a': {
+                click: function( el, e ) {
 
-                Audio.selectPerformer( {
-                    from_pad: from_pad,
-                    event: 0,
-                    name: searchName
-                } );
-            } else {
-                window.nav.go( 'audio?q=' + searchName );
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    e._canceled = true;
+
+                    lfapiCall( 'tag.getTopTracks', 'toptracks', {
+                        tag: e.innerText
+                    } )
+
+                }
             }
         } );
 
- 
+
 
     } );

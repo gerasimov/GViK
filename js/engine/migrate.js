@@ -4,7 +4,7 @@
  *
  */
 
-if ( typeof _GViK === 'undefined' )( function( win ) {
+if ( typeof GViK === 'undefined' )( function( win ) {
 
         "use strict";
 
@@ -18,7 +18,7 @@ if ( typeof _GViK === 'undefined' )( function( win ) {
 
 
 
-        function _GViK() {
+        function GViK() {
             [].forEach.call( arguments, function( fn ) {
                 if ( typeof fn === 'function' )
                     fn.call( win, win, function( module ) {
@@ -42,11 +42,11 @@ if ( typeof _GViK === 'undefined' )( function( win ) {
             } );
         }
 
-        _GViK.Get = function() {
+        GViK.Get = function() {
             return _modules;
         };
 
-        win._GViK = _GViK;
+        win.GViK = GViK;
 
 
     } )

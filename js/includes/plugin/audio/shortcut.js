@@ -3,55 +3,50 @@
  */
 
 
-_GViK( {
+GViK( {
 	'audio': 'shortcut'
 }, function( appData, require, Add ) {
 
 
 	var events = require( 'events' ),
-		chrome = require('chrome');
+		chrome = require( 'chrome' ),
 
- 
-
-	var initPlayer ;
+		initPlayer;
 
 
 
-	events
+	events.bind( {
 
-		.bind('audio.pause', function(){
+		'audio.pause': function() {
 
-		})
+		},
 
-		.bind('audio.start', function( tId ){
-			 
- 			chrome.sendRequest('initShortcut', {
- 				data:{
- 					trackId: tId
- 				}
- 			})
-		})
+		'audio.start': function( tId ) {
 
-		.bind('audio.globalStart', function(){
+			chrome.sendRequest( 'initShortcut', {
+				data: {
+					trackId: tId
+				}
+			} )
+		},
+
+		'audio.globalStart': function() {
 			initPlayer = true;
-		})
+		},
 
+		'globalKey': function( data ) {
 
-		.bind( 'globalKey', function( data ) {
+			if ( initPlayer && ( data.res.trackId === audioPlayer.id ) )
+				events.trigger( 'globalKey.' + data.command )
+		},
 
-			if( initPlayer && (data.res.trackId === audioPlayer.id ) )
-				events.trigger( 'globalKey.' + data.command ) 
-	} )
-
-	.bind( {
-
-		'globalKey.play-pause-track': function(  ) {
+		'globalKey.play-pause-track': function() {
 
 			if ( audioPlayer.player.paused() )
 				audioPlayer.playTrack();
 			else
 				audioPlayer.pauseTrack();
-		}, 
+		},
 
 		'globalKey.next-track': function() {
 			audioPlayer.nextTrack();

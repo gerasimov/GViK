@@ -5,7 +5,7 @@
  */
 
 
-_GViK( function( appData, require, Add ) {
+GViK( function( appData, require, Add ) {
 
     "use strict";
 

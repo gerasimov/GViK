@@ -6,7 +6,7 @@
  *
  */
 
-_GViK( {
+GViK( {
 	'audio': [ 'download-enable', 'add-but' ],
 }, function( gvik, require, Add ) {
 
@@ -49,16 +49,34 @@ _GViK( {
 			i: data.id
 		} );
 
-		fName = fName.replace(/[\\\/\:\*\?\"\<\>\|]+/gi, '').trim();
+		fName = fName.replace( /[\\\/\:\*\?\"\<\>\|]+/gi, '' ).trim();
 
 		if ( fName.length === ext.length )
 			fName = data.artist + ' - ' + data.title + ext;
 
- 
+
 
 		return fName;
 	}
 
+
+	function _download( data ) {
+		chrome.download[ methodNameDownload ]( {
+			url: data.url,
+			filename: __formatFileName( data ),
+			saveAs: SAVE_AS
+		}, function( downloadItemId ) {
+			chrome.download.search( downloadItemId, function( downloadItem ) {
+				events.trigger( 'AUDIO_downloaded', {
+					downloadItem: downloadItem,
+					data: data
+				} );
+			} );
+		} );
+	}
+
+
+	events.bind( 'audio.download', _download );
 
 
 	dom.setDelegate( document, '.audio:not([id=audio_global]):not([data-gvik-download])', 'mouseover', function( audioEl ) {
@@ -90,18 +108,7 @@ _GViK( {
 
 					e._canceled = true;
 
-					chrome.download[ methodNameDownload ]( {
-						url: data.url,
-						filename: __formatFileName( data ),
-						saveAs: SAVE_AS
-					}, function( downloadItemId ) {
-						chrome.download.search( downloadItemId, function( downloadItem ) {
-							events.trigger( 'AUDIO_downloaded', {
-								downloadItem: downloadItem,
-								data: data
-							} );
-						} );
-					} );
+					_download( data );
 				}
 			}
 		} );
@@ -111,6 +118,7 @@ _GViK( {
 		return data;
 
 	} );
- 
+
+
 
 } );

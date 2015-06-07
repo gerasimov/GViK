@@ -5,7 +5,7 @@
  *
  */
 
-_GViK( {}, [
+GViK( {}, [
         'vkapi'
     ],
     function( gvik, require, Add ) {

@@ -4,7 +4,7 @@
  *
  */
 
-_GViK( function( gvik, require, Add ) {
+GViK( function( gvik, require, Add ) {
 
 
     "use strict";
@@ -52,6 +52,7 @@ _GViK( function( gvik, require, Add ) {
             window.playAudioNew( audio.owner_id + '_' + audio.id );
 
         }, opt );
+        
     }, true );
 
 

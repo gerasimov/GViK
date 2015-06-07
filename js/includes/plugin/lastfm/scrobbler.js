@@ -5,7 +5,7 @@
  */
 
 
-_GViK( {
+GViK( {
     'lastfm': 'enable'
 }, function( gvik, require, Add ) {
 
@@ -199,7 +199,7 @@ _GViK( {
 
                 if ( $self.DISABLE_RUSSIAN ) {
                     if ( $self.hasRussianChars ) {
-                        if ( !$self._dis ) {
+                        if ( $self._dis === false ) {
                             $self._off();
                             $self._dis = true;
                         }
@@ -210,8 +210,6 @@ _GViK( {
                         }
                     }
                 }
-                x
-
 
 
                 if ( !$self.DISABLE_REPEAT_SCROBBLE ) {

@@ -6,7 +6,7 @@
 
 
 
-_GViK( {
+GViK( {
         'sidebar': 'friendsfaves-module'
     }, [
         'sidebar'
