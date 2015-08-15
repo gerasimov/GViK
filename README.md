@@ -1,7 +1,7 @@
 # GViK
 
 
-Расширения для брузеров Chrome и Opera.
+Расширения для браузеров Chrome и Opera.
 
 
 Opera:
