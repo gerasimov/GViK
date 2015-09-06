@@ -4,335 +4,314 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK(function(appData, require, Add) {
 
-GViK( function( appData, require, Add ) {
+  'use strict';
 
-    "use strict";
+  var core = require('core');
+  var constants = require('constants');
+  var events = require('events');
 
+  var disconnected = false;
 
-    var
+  function connect(evName, fn) {
+    document.addEventListener(evName, function(e) {
+      var data = {};
 
-        core = require( 'core' ),
-        constants = require( 'constants' ),
-        events = require( 'events' ),
+      if (e.detail) {
+        data = e.detail.data;
+      }
 
-        disconnected = false;
+      fn(data, e);
+    }, false);
+  }
 
+  connect(constants.get('CHROME_RESPONSE'), function(data) {
+    if (has(data.callback)) {
 
-    function connect( evName, fn ) {
-        document.addEventListener( evName, function( e ) {
-            var data = {};
+      get(data.callback)
+          .apply(this, data.arg);
 
-            if ( e.detail ) {
-                data = e.detail.data;
+      remove(data.callback);
+      remove(data.error);
+    }
+  });
+
+  connect(constants.get('CHROME_DISCONNECT'), function() {
+    disconnected = true;
+    events.trigger('disconnect');
+  });
+
+  var callbackContainer = [
+      function() {
+              var args = core.toArray(arguments);
+              args.unshift('defaultFn');
             }
+        ];
 
-            fn( data, e );
-        }, false );
+  var defaultFn = 0;
+  var globalCallbackContainer = {};
+
+  function makeFnId(fn) {
+
+    if (!fn) {
+      return defaultFn;
     }
 
-    connect( constants.get( "CHROME_RESPONSE" ), function( data ) {
-        if ( has( data.callback ) ) {
+    return callbackContainer.push(fn) - 1;
+  }
 
-            get( data.callback )
-                .apply( this, data.arg );
+  function get(fnId) {
+    return globalCallbackContainer[ fnId ] || callbackContainer[ fnId ];
+  }
 
-            remove( data.callback );
-            remove( data.error );
-        }
+  function has(fnId) {
+    return callbackContainer[ fnId ] !== undefined ||
+          globalCallbackContainer[ fnId ] !== undefined;
+  }
+
+  function remove(fnId) {
+    callbackContainer[ fnId ] = undefined;
+  }
+
+  var _chrome = {
+    get disconnected() {
+      return disconnected;
+    }
+  };
+
+  function sendRequest(method, sys, callback, error) {
+
+    var params = sys.params || {};
+    var callName = disconnected || sys.forceCS ?
+                  constants.get('CHROME_CSREQUEST') :
+                  constants.get('CHROME_REQUEST');
+    var eventTrigger;
+
+    params.uid = constants.get('ID');
+    params.callback = makeFnId(sys.callback || callback);
+    params.error = makeFnId(sys.error || error);
+    params.method = method;
+
+    var customEvent = new CustomEvent(callName, {
+      detail: {
+        data: sys.data,
+        params: params
+      },
+      bubbles: false
+    });
+
+    document.dispatchEvent(customEvent);
+
+    return _chrome;
+  }
+  _chrome.sendRequest = sendRequest;
+
+  _chrome.simpleAjax = _chrome.ajax = function(data, callback, error, forceCS) {
+
+    return sendRequest('simpleAjax', {
+      data: data,
+      callback: callback,
+      error: error,
+      forceCS: arguments.length === 4 ?
+               forceCS :
+               constants.get('CHROME_FORCE_CS_RUN')
+    });
+  };
+
+  _chrome.getHead = function( url, hName, callback, error ) {
+    return sendRequest( 'getHead', {
+      data: {
+        hName: hName,
+        url: url
+      }, 
+
+      callback: callback,
+      forceCS: true,
+      error: error
     } );
+  }
 
-    connect( constants.get( "CHROME_DISCONNECT" ), function() {
-        disconnected = true;
-        events.trigger( 'disconnect' );
-    } );
+  _chrome.pushID = function(callback, error) {
+    return sendRequest('pushID', {
+      callback: callback,
+      error: error
+    });
+  };
 
-    var callbackContainer = [
-            function() {
-                var args = core.toArray( arguments );
-                args.unshift( 'defaultFn' );
-            }
-        ],
+  _chrome.sendTabs = function(eventName, data, needCur, callback, error) {
+    return sendRequest('sendTabs', {
+      data: {
+        data: data
+      },
+      params: {
+        eventName: eventName,
+        needCur: needCur
+      },
+      callback: callback,
+      error: error
+    });
+  };
 
-        defaultFn = 0,
+  _chrome.sendEvent = function(events) {
+    return sendRequest('sendEvent', {
+      data: {
+        events: events
+      }
+    });
+  };
 
-        globalCallbackContainer = {};
+  function sendRequestSync(method, arg) {
+    var customEvent = new CustomEvent(constants.get('CHROME_REQUEST_SYNC'), {
+      detail: {
+        method: method,
+        arg: arg
+      },
+      bubbles: true
+    });
 
-    function makeFnId( fn ) {
+    document.dispatchEvent(customEvent);
 
-        if ( !fn ) {
-            return defaultFn;
+    return sessionStorage[ constants.get('CHROME_CS_RESPONSE_NAME') ];
+  }
+
+  _chrome.globalFn = function(key, fn, context) {
+    globalCallbackContainer[ key ] = context ? fn.bind(context) : fn;
+    return this;
+  };
+
+  function setStorageitem(vals, callback, storageName) {
+    var data = {};
+
+    core.each(vals, function(val, key) {
+      data[ (key + '::' + constants.get('ID')) ] = val;
+    });
+
+    return sendRequest(storageName, {
+      data: data,
+      params: {
+        forceCS: true
+      },
+      callback: callback
+    });
+  }
+
+  function getStorageitem(obj, callback, storageName) {
+
+    var key = obj.key ?
+        (obj.key + '::' + constants.get('ID')) :
+        null;
+
+    return sendRequest(storageName, {
+      data: {
+        key: key
+      },
+      params: {
+        forceCS: true
+      },
+      callback: function(vals) {
+        var result = core.toObject(core.map(vals, function(res, key) {
+          return [key.split('::').slice(0, -1).join('::'), res];
+        }));
+
+        callback(result);
+      }
+    });
+  }
+
+  function removeStorageitem(key, callback, storageName) {
+    return sendRequest(storageName, {
+      data: {
+        key: key + '::' + constants.get('ID')
+      },
+      params: {
+        forceCS: true
+      }
+    });
+  }
+
+  _chrome.lang = function(word) {
+    return sendRequestSync('lang', word);
+  };
+
+  core.each(['Sync', 'Local'], function(storageName) {
+    _chrome[ storageName.toLowerCase() ] = {};
+    core.each({
+      get: getStorageitem,
+      set: setStorageitem,
+      remove: removeStorageitem
+    }, function(storFn, storFnName) {
+      _chrome[ storageName.toLowerCase() ][ storFnName ] = function(f, s) {
+        return storFn(f, s, storFnName + storageName);
+      };
+    });
+  }, true);
+
+  _chrome.download = {
+    download: function(data, callback) {
+      return sendRequest('download', {
+        data: data,
+        callback: callback
+      });
+    },
+
+    search: function(itemId, fn, err) {
+      return sendRequest('search', {
+        data: {
+          id: itemId
         }
-
-        return callbackContainer.push( fn ) - 1;
+      }, fn, err);
+    },
+    downloadFromCache: function(data, callback) {
+      return sendRequest('downloadFromCache', {
+        data: data,
+        callback: callback
+      });
     }
+  };
 
-    function get( fnId ) {
-        return globalCallbackContainer[ fnId ] || callbackContainer[ fnId ];
+  _chrome.tabs = {
+    open: function(url, obj, params, clb) {
+
+      params = params || {};
+
+      if (!params.chrome && !/https?\:\/\//.test(url)) {
+        url = location.origin + '/' + url;
+      }
+
+      return sendRequest('tabsOpen', {
+        data: core.extend({
+          url: url,
+          active: true
+        }, obj || {}),
+        params: params
+      }, clb);
+    },
+    update: function(clb) {
+      return sendRequest('tabsUpdate', {
+
+      }, clb);
+    },
+
+    close: function(clb) {
+      return sendRequest('tabsClose', {
+
+      }, clb);
     }
+  };
 
-    function has( fnId ) {
-        return callbackContainer[ fnId ] !== undefined || globalCallbackContainer[ fnId ] !== undefined;
-    }
+  _chrome.getSupport = function(callback) {
+    return sendRequest('getSupport', {}, callback);
+  };
 
-    function remove( fnId ) {
-        callbackContainer[ fnId ] = undefined;
-    }
+  _chrome.ga = function() {
+    return sendRequest('ga', {
+      data: {
+        arg: core.toArray(arguments)
+      }
+    });
+  };
 
-    var _chrome = {
-        get disconnected() {
-            return disconnected;
-        }
-    };
+  Add('chrome', _chrome);
 
-    function sendRequest( method, sys, callback, error ) {
-
-        var params = sys.params || {},
-            callName = disconnected || sys.forceCS ? constants.get( "CHROME_CSREQUEST" ) : constants.get( "CHROME_REQUEST" ),
-            eventTrigger;
-
-
-        params.uid = constants.get( 'ID' );
-        params.callback = makeFnId( sys.callback || callback );
-        params.error = makeFnId( sys.error || error );
-        params.method = method;
-
-        var customEvent = new CustomEvent( callName, {
-            detail: {
-                data: sys.data,
-                params: params
-            },
-            bubbles: false
-        } );
-
-        document.dispatchEvent( customEvent );
-
-        return _chrome;
-    }
-    _chrome.sendRequest = sendRequest;
-
-
-    _chrome.simpleAjax = _chrome.ajax = function( data, callback, error, forceCS ) {
-
-        return sendRequest( 'simpleAjax', {
-            data: data,
-            callback: callback,
-            error: error,
-            forceCS: arguments.length === 4 ? forceCS : constants.get( "CHROME_FORCE_CS_RUN" )
-        } );
-    };
-
-    _chrome.abortAjax = function( xhrId, callback, error ) {
-
-        return sendRequest( 'abortAjax', {
-            data: {
-                xhrId: xhrId
-            },
-            callback: callback,
-            error: error,
-            forceCS: constants.get( "CHROME_FORCE_CS_RUN" )
-        } );
-    };
-
-    _chrome.abortAllAjax = function( callback, error ) {
-
-        return sendRequest( 'abortAllAjax', {
-            data: {},
-            callback: callback,
-            error: error,
-            forceCS: constants.get( "CHROME_FORCE_CS_RUN" )
-        } );
-    };
-
-    _chrome.pushID = function( callback, error ) {
-        return sendRequest( 'pushID', {
-            callback: callback,
-            error: error
-        } );
-    };
-
-    _chrome.sendTabs = function( eventName, data, needCur, callback, error ) {
-        return sendRequest( 'sendTabs', {
-            data: {
-                data: data
-            },
-            params: {
-                eventName: eventName,
-                needCur: needCur
-            },
-            callback: callback,
-            error: error
-        } );
-    };
-
-    _chrome.sendEvent = function( events ) {
-        return sendRequest( 'sendEvent', {
-            data: {
-                events: events
-            }
-        } );
-    };
-
-    function sendRequestSync( method, arg ) {
-        var customEvent = new CustomEvent( constants.get( "CHROME_REQUEST_SYNC" ), {
-            detail: {
-                method: method,
-                arg: arg
-            },
-            bubbles: true
-        } );
-
-        document.dispatchEvent( customEvent );
-
-        return sessionStorage[ constants.get( "CHROME_CS_RESPONSE_NAME" ) ];
-    }
-
-    _chrome.globalFn = function( key, fn, context ) {
-        globalCallbackContainer[ key ] = context ? fn.bind( context ) : fn;
-        return this;
-    };
-
-    function setStorageitem( vals, callback, storageName ) {
-        var data = {};
-
-        core.each( vals, function( val, key ) {
-            data[ ( key + '::' + constants.get( 'ID' ) ) ] = val;
-        } );
-
-        return sendRequest( storageName, {
-            data: data,
-            params: {
-                forceCS: true
-            },
-            callback: callback
-        } );
-    }
-
-    function getStorageitem( obj, callback, storageName ) {
-
-        var key = obj.key ?
-            ( obj.key + '::' + constants.get( 'ID' ) ) :
-            null;
-
-        return sendRequest( storageName, {
-            data: {
-                key: key
-            },
-            params: {
-                forceCS: true
-            },
-            callback: function( vals ) {
-                var result = core.toObject( core.map( vals, function( res, key ) {
-                    return [ key.split( '::' ).slice( 0, -1 ).join( '::' ), res ];
-                } ) );
-
-                callback( result );
-            }
-        } );
-    }
-
-    function removeStorageitem( key, callback, storageName ) {
-        return sendRequest( storageName, {
-            data: {
-                key: key + '::' + constants.get( 'ID' )
-            },
-            params: {
-                forceCS: true
-            }
-        } );
-    }
-
-    _chrome.lang = function( word ) {
-        return sendRequestSync( 'lang', word );
-    };
-
-
-
-    core.each( [ 'Sync', 'Local' ], function( storageName ) {
-        _chrome[ storageName.toLowerCase() ] = {};
-        core.each( {
-            get: getStorageitem,
-            set: setStorageitem,
-            remove: removeStorageitem
-        }, function( storFn, storFnName ) {
-            _chrome[ storageName.toLowerCase() ][ storFnName ] = function( f, s ) {
-                return storFn( f, s, storFnName + storageName );
-            };
-        } );
-    }, true );
-
-
-    _chrome.download = {
-        download: function( data, callback ) {
-            return sendRequest( 'download', {
-                data: data,
-                callback: callback
-            } );
-        },
-
-        search: function( itemId, fn, err ) {
-            return sendRequest( 'search', {
-                data: {
-                    id: itemId
-                }
-            }, fn, err )
-        },
-        downloadFromCache: function( data, callback ) {
-            return sendRequest( 'downloadFromCache', {
-                data: data,
-                callback: callback
-            } );
-        }
-    };
-
-
-    _chrome.tabs = {
-        open: function( url, obj, params, clb ) {
-
-            params = params || {};
-
-            if ( !params.chrome && !/https?\:\/\//.test( url ) ) {
-                url = location.origin + '/' + url;
-            }
-
-            return sendRequest( 'tabsOpen', {
-                data: core.extend( {
-                    url: url,
-                    active: true
-                }, obj || {} ),
-                params: params
-            }, clb );
-        },
-        update: function( clb ) {
-            return sendRequest( 'tabsUpdate', {
-
-            }, clb );
-        },
-
-        close: function( clb ) {
-            return sendRequest( 'tabsClose', {
-
-            }, clb );
-        }
-    };
-
-    _chrome.getSupport = function( callback ) {
-        return sendRequest( 'getSupport', {}, callback );
-    };
-
-
-
-    _chrome.ga = function() {
-        return sendRequest( 'ga', {
-            data: {
-                arg: core.toArray( arguments )
-            }
-        } );
-    };
-
-
-    Add( 'chrome', _chrome );
-
-
-
-} );
+});

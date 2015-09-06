@@ -4,172 +4,161 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK({
+  'sidebar': 'lastfm-module'
+}, [
 
-GViK( {
-        'sidebar': 'lastfm-module'
-    }, [
-        'lastfm',
-        'sidebar'
-    ],
-    function( appData, require, Add ) {
+],
+    function(appData, require, Add) {
 
+      'use strict';
 
-        "use strict";
+      var core = require('core');
+      var dom = require('dom');
+      var cache = require('cache');
+      var events = require('events');
+      var chrome = require('chrome');
+      var lastfmAPI = require('lastfmapi');
+      var constants = require('constants');
+      var global = require('global');
+      var options = require('options');
+      var sidebar = require('sidebar');
 
-        var
+      var nameArtist;
+      var nameTrack;
+      var nameAlbum;
 
-            core = require( 'core' ),
-            dom = require( 'dom' ),
-            cache = require( 'cache' ),
-            events = require( 'events' ),
-            chrome = require( 'chrome' ),
-            lastfmAPI = require( 'lastfmapi' ),
-            constants = require( 'constants' ),
-            global = require( 'global' ),
-            options = require( 'options' ),
-            sidebar = require( 'sidebar' ),
+      var trackId;
 
+      var albumTrackList = [];
 
-            nameArtist,
-            nameTrack,
-            nameAlbum,
+      var wrap;
+      var tabCont;
+      var topTab;
+      var albumTab;
+      var tagTab;
 
-            trackId,
+      var showCurTab;
 
-            albumTrackList = [],
+      var cnfg = options.get('sidebar');
 
-            wrap,
-            tabCont,
-            topTab,
-            albumTab,
-            tagTab,
+      var label = 'Last.fm';
 
-            showCurTab,
+      var labelEl = dom.create('div', {
+        prop: {
+          className: 'label',
+          innerText: label
+        }
+      });
 
-            cnfg = options.get( 'sidebar' );
+      var imgEl = dom.create('img');
 
+      var cover = dom.create('div', {
+        append: imgEl,
+        prop: {
+          className: 'cover'
+        }
+      });
 
+      var tagsCont = dom.create('div', {
+        prop: {
+          className: 'tags'
+        }
+      });
 
-        var label = 'Last.fm',
+      var artistInfoCont = dom.create('div', {
+        prop: {
+          className: 'artistInfo'
+        },
+        append: [labelEl, cover, tagsCont]
+      });
 
-            labelEl = dom.create( 'div', {
-                prop: {
-                    className: 'label',
-                    innerText: label
-                }
-            } ),
+      var tracksCont = dom.create('div', {
+        prop: {
+          className: 'tracks'
+        }
+      });
 
-            imgEl = dom.create( 'img' ),
+      var albTracksCont = dom.create('div', {
+        prop: {
+          className: 'tracks gvik-none'
+        }
+      });
 
-            cover = dom.create( 'div', {
-                append: imgEl,
-                prop: {
-                    className: 'cover'
-                }
-            } ),
+      var tagCont = dom.create('div', {
+        prop: {
+          className: 'tracks gvik-none'
+        }
+      });
 
-            tagsCont = dom.create( 'div', {
-                prop: {
-                    className: 'tags'
-                }
-            } ),
+      var tabs = dom.create('div', {
+        prop: {
+          className: 'tabs gvik-none'
+        },
+        append: [
+          (topTab = dom.create('input', {
+            prop: {
+              className: 'tab',
+              type: 'radio',
+              checked: true,
+              name: 'gvik_lastfm_tabs'
+            },
+            data: {
+              label: 'Top'
+            },
+            events: {
+              change: function() {
+                albTracksCont.classList.add('gvik-none');
+                tagCont.classList.add('gvik-none');
+                tracksCont.classList.remove('gvik-none');
+              }
+            }
+          })),
 
-            artistInfoCont = dom.create( 'div', {
-                prop: {
-                    className: 'artistInfo'
-                },
-                append: [ labelEl, cover, tagsCont ]
-            } ),
+          (albumTab = dom.create('input', {
+            prop: {
+              className: 'tab',
+              type: 'radio',
+              name: 'gvik_lastfm_tabs'
+            },
+            data: {
+              label: 'Album'
+            },
+            events: {
+              change: function() {
+                tracksCont.classList.add('gvik-none');
+                tagCont.classList.add('gvik-none');
+                albTracksCont.classList.remove('gvik-none');
+              }
+            }
+          })),
 
-            tracksCont = dom.create( 'div', {
-                prop: {
-                    className: 'tracks'
-                }
-            } ),
+          (tagTab = dom.create('input', {
+            prop: {
+              className: 'tab',
+              type: 'radio',
+              name: 'gvik_lastfm_tabs'
+            },
+            data: {
+              label: 'Tag'
+            },
+            events: {
+              change: function() {
+                tracksCont.classList.add('gvik-none');
+                albTracksCont.classList.add('gvik-none');
+                tagCont.classList.remove('gvik-none');
+              }
+            }
+          }))
+          ]
+      });
 
-            albTracksCont = dom.create( 'div', {
-                prop: {
-                    className: 'tracks gvik-none'
-                }
-            } ),
+      var trackInfoCont = dom.create('div', {
+              append: [tabs, tracksCont, albTracksCont, tagCont]
+            });
 
-            tagCont = dom.create( 'div', {
-                prop: {
-                    className: 'tracks gvik-none'
-                }
-            } ),
-
-            tabs = dom.create( 'div', {
-                prop: {
-                    className: 'tabs gvik-none'
-                },
-                append: [
-                    ( topTab = dom.create( 'input', {
-                        prop: {
-                            className: 'tab',
-                            type: 'radio',
-                            checked: true,
-                            name: 'gvik_lastfm_tabs'
-                        },
-                        data: {
-                            label: 'Top'
-                        },
-                        events: {
-                            change: function() {
-                                albTracksCont.classList.add( 'gvik-none' );
-                                tagCont.classList.add( 'gvik-none' );
-                                tracksCont.classList.remove( 'gvik-none' );
-                            }
-                        }
-                    } ) ),
-
-
-
-                    ( albumTab = dom.create( 'input', {
-                        prop: {
-                            className: 'tab',
-                            type: 'radio',
-                            name: 'gvik_lastfm_tabs'
-                        },
-                        data: {
-                            label: 'Album'
-                        },
-                        events: {
-                            change: function() {
-                                tracksCont.classList.add( 'gvik-none' );
-                                tagCont.classList.add( 'gvik-none' );
-                                albTracksCont.classList.remove( 'gvik-none' );
-                            }
-                        }
-                    } ) ),
-
-
-                    ( tagTab = dom.create( 'input', {
-                        prop: {
-                            className: 'tab',
-                            type: 'radio',
-                            name: 'gvik_lastfm_tabs'
-                        },
-                        data: {
-                            label: 'Tag'
-                        },
-                        events: {
-                            change: function() {
-                                tracksCont.classList.add( 'gvik-none' );
-                                albTracksCont.classList.add( 'gvik-none' );
-                                tagCont.classList.remove( 'gvik-none' );
-                            }
-                        }
-                    } ) )
-                ]
-            } ),
-
-            trackInfoCont = dom.create( 'div', {
-                append: [ tabs, tracksCont, albTracksCont, tagCont ]
-            } ),
-
-            TMPL = {
-                item: '<div class="item gvikLastfm <%=isCurTrack>" data-duration="<%=duration>" data-trackName="<%=name>">\
+      var TMPL = {
+              item: '<div class="item gvikLastfm <%=isCurTrack>" data-duration="<%=duration>" data-trackName="<%=name>">\
             <div class="item-cont">\
                 <div class="img-cont">\
                     <div class="img" style="background-image: url(\'<%=img>\');"></div>\
@@ -179,429 +168,395 @@ GViK( {
                     <span class="duration" ><%=dur></span>\
                 </div>\
             </div>\
-        </div>',
+        </div>'      ,
 
-                tag: '<span class="tag">\
+              tag: '<span class="tag">\
                 <a target="_blank" href="<%=url>"><%=tag></a>\
-                </span>',
+                </span>'              ,
 
-                renderTrack: function( curTrack ) {
-                    return {
-                        url: curTrack.url,
-                        name: curTrack.name,
-                        isCurTrack: ( ( curTrack.name === nameTrack ) ? 'cur-track' : '' ),
+              renderTrack: function(curTrack) {
+                return {
+                  url: curTrack.url,
+                  name: curTrack.name,
+                  isCurTrack: ((curTrack.name === nameTrack) ? 'cur-track' : ''),
 
-                        dur: global.VARS.FORMAT_TIME( curTrack.duration ),
-                        duration: curTrack.duration,
-                        img: ( curTrack.image ? curTrack.image[ 1 ][ '#text' ] : ( appData.APP_PATH + 'img/album.png' ) )
-                    };
-                },
+                  dur: global.VARS.FORMAT_TIME(curTrack.duration),
+                  duration: curTrack.duration,
+                  img: (curTrack.image ? curTrack.image[ 1 ][ '#text' ] : (appData.APP_PATH + 'img/album.png'))
+                };
+              },
 
-                renderTag: function( curTag ) {
-                    return {
-                        url: curTag.url,
-                        tag: curTag.name
-                    };
-                },
+              renderTag: function(curTag) {
+                return {
+                  url: curTag.url,
+                  tag: curTag.name
+                };
+              },
 
-
-                renderAlbumTrack: function( album, curTrack ) {
-                    return {
-                        url: curTrack.url,
-                        name: curTrack.name,
-                        isCurTrack: ( ( curTrack.name === nameTrack ) ? 'cur-track' : '' ),
-                        duration: curTrack.duration,
-                        dur: global.VARS.FORMAT_TIME( curTrack.duration ),
-                        img: album.image[ 1 ][ '#text' ]
-                    };
-                }
+              renderAlbumTrack: function(album, curTrack) {
+                return {
+                  url: curTrack.url,
+                  name: curTrack.name,
+                  isCurTrack: ((curTrack.name === nameTrack) ? 'cur-track' : ''),
+                  duration: curTrack.duration,
+                  dur: global.VARS.FORMAT_TIME(curTrack.duration),
+                  img: album.image[ 1 ][ '#text' ]
+                };
+              }
             };
 
+      function resetAlbum() {
 
-        function resetAlbum() {
+        dom.empty(albTracksCont);
+        albumTab.setAttribute('data-label', 'Album');
 
-            dom.empty( albTracksCont );
-            albumTab.setAttribute( 'data-label', 'Album' );
+        selectTopTab();
 
-            selectTopTab();
+        nameAlbum = '';
 
-            nameAlbum = '';
+        tabs.classList.add('gvik-none');
+      }
 
-            tabs.classList.add( 'gvik-none' );
+      function selectTab(el) {
+        el.dispatchEvent(new Event('change'));
+        el.checked = true;
+      }
+
+      function selectAlbumTab() {
+        selectTab(albumTab);
+      }
+
+      function selectTopTab() {
+        selectTab(topTab);
+      }
+
+      function resetArtist() {
+
+        dom.empty(np);
+        dom.empty(tracksCont);
+        dom.empty(tagsCont);
+
+        trackId = '';
+
+        labelEl.innerText = '';
+        imgEl.src = '';
+
+        nameArtist = nameTrack = '';
+
+        cover.style.backgroundImage = 'none';
+
+        resetAlbum();
+
+      }
+
+      function getCacheKey() {
+        return core.toArray(arguments).join('-');
+      }
+
+      function checkCache(method, prop, cacheArr, clb) {
+
+        cacheArr.push(method);
+
+        var cacheVal = cache.get(getCacheKey.apply(this, cacheArr));
+
+        clb && clb(!!cacheVal);
+
+        if (cacheVal) {
+          events.trigger(method, cacheVal);
+        } else {
+          lfapiCall(method, prop);
+        }
+      }
+
+      var __xhr;
+
+      function lfapiCall(method, prop, ext) {
+
+        var opt = {
+          artist: nameArtist || '',
+          album: nameAlbum || '',
+          track: nameTrack || '',
+          correction: 1,
+          user: lastfmAPI.name
+        };
+
+        if (core.isPlainObject(ext)) {
+          core.extend(opt, ext);
         }
 
+        __xhr = lastfmAPI.call(method, opt, function(res, isError) {
+          if (isError) {
+            return events.trigger(method + '.error', res);
+          }
+          events.trigger(method, res[ prop ]);
+        }, function(err) {
+          events.trigger(method + '.error', err);
 
-        function selectTab( el ) {
-            el.dispatchEvent( new Event( 'change' ) );
-            el.checked = true;
+        }, true);
+      }
+
+      function render(tmpl, arr, fn) {
+
+        if (arr) {
+
+          if (!Array.isArray(arr)) {
+            arr = [arr];
+          }
+
+          return arr.map(function(val) {
+            return core.tmpl(tmpl, fn(val));
+          }).join('');
+
+        } else {
+          return '';
         }
+      }
 
-        function selectAlbumTab() {
-            selectTab( albumTab );
-        }
+      events
 
-        function selectTopTab() {
-            selectTab( topTab );
-        }
+            .bind('tag.getTopTracks', function(tracks) {
 
+              tagCont.innerHTML = render(TMPL.item, tracks.track || [], TMPL.renderTrack)
 
-        function resetArtist() {
+            })
 
-            dom.empty( np );
-            dom.empty( tracksCont );
-            dom.empty( tagsCont );
+        .bind('track.getInfo', function(track, evname) {
 
-            trackId = '';
+          nameTrack = track.name;
 
-            labelEl.innerText = '';
-            imgEl.src = '';
+          cache.set(getCacheKey(nameArtist, nameTrack, evname), track);
 
-            nameArtist = nameTrack = '';
+          if (!track.album) {
+            return resetAlbum();
+          }
+          if (track.album.title === nameAlbum) {
+            return selectAlbumTab();
+          }
+          nameAlbum = track.album.title;
 
+          checkCache('album.getInfo', 'album', [nameArtist, nameAlbum]);
 
-            cover.style.backgroundImage = 'none';
+        })
 
-            resetAlbum();
+        .bind('artist.getInfo', function(artist, evname) {
 
-        }
+          cache.set(getCacheKey(nameArtist, evname), artist);
+          nameArtist = dom.unes(artist.name);
+          labelEl.innerText = nameArtist;
 
-        function getCacheKey() {
-            return core.toArray( arguments ).join( '-' );
-        }
+          imgEl.src = artist.image[ 2 ][ '#text' ];
 
-        function checkCache( method, prop, cacheArr, clb ) {
+          cover.style.backgroundImage = 'url(' + artist.image[ 2 ][ '#text' ] + ')';
 
-            cacheArr.push( method );
+          var tag = (artist.tags || {})
+              .tag || [];
 
-            var cacheVal = cache.get( getCacheKey.apply( this, cacheArr ) );
+          if (!Array.isArray(tag)) {
+            tag = [tag];
+          }
 
+          tagsCont.innerHTML = render(TMPL.tag, tag.sort(function(a, b) {
+            return a.name.length < b.name.length ? 1 : 0;
+          }), TMPL.renderTag);
 
-            clb && clb( !!cacheVal );
+          dom.addClass(tabCont, 'loaded');
 
-            if ( cacheVal )
-                events.trigger( method, cacheVal );
-            else {
-                lfapiCall( method, prop );
-            }
-        }
+          checkCache('artist.getTopTracks', 'toptracks', [nameArtist]);
 
-        var __xhr;
+        })
 
+        .bind('artist.getTopTracks', function(responseTracks, evname) {
 
-        function lfapiCall( method, prop, ext ) {
+          cache.set(getCacheKey(nameArtist, evname), responseTracks);
 
+          var html = [],
+              track = responseTracks.track || [];
 
-            var opt = {
-                artist: nameArtist || '',
-                album: nameAlbum || '',
-                track: nameTrack || '',
-                correction: 1,
-                user: lastfmAPI.name
-            };
+          if (cnfg.get('lastfm-groupbyalbum')) {
 
+            var groups = {};
 
-            if ( core.isPlainObject( ext ) )
-                core.extend( opt, ext );
+            core.each(track, function(curTrack) {
+              if (curTrack.image) {
+                var img = curTrack.image[ 1 ][ '#text' ];
+                (groups[ img ] = groups[ img ] || []).push(curTrack);
+              } else
+                  (groups.noimage = groups.noimage || []).push(curTrack);
+            });
 
+            core.each(groups, function(val, key) {
+              if (key !== 'noimage')
+                  html.push(render(TMPL.item, val, TMPL.renderTrack));
+            });
 
-            __xhr = lastfmAPI.call( method, opt, function( res, isError ) {
-                if ( isError )
-                    return events.trigger( method + '.error', res );
-                events.trigger( method, res[ prop ] );
-            }, function( err ) {
-                events.trigger( method + '.error', err );
+            html.push(render(TMPL.item, groups.noimage || [], TMPL.renderTrack));
 
-            }, true );
-        }
+          } else
+              html.push(render(TMPL.item, track || [], TMPL.renderTrack));
 
-        function render( tmpl, arr, fn ) {
+          tracksCont.innerHTML = html.join('');
 
+          checkCache('track.getInfo', 'track', [nameArtist, nameTrack])
 
-            if ( arr ) {
+        })
 
-                if ( !Array.isArray( arr ) )
-                    arr = [ arr ];
+        .bind('artist.getInfo.error', function(err) {
 
-                return arr.map( function( val ) {
-                    return core.tmpl( tmpl, fn( val ) );
-                } ).join( '' );
+          dom.addClass(tabCont, 'loaded');
 
-            } else {
-                return '';
-            }
-        }
+        })
 
+        .bind('album.getInfo', function(album, evname) {
 
+          cache.set(getCacheKey(nameArtist, nameAlbum, evname), album);
 
-        events
+          var albName = [album.name];
 
+          if (album.releasedate) {
+            var res = album.releasedate.trim().match(/\d{4}/);
+            if (res) albName.push(res[ 0 ]);
+          }
 
-            .bind( 'tag.getTopTracks', function( tracks ) {
+          albumTab.setAttribute('data-label', albName.join(', '));
 
+          if (!album.tracks || !album.tracks.track)
+              return;
 
-            tagCont.innerHTML = render( TMPL.item, tracks.track || [], TMPL.renderTrack )
+          albTracksCont.innerHTML = render(TMPL.item, album.tracks.track, TMPL.renderAlbumTrack.pbind(album));
 
-        } )
+          selectAlbumTab();
 
-        .bind( 'track.getInfo', function( track, evname ) {
+          tabs.classList.remove('gvik-none');
 
-            nameTrack = track.name;
+        })
 
+        .bind('lastfm.newtrack', function(data) {
 
-            cache.set( getCacheKey( nameArtist, nameTrack, evname ), track );
+          if (cnfg.get('lastfm-autoshow')) {
+            if (!sidebar.shown)
+                sidebar.show();
 
-            if ( !track.album )
-                return resetAlbum();
+            showCurTab();
+          }
 
-            if ( track.album.title === nameAlbum )
-                return selectAlbumTab();
+          if (__xhr)
+              __xhr.abort();
+          __xhr = null;
 
+          dom.removeClass(tabCont, 'loaded');
 
-            nameAlbum = track.album.title;
+          trackId = data.trackId;
+          nameTrack = data.title;
+          nameArtist = data.artist;
 
-            checkCache( 'album.getInfo', 'album', [ nameArtist, nameAlbum ] );
+          checkCache('artist.getInfo', 'artist', [nameArtist], function(fromCache) {
 
-        } )
-
-        .bind( 'artist.getInfo', function( artist, evname ) {
-
-
-            cache.set( getCacheKey( nameArtist, evname ), artist );
-            nameArtist = dom.unes( artist.name );
-            labelEl.innerText = nameArtist;
-
-            imgEl.src = artist.image[ 2 ][ '#text' ];
-
-            cover.style.backgroundImage = 'url(' + artist.image[ 2 ][ '#text' ] + ')';
-
-
-            var tag = ( artist.tags || {} )
-                .tag || [];
-
-            if ( !Array.isArray( tag ) ) {
-                tag = [ tag ];
-            }
-
-            tagsCont.innerHTML = render( TMPL.tag, tag.sort( function( a, b ) {
-                return a.name.length < b.name.length ? 1 : 0;
-            } ), TMPL.renderTag );
-
-            dom.addClass( tabCont, 'loaded' );
-
-            checkCache( 'artist.getTopTracks', 'toptracks', [ nameArtist ] );
-
-        } )
-
-        .bind( 'artist.getTopTracks', function( responseTracks, evname ) {
-
-
-            cache.set( getCacheKey( nameArtist, evname ), responseTracks );
-
-            var html = [],
-                track = responseTracks.track || [];
-
-
-            if ( cnfg.get( 'lastfm-groupbyalbum' ) ) {
-
-                var groups = {};
-
-                core.each( track, function( curTrack ) {
-                    if ( curTrack.image ) {
-                        var img = curTrack.image[ 1 ][ "#text" ];
-                        ( groups[ img ] = groups[ img ] || [] ).push( curTrack );
-                    } else
-                        ( groups.noimage = groups.noimage || [] ).push( curTrack );
-                } );
-
-
-                core.each( groups, function( val, key ) {
-                    if ( key !== "noimage" )
-                        html.push( render( TMPL.item, val, TMPL.renderTrack ) );
-                } );
-
-                html.push( render( TMPL.item, groups.noimage || [], TMPL.renderTrack ) );
-
-
-            } else
-                html.push( render( TMPL.item, track || [], TMPL.renderTrack ) );
-
-
-            tracksCont.innerHTML = html.join( '' );
-
-            checkCache( 'track.getInfo', 'track', [ nameArtist, nameTrack ] )
-
-        } )
-
-        .bind( 'artist.getInfo.error', function( err ) {
-
-
-            dom.addClass( tabCont, 'loaded' );
-
-        } )
-
-        .bind( 'album.getInfo', function( album, evname ) {
-
-            cache.set( getCacheKey( nameArtist, nameAlbum, evname ), album );
-
-            var albName = [ album.name ];
-
-            if ( album.releasedate ) {
-                var res = album.releasedate.trim().match( /\d{4}/ );
-                if ( res ) albName.push( res[ 0 ] );
-            }
-
-            albumTab.setAttribute( 'data-label', albName.join( ', ' ) );
-
-            if ( !album.tracks || !album.tracks.track )
-                return;
-
-            albTracksCont.innerHTML = render( TMPL.item, album.tracks.track, TMPL.renderAlbumTrack.pbind( album ) );
-
-            selectAlbumTab();
-
-            tabs.classList.remove( 'gvik-none' );
-
-        } )
-
-        .bind( 'lastfm.newtrack', function( data ) {
-
-
-            if ( cnfg.get( 'lastfm-autoshow' ) ) {
-                if ( !sidebar.shown )
-                    sidebar.show();
-
-                showCurTab();
-            }
-
-
-            if ( __xhr )
-                __xhr.abort();
-            __xhr = null;
-
-
-
-            dom.removeClass( tabCont, 'loaded' );
+            if (!fromCache)
+                resetArtist();
 
             trackId = data.trackId;
             nameTrack = data.title;
             nameArtist = data.artist;
 
-            checkCache( 'artist.getInfo', 'artist', [ nameArtist ], function( fromCache ) {
+          });
 
-                if ( !fromCache )
-                    resetArtist();
+        });
 
-                trackId = data.trackId;
-                nameTrack = data.title;
-                nameArtist = data.artist;
+      sidebar.addPage(function(_switcher, _tabCont, _wrap, countPage, _showCurTab) {
 
-            } );
+        _tabCont.classList.add('loaded');
 
-        } );
+        wrap = _wrap;
+        tabCont = _tabCont;
+        showCurTab = _showCurTab;
 
+        _tabCont.id = 'gvik-lastfm';
 
-        sidebar.addPage( function( _switcher, _tabCont, _wrap, countPage, _showCurTab ) {
+        dom.append(_tabCont, [artistInfoCont, trackInfoCont]);
 
-            _tabCont.classList.add( 'loaded' );
+      });
 
-            wrap = _wrap;
-            tabCont = _tabCont;
-            showCurTab = _showCurTab;
+      var np = dom.create('div', {
+        prop: {
+          className: 'audio_list'
+        },
 
-            _tabCont.id = 'gvik-lastfm';
-
-            dom.append( _tabCont, [ artistInfoCont, trackInfoCont ] );
-
-
-        } );
-
-
-        var np = dom.create( 'div', {
-            prop: {
-                className: 'audio_list'
-            },
-
-            style: {
-                display: 'none'
-            }
-        } );
-
-        tabCont.appendChild( np );
-
-
-
-        if ( cnfg.get( 'lastfm-searchAndPlay' ) ) {
-
-            tabCont.classList.add( 'searchandplay' );
-
-
-            dom.setDelegate( tabCont, '.gvikLastfm .img-cont', 'click', function( el, e ) {
-
-                e.stopPropagation();
-                e.preventDefault();
-
-                e._canceled = true;
-
-                var _audioEl = dom.parent( e, '.gvikLastfm' );
-
-                require( 'searchandplay' )( {
-                    artist: nameArtist,
-                    title: _audioEl.getAttribute( 'data-trackname' ),
-                    dur: _audioEl.getAttribute( 'data-duration' )
-                }, function() {}, {
-                    maxbit: cnfg.get( 'lastfm-maxbit' )
-                } );
-            } );
+        style: {
+          display: 'none'
         }
+      });
 
-        dom.setDelegate( tabCont, {
-            '.gvikLastfm': {
-                'click': function( el, e ) {
+      tabCont.appendChild(np);
 
-                    e.stopPropagation();
-                    e.preventDefault();
+      if (cnfg.get('lastfm-searchAndPlay')) {
 
-                    var searchName = nameArtist + ' – ' + this.getAttribute( 'data-trackname' ),
-                        from_pad = window._pads.shown == 'mus',
-                        __cur = window._pads && _pads.cur || window.cur;
+        tabCont.classList.add('searchandplay');
 
-                    if ( window.cur.aSearch || from_pad ) {
+        dom.setDelegate(tabCont, '.gvikLastfm .img-cont', 'click', function(el, e) {
 
-                        __cur.searchTypeChanged( {
-                            target: {
-                                index: 0
-                            }
-                        }, true );
+          e.stopPropagation();
+          e.preventDefault();
 
-                        __cur.searchTypeMenu.value = 0;
+          e._canceled = true;
 
-                        Audio.selectPerformer( {
-                            from_pad: from_pad,
-                            event: 0,
-                            name: searchName
-                        } );
-                    } else {
-                        window.nav.go( 'audio?q=' + searchName );
-                    }
+          var _audioEl = dom.parent(e, '.gvikLastfm');
+
+          require('searchandplay')({
+            artist: nameArtist,
+            title: _audioEl.getAttribute('data-trackname'),
+            dur: _audioEl.getAttribute('data-duration')
+          }, function() {}, {
+            maxbit: cnfg.get('lastfm-maxbit')
+          });
+        });
+      }
+
+      dom.setDelegate(tabCont, {
+        '.gvikLastfm': {
+          'click': function(el, e) {
+
+            e.stopPropagation();
+            e.preventDefault();
+
+            var searchName = nameArtist + ' – ' + this.getAttribute('data-trackname'),
+                from_pad = window._pads.shown == 'mus',
+                __cur = window._pads && _pads.cur || window.cur;
+
+            if (window.cur.aSearch || from_pad) {
+
+              __cur.searchTypeChanged({
+                target: {
+                  index: 0
                 }
-            },
+              }, true);
 
-            '.tag a': {
-                click: function( el, e ) {
+              __cur.searchTypeMenu.value = 0;
 
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    e._canceled = true;
-
-                    lfapiCall( 'tag.getTopTracks', 'toptracks', {
-                        tag: e.innerText
-                    } )
-
-                }
+              Audio.selectPerformer({
+                from_pad: from_pad,
+                event: 0,
+                name: searchName
+              });
+            } else {
+              window.nav.go('audio?q=' + searchName);
             }
-        } );
+          }
+        },
 
+        '.tag a': {
+          click: function(el, e) {
 
+            e.preventDefault();
+            e.stopPropagation();
 
-    } );
+            e._canceled = true;
+
+            lfapiCall('tag.getTopTracks', 'toptracks', {
+              tag: e.innerText
+            })
+
+          }
+        }
+      });
+
+    });

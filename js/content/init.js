@@ -4,60 +4,52 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK(function(gvik, require, Add) {
 
+  'use strict';
 
-GViK( function( gvik, require, Add ) {
+  var dom = require('dom');
+  var core = require('core');
+  var constants = require('constants');
+  var appPath = chrome.extension.getURL('');
+  var risEngine = /^js\/engine\//;
+  var rIsIncludes = /^js\/(?:includes|lib)\//;
 
-    "use strict";
+  function __init(manifest) {
 
-    var dom = require( 'dom' ),
-        core = require( 'core' ),
-        constants = require( 'constants' ),
-        appPath = chrome.extension.getURL( '' ),
+    var includesJSList = [];
+    var engineJSList = [];
 
-        risEngine = /^js\/engine\//,
-        rIsIncludes = /^js\/(?:includes|lib)\//;
+    core.each(manifest.web_accessible_resources, function(fileName) {
+      if (rIsIncludes.test(fileName)) {
+        includesJSList.push(fileName);
+      } else if (risEngine.test(fileName)) {
+        engineJSList.push(fileName);
+      }
+    });
 
+    engineJSList.unshift(includesJSList.shift());
+    engineJSList.push(includesJSList.shift());
 
-    function __init( manifest ) {
+    core.extend(sessionStorage, {
+      apppath: appPath,
+      appid: appPath.split(/\/+/)[ 1 ],
+      manifest: JSON.stringify(manifest),
+      jslist: JSON.stringify(includesJSList)
+    });
 
+    core.define(engineJSList, {
+      suffix: manifest.version,
+      path: appPath
+    });
 
-        var includesJSList = [],
-            engineJSList = [];
+  }
 
-        core.each( manifest.web_accessible_resources, function( fileName ) {
-
-            if ( rIsIncludes.test( fileName ) )
-                includesJSList.push( fileName );
-            else if ( risEngine.test( fileName ) )
-                engineJSList.push( fileName );
-        } );
-
-
-        engineJSList.unshift( includesJSList.shift() );
-        engineJSList.push( includesJSList.shift() );
-
-        core.extend( sessionStorage, {
-            apppath: appPath,
-            appid: appPath.split( /\/+/ )[ 1 ],
-            manifest: JSON.stringify( manifest ),
-            jslist: JSON.stringify( includesJSList )
-        } );
-
-
-        core.define( engineJSList, {
-            suffix: manifest.version,
-            path: appPath
-        } );
-
-    }
-
-    if ( SUPPORT.runtime )
-        __init( chrome.runtime.getManifest() );
-    else
-        core.getResource( 'manifest.json', function( res ) {
-            __init( JSON.parse( res ) );
-        } );
-
-
-} );
+  if (SUPPORT.runtime) {
+    __init(chrome.runtime.getManifest());
+  } else {
+    core.getResource('manifest.json', function(res) {
+      __init(JSON.parse(res));
+    });
+  }
+});

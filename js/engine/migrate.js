@@ -4,50 +4,51 @@
  *
  */
 
-if ( typeof GViK === 'undefined' )( function( win ) {
+(window.GViK == null) && 
+(function(win) {
 
-        "use strict";
+  'use strict';
 
-        var _modules = {},
+  var _modules = {};
 
-            _add = function( name, fn, nocallfn ) {
-                _modules[ name.toLowerCase() ] = ( typeof fn === 'function' && !nocallfn ) ?
-                    fn.call( win, win ) :
-                    fn;
-            };
+  function _add(name, fn, nocallfn) {
+    _modules[ name.toLowerCase() ] = (typeof fn === 'function' && !nocallfn) ?
+        fn.call(win, win) :
+        fn;
+  };
 
+  win.GViK = function GViK() {
 
-
-        function GViK() {
-            [].forEach.call( arguments, function( fn ) {
-                if ( typeof fn === 'function' )
-                    fn.call( win, win, function( module ) {
-                        return _modules[ module.toLowerCase() ];
-                    }, function( key, fn, nocallfn ) {
-
-                        var i, carr;
-
-                        switch ( arguments.length ) {
-                            case 1:
-                                for ( i in key )
-                                    _add( i, key[ i ], fn );
-                                break;
-                            case 2:
-                                _add( key, fn, nocallfn );
-                                break;
-                            default:
-                                break;
-                        }
-                    } );
-            } );
-        }
-
-        GViK.Get = function() {
-            return _modules;
-        };
-
-        win.GViK = GViK;
+    var i = 0;
+    var al = arguments.length;
+    var fn;
 
 
-    } )
-    .call( null, window );
+    for(; i < al; i++) {
+
+      if(typeof (fn = arguments[i]) !== 'function') {
+        continue;
+      }
+
+      fn.call(win, win, function(module) {
+          return _modules[ module.toLowerCase() ];
+      }, function(key, fn, nocallfn) {
+
+        switch (arguments.length) {
+            case 1:
+              for (var i in key) {
+                  _add(i, key[ i ], fn);
+              }
+              break;
+            case 2:
+              _add(key, fn, nocallfn);
+              break;
+            default:
+              break;
+          }
+      }); 
+
+    }
+  }
+})
+.call(null, window); 

@@ -1,158 +1,147 @@
 /*
- 
- 
- 
- 
+
+
+
+
  */
 
-GViK( function( appData, require, Add ) {
+GViK(function(appData, require, Add) {
 
-	var events = require( 'events' ),
-		dom = require( 'dom' ),
-		global = require( 'global' ),
-		core = require( 'core' ),
+  var events = require('events');
+  var dom = require('dom');
+  var global = require('global');
+  var core = require('core');
+  var inited = {};
 
+  function ContextMenu(selector) {
 
-		inited = {};
+    this.selector = selector;
+    this.clbs = [];
 
+  }
 
-	function ContextMenu( selector ) {
+  ContextMenu.prototype.init = function(cont) {
 
-		this.selector = selector;
-		this.clbs = [];
+    var $this = this;
 
+    if (inited[ this.selector ]) {
+      return this;
+    }
 
-	};
+    this.cm = dom.create('div', {
+      prop: {
+        className: 'gvik-contextmenu'
+      },
+      append: (this.ul = dom.create('ul')),
 
+      events: {
+        contextmenu: function(e) {
+          e.stopPropagation();
+          e.preventDefault();
+          e._canceled = true;
 
-	ContextMenu.prototype.init = function( cont ) {
+          $this.hide();
+        },
 
-		var $this = this;
+        mouseleave: function() {
+          $this.hide();
+        },
 
+      }
+    });
 
-		if ( inited[ this.selector ] )
-			return this;
+    cont = cont || document.body;
 
-		this.cm = dom.create( 'div', {
-			prop: {
-				className: 'gvik-contextmenu'
-			},
-			append: ( this.ul = dom.create( 'ul' ) ),
+    dom.append(cont, this.cm);
 
-			events: {
-				contextmenu: function( e ) {
-					e.stopPropagation();
-					e.preventDefault();
-					e._canceled = true;
+    dom.setDelegate(cont, this.selector, 'contextmenu', function(el, e) {
 
-					$this.hide();
-				},
+      if (!$this.show()) {
+        return;
+      }
 
+      e.stopPropagation();
+      e.preventDefault();
+      e._canceled = true;
 
-				mouseleave: function() {
-					$this.hide();
-				},
+      $this.el = el;
 
-			}
-		} );
+      $this.setPos(e);
 
+      return false;
 
-		dom.append( ( cont || document.body ), this.cm );
+    });
 
-		dom.setDelegate( ( cont || document ), this.selector, 'contextmenu', function( el, e ) {
+    dom.setDelegate(this.ul, 'li[data-id]', 'click', function(el, e) {
 
-			if ( !$this.show() )
-				return;
+      e.stopPropagation();
+      e.preventDefault();
 
-			e.stopPropagation();
-			e.preventDefault();
-			e._canceled = true;
+      var id = el.getAttribute('data-id');
 
-			$this.el = el;
+      $this.hide();
 
-			$this.setPos( e );
+      if (!id || !$this.clbs[ id ]) {
+        return;
+      }
 
-			return false;
+      $this.clbs[ id ].call(el, $this.el);
 
-		} );
+      $this.el = null;
 
+    });
 
-		dom.setDelegate( this.ul, 'li[data-id]', 'click', function( el, e ) {
+    return this;
+  };
 
+  ContextMenu.prototype.hide = function() {
+    dom.setStyle(this.cm, {
+      display: 'none',
+      left: 0,
+      top: 0
+    });
 
-			e.stopPropagation();
-			e.preventDefault();
+    return this;
 
+  };
 
-			var id = el.getAttribute( 'data-id' );
+  ContextMenu.prototype.show = function() {
+    if (this.clbs.length) {
+      dom.setStyle(this.cm, {
+        display: 'block'
+      });
+      return true;
+    }
+  };
 
-			$this.hide();
+  ContextMenu.prototype.addItem = function(item) {
+    if (Array.isArray(item)) {
+      return core.each(item, this.addItem.bind(this));
+    }
 
-			if ( !id || !$this.clbs[ id ] )
-				return;
+    dom.append(this.ul, dom.create('li', {
+      append: dom.create('a', {
+        prop: {
+          innerHTML: item.label
+        }
+      }),
+      data: {
+        id: (this.clbs.push(item.clb) - 1)
+      }
+    }));
+    return this;
+  };
 
-			$this.clbs[ id ].call( el, $this.el );
+  ContextMenu.prototype.setPos = function(e) {
+    dom.setStyle(this.cm, {
+      top: ((e.y + document.body.scrollTop) - 10) + 'px',
+      left: ((e.x - 10) + 'px')
+    });
+    return this;
+  };
 
-			$this.el = null;
+  Add('ContextMenu', function(selector) {
+    return new ContextMenu(selector);
+  }, true);
 
-		} )
-
-		return this;
-	};
-
-
-	ContextMenu.prototype.hide = function() {
-		dom.setStyle( this.cm, {
-			display: 'none',
-			left: 0,
-			top: 0
-		} );
-
-		return this;
-
-	};
-
-	ContextMenu.prototype.show = function() {
-		if ( this.clbs.length ) {
-			dom.setStyle( this.cm, {
-				display: 'block'
-			} );
-			return true;
-		}
-	};
-
-
-	ContextMenu.prototype.addItem = function( item ) {
-		if ( Array.isArray( item ) ) {
-			return core.each( item, this.addItem.bind( this ) );
-		}
-
-		dom.append( this.ul, dom.create( 'li', {
-			append: dom.create( 'a', {
-				prop: {
-					innerHTML: item.label
-				}
-			} ),
-			data: {
-				id: ( this.clbs.push( item.clb ) - 1 )
-			}
-		} ) );
-		return this;
-	};
-
-
-
-	ContextMenu.prototype.setPos = function( e ) {
-		dom.setStyle( this.cm, {
-			top: ( ( e.y + document.body.scrollTop ) - 10 ) + 'px',
-			left: ( ( e.x - 10 ) + 'px' )
-		} );
-		return this;
-	}
-
-
-	Add( 'ContextMenu', function( selector ) {
-		return new ContextMenu( selector );
-	}, true );
-
-} );
+});

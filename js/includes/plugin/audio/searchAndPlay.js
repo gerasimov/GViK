@@ -4,57 +4,50 @@
  *
  */
 
-GViK( function( gvik, require, Add ) {
+GViK(function(gvik, require, add) {
 
+  'use strict';
 
-    "use strict";
+  var core = require('core');
+  var dom = require('dom');
+  var global = require('global');
+  var search = require('search');
 
+  var trackContainer = dom.create('div', {
+    style: {
+      display: 'none'
+    }
+  });
 
-    var
+  dom.append(document.body, trackContainer);
 
-        core = require( 'core' ),
-        dom = require( 'dom' ),
-        global = require( 'global' ),
-        search = require( 'search' );
+  add('searchandplay', function(searchData, callback, opt) {
 
+    require('vkapi').audioSearch(searchData, function(result) {
 
+      if (!result) {
+        return;
+      }
 
-    var trackContainer = dom.create( 'div', {
-        style: {
-            display: 'none'
-        }
-    } );
+      var audioData = (result.length != null) ?
+          result[ 0 ] :
+          result;
 
-    dom.append( document.body, trackContainer );
+      if (!audioData) {
+        return;
+      }
 
-    Add( 'searchandplay', function( searchData, callback, opt ) {
+      var audio = audioData.audio || audioData;
+      var audioHTML = global.VARS.DRAW_AUDIO(audio);
 
-        require( 'vkapi' ).audioSearch( searchData, function( result ) {
+      trackContainer.innerHTML += audioHTML;
 
-            if ( !result ) {
-                return;
-            }
+      callback(result);
 
-            var audioData = ( result.length != null ) ?
-                result[ 0 ] :
-                result;
+      window.playAudioNew(audio.owner_id + '_' + audio.id);
 
-            if ( !audioData )
-                return;
+    }, opt);
 
-            var audio = audioData.audio || audioData,
-                audioHTML = global.VARS.DRAW_AUDIO( audio );
+  }, true);
 
-            trackContainer.innerHTML += audioHTML;
-
-            callback( result );
-
-            window.playAudioNew( audio.owner_id + '_' + audio.id );
-
-        }, opt );
-        
-    }, true );
-
-
-
-} );
+});

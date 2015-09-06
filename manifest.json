@@ -13,7 +13,7 @@
             "js/engine/api/methods.js",
             "js/engine/api/port/bg.js",
 
-            "js/background/init.js" 
+            "js/background/init.js"
         ]
     },
     "content_scripts": [ {
@@ -38,8 +38,7 @@
             "js/content/init.js"         ],
         "matches": [
             "*://vk.com/*"
-        ],
-        "run_at": "document_start"
+        ]
     } ],
     "content_security_policy": "script-src 'self' https://www.google-analytics.com https://cdnjs.cloudflare.com  https://ssl.google-analytics.com 'unsafe-eval';  img-src *; object-src 'self'",
     "default_locale": "ru",
@@ -94,23 +93,23 @@
               "mac": "Command+Shift+2"
             },
             "description": "Предыдущая аудиозапись"
-          } 
+          }
 
         },
 
     "web_accessible_resources": [
 
 
-                "js/includes/preloader.js",
-        "js/includes/loader.js", 
+        "js/includes/preloader.js",
+        "js/includes/loader.js",
 
         "js/engine/constants.js",
 
         "js/engine/core/global.js",
         "js/engine/core/cache.js",
         "js/engine/core/core.js",
-        "js/engine/core/events.js", 
- 
+        "js/engine/core/events.js",
+
         "js/engine/core/dom.js",
         "js/engine/core/storage.js",
 
@@ -118,7 +117,7 @@
 
         "js/lib/md5.js",
 
- 
+
 
         "js/includes/utils.js",
         "js/includes/customEvents.js",
@@ -126,6 +125,7 @@
         "js/engine/options.js",
 
         "js/includes/ui/contextMenu.js",
+        "js/includes/ui/pager.js",
 
         "js/includes/plugin/lastfm/api.js",
         "js/includes/plugin/lastfm/scrobbler.js",
@@ -140,8 +140,8 @@
 
         "js/includes/plugin/audio/download.js",
 
-        "js/includes/plugin/audio/bitrate.js", 
-        "js/includes/plugin/audio/searchAndPlay.js", 
+        "js/includes/plugin/audio/bitrate.js",
+        "js/includes/plugin/audio/searchAndPlay.js",
 
         "js/includes/plugin/audio/shortcut.js",
 
@@ -149,15 +149,15 @@
         "js/includes/plugin/sidebar/sidebar.js",
 
 
+
         "js/includes/plugin/sidebar/friends.js",
-        "js/includes/plugin/sidebar/lastfm.js", 
+        "js/includes/plugin/sidebar/lastfm.js",
+
+        "js/includes/plugin/sidebar/lastfm.new.js",
 
         "js/includes/plugin/audio/queque.js",
 
 
-        "js/includes/plugin/im/stats.js",
-
- 
 
         "js/includes/common.js",
 

@@ -7,167 +7,152 @@
  *
  */
 
-GViK( function( gvik, require, Add ) {
+GViK(function(gvik, require, Add) {
 
-    "use strict";
+  'use strict';
 
-    var dom = require( 'dom' ),
-        core = require( 'core' ),
-        options = require( 'options' ),
-        chrome = require( 'chrome' ),
-        events = require( 'events' );
+  var dom = require('dom');
+  var core = require('core');
+  var options = require('options');
+  var chrome = require('chrome');
+  var events = require('events');
 
+  // id element => event name
+  var eventsMap = {
+    'gp': 'playerOpen',
+    'pad_cont': 'padOpen',
+    'wrap3': 'changePage',
+    'audio': 'audio',
+    'im_content': 'IM',
+    'groups_list_content': 'groups',
+    'settings_panel': 'settings'
+  };
 
+  new WebKitMutationObserver(function(mutations) {
 
-    // id element => event name
-    var _events_map = {
-        'gp': 'playerOpen',
-        'pad_cont': 'padOpen',
-        'wrap3': 'changePage',
-        'audio': 'audio',
-        'im_content': 'IM',
-        'groups_list_content': 'groups',
-        'settings_panel': 'settings'
-    };
+    var l = mutations.length;
+    var ev;
+    var id;
+    var curEl;
+    var lastId;
 
+    for (; l--;) {
 
-    new WebKitMutationObserver( function( mutations ) {
+      if ((id = (curEl = mutations[ l ].target).id) &&
+        lastId !== id && (ev = eventsMap[ id ])) {
 
-            var l = mutations.length,
-                ev,
-                id,
-                curEl,
-                lastId;
+        events.trigger(ev, {
+          el: curEl
+        });
 
-            for ( ; l--; ) {
+      }
+      lastId = id;
+    }
 
-                id = ( curEl = mutations[ l ].target ).id;
+  })
+  .observe(document.body, {
+    subtree: true,
+    childList: true
+  });
 
-                if ( id && lastId !== id && ( ev = _events_map[ id ] ) ) {
+  core.decorator('showBox', function(arg, res) {
+    events.trigger('openBox', {
+      arg: arg,
+      res: res
+    });
+  }, true);
 
-                    events.trigger( ev, {
-                        el: curEl
-                    } );
+  core.decorator('hab.setLoc', function(_) {
+    events.trigger('changeURL', _);
+  });
 
-                }
-                lastId = id;
-            }
+  events.bind('changePage', function(even, cnt) {
 
-        } )
-        .observe( document.body, {
-            subtree: true,
-            childList: true
-        } );
+    if ((cnt = document.getElementById('content')) === null) {
+      return;
+    }
 
+    var el;
+    var elid;
+    var ev;
+    var ch = cnt.children;
+    var l = ch.length;
 
-
-    core.decorator( 'showBox', function( arg, res ) {
-        events.trigger( 'openBox', {
-            arg: arg,
-            res: res
-        } );
-    }, true );
-
-    core.decorator( 'hab.setLoc', function( _ ) {
-        events.trigger( 'changeURL', _ );
-    } );
-
-
-
-    events.bind( 'changePage', function( even, cnt ) {
-
-        if ( ( cnt = document.getElementById( 'content' ) ) === null ) return;
-
-        var el,
-            elid,
-            ev,
-            ch = cnt.children,
-            l = ch.length;
-
-        for ( ; l--; )
-            if ( ( el = ch[ l ] ) && ( elid = el.id ) && ( ev = _events_map[ elid ] ) )
-                events.trigger( ev );
-    } )
-
-    .bind( 'openBox', function( _ ) {
-        var arg = _.arg,
-            res = _.res;
-        events.trigger( arg[ 1 ].act, _ );
-    } )
-
-
-    .bind( 'audio_edit_box', function( _ ) {} )
-
-    .bind( 'disconnect', function() {
-        console.error( 'disconnected GViK! Please reload VK pages!' );
-    } )
-
-    .bind( [
+    for (; l--;) {
+      if ((el = ch[ l ]) && (elid = el.id) && (ev = eventsMap[ elid ])) {
+        events.trigger(ev);
+      }
+    }
+  })
+    .bind('openBox', function(_) {
+      events.trigger(_.arg[ 1 ].act, _);
+    })
+    .bind('audio_edit_box', function(_) {})
+    .bind('disconnect', function() {
+      console.error('disconnected GViK! Please reload VK pages!');
+    })
+    .bind([
         'audio',
         'padOpen'
     ], function() {
-        core.each( [
-            'Audio.showRows',
-            'Audio.scrollCheck'
-        ], function( fnName ) {
-            core.decorator( fnName, function( arg, res ) {
-                events.trigger( 'audio.newRows', [ arg, res ] );
-            }, false, true );
-        } );
+      core.each([
+          'Audio.showRows',
+          'Audio.scrollCheck'
+        ], function(fnName) {
+          core.decorator(fnName, function(arg, res) {
+            events.trigger('audio.newRows', [arg, res]);
+          }, false, true);
+        });
+    }, true)
 
-    }, true )
+    .bind('playerOpen', function(data, evname, scope) {
 
+      scope.startReady = false;
+      scope.lastId = '';
 
-    .bind( 'playerOpen', function( data, evname, scope ) {
+      core.decorator('audioPlayer.operate', function(arg) {
+        if (audioPlayer.player.paused()) {
+          events.trigger('audio.pause', scope.trackId);
+        } else {
+          events.trigger('audio.start', scope.trackId);
+        }
+      });
 
-        scope.startReady = false;
-        scope.lastId = "";
+      core.decorator('audioPlayer.setCurTime', function(arg) {
 
-        core.decorator( 'audioPlayer.operate', function( arg ) { 
-            if ( audioPlayer.player.paused() )
-                events.asyncTrigger( 'audio.pause', scope.trackId );
-            else
-                events.asyncTrigger( 'audio.start', scope.trackId );
-        } );
+        scope.curtime = arg[ 0 ];
+        scope.trackId = audioPlayer.id;
 
-        core.decorator( 'audioPlayer.setCurTime', function( arg ) {
+        if (!scope.lastId) {
+          events.trigger('audio.globalStart');
+        }
 
-            scope.curtime = arg[ 0 ];
-            scope.trackId = audioPlayer.id;
+        if (scope.trackId !== scope.lastId) {
+          events.trigger('audio.onNewTrack', scope.trackId);
+          scope.startReady = false;
+          scope.lastId = scope.trackId;
+        }
 
-            if ( !scope.lastId )
-                events.trigger( 'audio.globalStart' );
+        if (scope.curtime < 10) {
+          if (!scope.startReady) {
+            scope.startReady = true;
 
-            if ( scope.trackId !== scope.lastId ) {
-                events.trigger( 'audio.onNewTrack', scope.trackId );
-                scope.startReady = false;
-                scope.lastId = scope.trackId;
-            }
+            events.trigger('audio.onStartPlay');
+          }
+        } else {
+          scope.startReady = false;
+        }
 
-            if ( scope.curtime < 10 ) {
-                if ( !scope.startReady ) {
-                    scope.startReady = true;
+        events.trigger('audio.onPlayProgress', scope.curtime);
+      }, true);
 
-                    events.trigger( 'audio.onStartPlay' );
-                }
-            } else
-                scope.startReady = false;
+    });
 
-            events.trigger( 'audio.onPlayProgress', scope.curtime );
-        }, true );
+  chrome.globalFn('globalKey', function(command, res) {
+    events.trigger('globalKey', {
+      command: command,
+      res: res
+    });
+  });
 
-
-
-    } )
-
-
-
-    chrome.globalFn( 'globalKey', function( command, res ) {
-        events.trigger( 'globalKey', {
-            command: command,
-            res: res
-        } );
-    } );
-
-
-} );
+});

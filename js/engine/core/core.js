@@ -4,341 +4,319 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK(function(appData, require, add) {
 
-GViK( function( appData, require, Add ) {
+  'use strict';
 
-    "use strict";
+  var arrproto = Array.prototype;
+  var slice = arrproto.slice;
+  var push = arrproto.push;
 
-    var arrproto = Array.prototype,
-        slice = arrproto.slice,
-        push = arrproto.push;
+  function each(obj, fn, ctx) {
 
+    var keys = Object.keys(obj).reverse();
+    var l = keys.length;
 
-    function each( obj, fn, ctx ) {
+    for (; l--;) {
+      fn.call(ctx, obj[ keys[l] ], keys[l], l === 0);
+    }
+    return obj;
+  }
 
-        var al = arguments.length,
-            isarr = obj.length != null,
-            i,
-            l;
+  function extend(target) {
 
-        if ( isarr ) {
-            i = 0;
-            l = obj.length;
-            if ( l !== 0 )
-                for ( ; i < l; i++ )
-                    fn.call( ctx, obj[ i ], i, i === ( l - 1 ) );
-        } else
-            for ( i in obj )
-                fn.call( ctx, obj[ i ], i );
+    var arg = arguments;
+    var i = 1;
+    var l = arg.length;
+    var keys;
+    var z;
+    var kl;
 
-        return obj;
+    for (; i < l; i++) {
+      for (z = 0, keys = Object.keys(arg[i]), kl = keys.length; z < kl; z++) {
+        target[ keys[z] ] = arg[ i ][ keys[z] ];
+      }
     }
 
-    function extend( target ) {
+    return target;
+  }
 
-        var z,
-            i = 1,
-            arg = arguments,
-            l = arg.length;
+  function map(obj, fn) {
+    var ret = [];
+    var keys = Object.keys(obj).reverse();
+    var l = keys.length;
 
-        if ( l > 1 )
-            for ( ; i < l; i++ )
-                for ( z in arg[ i ] )
-                    target[ z ] = arg[ i ][ z ];
+    for (; l--;) {
+      ret.push(fn(obj[ keys[l] ], keys[l]));
+    }
+    return ret;
+  }
 
-        return target;
+  function filter(obj, fn) {
+
+    var ret = [];
+    var keys = Object.keys(obj).reverse();
+    var l = keys.length;
+    var curVal;
+
+    for (; l--;) {
+      curVal = obj[ keys[l] ];
+      if (fn(curVal, keys[l])) {
+        ret.push(curVal);
+      }
     }
 
-    function map( obj, fn ) {
-        var likearr = Array.isArray( obj ),
-            ret = [],
-            i,
-            l;
+    return ret;
+  }
 
-        if ( likearr ) {
-            i = 0;
-            l = obj.length;
+  function isFunction(fn) {
+    return typeof fn === 'function';
+  }
 
-            if ( l !== 0 )
-                for ( ; i < l; i++ )
-                    ret.push( fn( obj[ i ], i ) );
-        } else {
-            for ( i in obj )
-                ret.push( fn( obj[ i ], i ) );
+  function isEmpty(obj) {
+    return !Object.keys(obj).length;
+  }
+
+  function toObject(arrMap) {
+    var res = [];
+    var l = arrMap.length;
+
+    for (;l--;) {
+      res[ arrMap[ l ][ 0 ] ] = arrMap[ l ][ 1 ];
+    }
+
+    return res;
+  }
+
+  function toArray(arg) {
+
+    var l = arg.length;
+    var res = [];
+
+    if (l < 2) {
+      res = [arg[ 0 ]];
+    } else {
+      while (l--) {
+        res[ l ] = arg[ l ];
+      }
+    }
+    return res;
+  }
+
+  function getResource(path, callback) {
+    return ajax({
+      type: 'GET',
+      url: appData.IS_GVIK ?
+                  (appData.APP_PATH + path) :
+                  chrome.extension.getURL(path)
+    }, callback, callback ? false : true);
+  }
+
+  function isPlainObject(obj) {
+    return obj != null && obj.constructor(0) instanceof Number &&
+        obj.constructor('0') instanceof String;
+  }
+
+  function define(_scripts, data, callback) {
+    _scripts = Array.isArray(_scripts) ? _scripts : [_scripts];
+
+    if (typeof data === 'function' || !data) {
+      callback = data;
+      data = {};
+    }
+
+    var fileName;
+    var script;
+    var elem = document.head || document.documentElement;
+
+    (function require() {
+
+      if (script && script.parentNode) {
+       // script.parentNode.removeChild(script);
+      }
+
+      if (!(fileName = _scripts.shift())) {
+        return callback && callback();
+      }
+
+      script = document.createElement('script');
+      script.charset = 'utf-8';
+      script.src = (data.path || '') + fileName +
+                                      ((data.suffix) ? '?' + data.suffix : '');
+
+      if (data.async !== false) {
+        script.async = true;
+
+        script.addEventListener('load', require, false);
+        script.addEventListener('error', require, false);
+
+        elem.appendChild(script);
+      } else {
+        elem.appendChild(script);
+        return require();
+      }
+
+    }());
+  }
+
+
+  function initXHR( initfn ) {
+    var xhr = new XMLHttpRequest();
+    xhr.send(initfn(xhr));
+  }
+
+  function getHead (url, hName, succ, error) {
+    var _xhr;
+    initXHR(function(xhr){
+      _xhr = xhr;
+      xhr.open('HEAD', url, true);
+      xhr.addEventListener('load', function(){
+        succ( hName ? this.getResponseHeader(hName) : this.getAllResponseHeaders());
+      }, false);
+      xhr.addEventListener('error', function(){
+        error( this.getAllResponseHeaders() );
+      }, false);
+    });
+    return _xhr;
+  }
+
+  function ajax(data, callback, error, async) {
+
+    var type = data.type || 'GET';
+    var _xhr;
+
+    initXHR(function(xhr){
+      _xhr = xhr;
+      xhr.open(type, data.url, async ? false : true);
+
+      xhr.addEventListener('load', function() {
+        if (xhr.status < 200 || xhr.status > 300) {
+          error(xhr.status, xhr.statusText, this.getAllResponseHeaders());
+          return;
         }
+        var ct = this.getResponseHeader('Content-Type') || '';
+        var res = this.responseText;
 
-        return ret;
-    }
-
-    function filter( obj, fn ) {
-        var likearr = Array.isArray( obj ),
-            ret = [],
-            i,
-            l,
-            curVal,
-            curRes;
-
-        if ( likearr ) {
-            i = 0;
-            l = obj.length;
-
-            if ( l !== 0 ) {
-                for ( ; i < l; i++ ) {
-                    curVal = obj[ i ];
-                    curRes = fn( curVal, i );
-                    if ( curRes )
-                        ret.push( curVal );
-                }
-            }
-        } else {
-            for ( i in obj ) {
-                curVal = obj[ i ];
-                curRes = fn( curVal, i );
-                if ( curRes )
-                    ret.push( curVal );
-            }
+        if (ct.indexOf('application/json') !== -1 || data.dataType === 'json') {
+          try {
+            res = JSON.parse(res);
+          } catch (e) {}
         }
-
-        return ret;
-    }
-
-    function isFunction( fn ) {
-        return typeof fn === 'function';
-    }
-
-
-    function isEmpty( obj ) {
-        var i;
-        for ( i in obj )
-            return false;
-        return true;
-    }
-
-    function toObject( arrMap ) {
-        var res = {},
-            l = arrMap.length;
-
-        while ( l-- ) res[ arrMap[ l ][ 0 ] ] = arrMap[ l ][ 1 ];
-
-        return res;
-    }
-
-    function toArray( arg ) {
-
-        var l = arg.length,
-            res = [];
-
-        if ( l === 1 )
-            res = [ arg[ 0 ] ];
-        else
-            while ( l-- ) res[ l ] = arg[ l ];
-
-
-        return res;
-    }
-
-    function getResource( path, callback ) {
-        return ajax( {
-            type: 'GET',
-            url: appData.IS_GVIK ? ( appData.APP_PATH + path ) : chrome.extension.getURL( path )
-        }, callback, callback ? false : true );
-    }
-
-
-    function isPlainObject( obj ) {
-        return obj != null && obj.constructor( 0 ) instanceof Number &&
-            obj.constructor( '0' ) instanceof String;
-    }
-
-    function define( _scripts, data, callback ) {
-        _scripts = Array.isArray( _scripts ) ? _scripts : [ _scripts ];
-
-        if ( typeof data === 'function' || !data ) {
-            callback = data;
-            data = {};
+        if (callback) {
+          return callback(res);
         }
+      }, false);
 
-        var fileName,
-            script,
-            elem = document.head || document.documentElement;
-        ( function require() {
+      xhr.addEventListener('error', error, false);
 
-            if ( script && script.parentNode )
-                script.parentNode.removeChild( script );
+      if (type === 'POST') {
 
-            if ( !( fileName = _scripts.shift() ) ) {
-                return callback && callback();
-            }
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-            script = document.createElement( 'script' );
-            script.charset = 'utf-8';
-            script.src = ( data.path || '' ) + fileName + ( ( data.suffix ) ? '?' + data.suffix : '' );
-
-            if ( data.async !== false ) {
-                script.async = true;
-
-                script.addEventListener( 'load', require, false );
-                script.addEventListener( 'error', require, false );
-
-                elem.appendChild( script );
-            } else {
-                elem.appendChild( script );
-                return require();
-            }
-
-
-        }() );
-    }
-
-    function ajax( data, callback, error, async ) {
-
-
-        var xhr = new XMLHttpRequest(),
-            type = data.type || 'GET',
-            fn,
-            dataArg;
-
-        xhr.open( type, data.url, async ? false : true );
-
-        if ( type === 'HEAD' ) {
-            fn = function() {
-                callback( data.getheader ?
-                    this.getResponseHeader( data.getheader ) :
-                    this.getAllResponseHeaders() );
-            };
-        } else {
-
-            fn = function() {
-                if ( xhr.status >= 200 && xhr.status < 300 ) {
-                    var ctype = this.getResponseHeader( 'Content-Type' ) || '',
-                        res = this.responseText;
-                    if ( ctype.indexOf( 'application/json' ) !== -1 || data.dataType === 'json' ) {
-                        try {
-                            res = JSON.parse( res );
-                        } catch ( e ) {}
-                    }
-                    if ( callback )
-                        return callback( res );
-                } else
-                    error( xhr.status, xhr.statusText, this.getAllResponseHeaders() );
-            };
-
-            xhr.addEventListener( 'error', error, false );
-
-            if ( type === 'POST' ) {
-
-                xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
-                xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-
-                if ( !isEmpty( data.data ) ) {
-                    dataArg = map( data.data, function( v, k ) {
-                            return encodeURIComponent( k ) + '=' + encodeURIComponent( v );
-                        } )
-                        .join( '&' );
-                }
-
-            }
+        if (!isEmpty(data.data)) {
+          return map(data.data, function(v, k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(v);
+          })
+          .join('&');
         }
-
-        xhr.addEventListener( 'load', fn, false );
-
-        xhr.send( dataArg );
-
-        return xhr;
-    }
-
-    function tmpl( str, obj ) {
-        return template( str, /<\%\=[^>]*>/gi, [ 3, -1 ], obj );
-    }
-
-    function tmpl2( str, obj ) {
-        return template( str, /\%\w/gi, [ 1 ], obj );
-    }
-
-    function tmpl3( str, obj ) {
-        return template( str, /\%\w+\%/gi, [ 1, -1 ], obj );
-    }
-
-    function template( str, rexp, offset, obj ) {
-        return str.replace( rexp, function( k ) {
-            return obj[ k.slice( offset[ 0 ], offset[ 1 ] ) ] || '';
-        } );
-    }
+      }
+    });
 
 
+    return _xhr;
+  }
 
-    function bindFuncAfter( curFn, fn, ctx ) {
-        return function() {
-            var res = curFn.apply( this, arguments );
-            res = fn.apply( ctx, [ arguments, res, curFn ] ) || res;
-            return res;
-        };
+  function tmpl(str, obj) {
+    return template(str, /<\%\=[^>]*>/gi, [3, -1], obj);
+  }
+
+  function tmpl2(str, obj) {
+    return template(str, /\%\w/gi, [1], obj);
+  }
+
+  function tmpl3(str, obj) {
+    return template(str, /\%\w+\%/gi, [1, -1], obj);
+  }
+
+  function template(str, rexp, offset, obj) {
+    return str.replace(rexp, function(k) {
+      return obj[ k.slice(offset[ 0 ], offset[ 1 ]) ] || '';
+    });
+  }
+
+  function bindFuncAfter(curFn, fn, ctx) {
+    return function() {
+      var res = curFn.apply(this, arguments);
+      res = fn.apply(ctx, [arguments, res, curFn]) || res;
+      return res;
     };
+  }
 
-    function bindFuncBefore( curFn, fn, ctx ) {
-        return function() {
-            var res = fn.apply( ctx, [ arguments, curFn ] ) || arguments;
-            if ( !res.__disabled )
-                return curFn.apply( ctx, res );
-        };
+  function bindFuncBefore(curFn, fn, ctx) {
+    return function() {
+      var res = fn.apply(ctx, [arguments, curFn]) || arguments;
+      if (!res.__disabled) {
+        return curFn.apply(ctx, res);
+      }
     };
+  }
 
+  function decorator(fnPath, fn, bef, noallowrebind) {
 
-    function decorator( fnPath, fn, bef, noallowrebind ) {
+    var path = fnPath.split('.');
+    var curParent = window;
+    var curFn;
+    var curProp;
+    var curK = bef ? '_bef_ready' : '_aft_ready';
+    var Fn = bef ? bindFuncBefore : bindFuncAfter;
+    var i = 0;
+    var l = path.length;
 
-        var path = fnPath.split( '.' ),
-            curParent = window,
-            curFn,
-            curProp,
+    for (; i < l; i++) {
 
-            curK = bef ? '_bef_ready' : '_aft_ready',
-            Fn = bef ? bindFuncBefore : bindFuncAfter,
-            i = 0,
-            l = path.length;
+      curProp = path[ i ];
 
-        for ( ; i < l; i++ ) {
+      if (!curParent[ curProp ]) {
+        return;
+      }
 
-            curProp = path[ i ];
+      if (typeof curParent[ curProp ] !== 'function') {
+        curParent = curParent[ curProp ];
+        continue;
+      }
 
-            if ( !curParent[ curProp ] )
-                return;
+      if (noallowrebind && curParent[ curProp ][ curK ]) {
+        return;
+      }
 
-            if ( typeof curParent[ curProp ] !== 'function' ) {
-                curParent = curParent[ curProp ];
-                continue;
-            }
-
-            if ( noallowrebind && curParent[ curProp ][ curK ] )
-                return;
-
-            curParent[ curProp ] = Fn( curParent[ curProp ], fn, curParent );
-            curParent[ curProp ][ curK ] = 1;
-        }
+      curParent[ curProp ] = Fn(curParent[ curProp ], fn, curParent);
+      curParent[ curProp ][ curK ] = 1;
     }
+  }
 
+  add('core', {
+    extend: extend,
+    each: each,
+    filter: filter,
+    map: map,
+    tmpl: tmpl,
+    tmpl2: tmpl2,
+    tmpl3: tmpl3,
+    template: template,
+    isPlainObject: isPlainObject,
+    isEmpty: isEmpty,
+    isFunction: isFunction,
+    toObject: toObject,
+    toArray: toArray,
+    getResource: getResource,
+    define: define,
+    ajax: ajax,
+    getHead: getHead,
+    decorator: decorator,
+    bindFuncBefore: bindFuncBefore,
+    bindFuncAfter: bindFuncAfter
 
-    Add( 'core', {
-        extend: extend,
-        each: each,
-        filter: filter,
-        map: map,
-        tmpl: tmpl,
-        tmpl2: tmpl2,
-        tmpl3: tmpl3,
-        template: template,
-        isPlainObject: isPlainObject,
-        isEmpty: isEmpty,
-        isFunction: isFunction,
-        toObject: toObject,
-        toArray: toArray,
-        getResource: getResource,
-        define: define,
-        ajax: ajax,
+  });
 
-        decorator: decorator,
-        bindFuncBefore: bindFuncBefore,
-        bindFuncAfter: bindFuncAfter
-
-    } );
-
-} );
+});

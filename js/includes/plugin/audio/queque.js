@@ -1,140 +1,118 @@
 /*
- 
- 
- 
- 
+
+
+
+
  */
 
-GViK( function( appData, require, Add ) {
+GViK({}, ['sidebar'], function(appData, require, Add) {
 
-	var events = require( 'events' ),
-		dom = require( 'dom' ),
-		global = require( 'global' ),
-		core = require( 'core' ),
-		sidebar = require( 'sidebar' ),
+  var events = require('events');
+  var dom = require('dom');
+  var global = require('global');
+  var core = require('core');
+  var sidebar = require('sidebar');
+  var playlist = [];
+  var disableTracks = [];
+  var tempCont = {};
 
-		playlist = [],
-		disableTracks = [],
+  var render = {
+    TMPL: '<li>\
+            <div>\
+              <div>\
+                <span>{{index}}</span>\
+                <a>{{artist}}</a>\
+                <span> - {{title}}</span>\
+              </div>\
+              <div></div>\
+            </div>\
+          </li>'
+  };
 
-		tempCont = {},
+  var page = sidebar.addPage();
 
-		render = {
-			TMPL: '<li>\
-						<div>\
-							<div>\
-								<span>{{index}}</span>\
-								<a>{{artist}}</a>\
-								<span> - {{title}}</span>\
-							</div>\
-							<div></div>\
-						</div>\
-					</li>'
-		},
+  function drawSidebar() {
+    page.tabCont.innerHTML = '<ul>' + core.map(playlist, function(id, i) {
 
-		page = sidebar.addPage();
+      var track = window.audioPlayer.songInfos[ id ];
 
+      return core.template(render.TMPL, /\{\{\w+\}\}/gi, [2, -2], {
+        artist: track[ 5 ],
+        title: track[ 6 ],
+        index: (i + 1) + '. '
+      });
 
-	function drawSidebar() {
-		page.tabCont.innerHTML = '<ul>' + core.map( playlist, function( id, i ) {
+    }).join('') + '</ul>';
 
-			var track = window.audioPlayer.songInfos[ id ];
+    page.show();
+    sidebar.show();
+  }
 
+  events.bind('playerOpen', function(data, evename, $scope) {
 
-			return core.template( render.TMPL, /\{\{\w+\}\}/gi, [ 2, -2 ], {
-				artist: track[ 5 ],
-				title: track[ 6 ],
-				index: ( i + 1 ) + '. '
-			} );
+    core.decorator('audioPlayer.operate', function(a) {
 
-		} ).join( '' ) + '</ul>';
+      if ($scope.lastId === a[ 0 ]) {
+        return;
+      }
 
-		page.show();
-		sidebar.show();
-	}
+      if (disableTracks.indexOf(a[ 0 ]) >= 0) {
 
-	events.bind( 'playerOpen', function( data, evename, $scope ) {
- 
-		core.decorator( 'audioPlayer.operate', function( a ) {
+        a.__disabled = true;
+        return a;
+      }
 
-			if ( $scope.lastId === a[ 0 ] )
-				return;
+      if (!playlist.length) {
+        return;
+      }
 
-			if ( disableTracks.indexOf( a[ 0 ] ) >= 0 ) {
+      a[ 0 ] = playlist.shift();
 
-				a.__disabled = true;
-				return a;
-			}
+      drawSidebar();
 
-			if ( !playlist.length )
-				return;
+      return a;
+    }, true);
 
-
-			a[ 0 ] = playlist.shift();
-
-			drawSidebar();
-
-			return a;
-		}, true );
-
-	} )
-
-	.bind( 'audio.globalStart', function() {
-		if ( !core.isEmpty( tempCont ) ) {
-			core.extend( window.audioPlayer.songInfos, tempCont );
-		}
-	} )
+  }).bind('audio.globalStart', function() {
+    if (!core.isEmpty(tempCont)) {
+      core.extend(window.audioPlayer.songInfos, tempCont);
+    }
+  });
 
 
-	.bind( 'audio.addQueque', function( el ) {
+  dom.addClass(page.tabCont, 'loaded');
 
-		var id = global.VARS.CLEAN_ID( el.id );
+  var contextMenu = require('ContextMenu')('.audio').init();
 
-		if ( window.audioPlayer ) {
-			window.audioPlayer.songInfos[ id ] = global.VARS.PARSE_AUDIO( el );
-		} else {
-			tempCont[ id ] = global.VARS.PARSE_AUDIO( el );
-		}
+  contextMenu.addItem({
+    label: 'Добавить в очередь',
+    clb: function(el) {
+    var id = global.VARS.CLEAN_ID(el.id);
 
-		playlist.push( id );
+    if (window.audioPlayer) {
+      window.audioPlayer.songInfos[ id ] = global.VARS.PARSE_AUDIO(el);
+    } else {
+      tempCont[ id ] = global.VARS.PARSE_AUDIO(el);
+    }
 
-		drawSidebar();
-	} )
+    playlist.push(id);
 
-	.bind( 'audio.disableTrack', function( el ) {
+    drawSidebar();
+  }});
 
+  contextMenu.addItem({
+    label: 'Не воспроизводить',
+    clb: function(el) {
 
-		var id = global.VARS.CLEAN_ID( el.id );
+    var id = global.VARS.CLEAN_ID(el.id);
 
-		if ( disableTracks.indexOf( id ) == -1 ) {
-			disableTracks.push( id );
+    if (disableTracks.indexOf(id) == -1) {
+      disableTracks.push(id);
 
-			dom.addClass( el, 'disable' );
-			dom.addClass( dom.byClass( 'area', el ).item( 0 ), 'deleted' );
+      dom.addClass(el, 'disable');
+      dom.addClass(dom.byClass('area', el).item(0), 'deleted');
 
-		}
+    }
+  }});
 
-	} );
-
-
-
-	dom.addClass( page.tabCont, 'loaded' );
-
-	require( 'ContextMenu' )( '.audio' )
-		.init()
-		.addItem( [ {
-				label: 'Добавить в очередь',
-				clb: function( el ) {
-					events.trigger( 'audio.addQueque', el );
-				}
-			},
-
-			{
-				label: 'Не воспроизводить',
-				clb: function( el ) {
-					events.trigger( 'audio.disableTrack', el );
-				}
-			}
-		] );
-
-
-} );
+});
