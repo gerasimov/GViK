@@ -8,38 +8,27 @@
  *
  */
 
+GViK( function( gvik, require, add ) {
 
-GViK( function( gvik, require, Add ) {
+  var __cache = new Map();
 
-    var
+  var tId = setInterval( function() {
+    __cache.clear();
+  }, require( 'constants' ).get( 'CACHE_CLEAR_TIMEOUT' ) );
 
-        constants = require( 'constants' ),
-
-        __cache = {},
-
-
-        tId = setInterval( function() {
-
-            __cache = null;
-            __cache = {};
-
-
-        }, constants.get( 'CACHE_CLEAR_TIMEOUT' ) );
-
-    Add( 'cache', {
-        get: function( key ) {
-            return __cache[ key ];
-        },
-        set: function( key, val ) {
-            __cache[ key ] = val;
-        },
-        del: function( key ) {
-            __cache[ key ] = null;
-            delete __cache[ key ];
-        },
-        has: function( key ) {
-            return __cache[ key ] !== undefined;
-        }
-    } );
+  add( 'cache', {
+    get: function( key ) {
+      return __cache.get( key );
+    },
+    set: function( key, val ) {
+      __cache.set( key, val );
+    },
+    del: function( key ) {
+      __cache.delete( key );
+    },
+    has: function( key ) {
+      return __cache.has( key );
+    }
+  } );
 
 } );

@@ -2,61 +2,54 @@
  
  */
 
-
 GViK( {
-	'audio': 'shortcut'
+  'audio': 'shortcut'
 }, function( appData, require, Add ) {
 
+  var events = require( 'events' );
+  var chrome = require( 'chrome' );
+  var initPlayer;
 
-	var events = require( 'events' ),
-		chrome = require( 'chrome' ),
+  events.bind( {
 
-		initPlayer;
+    'audio.pause': function() {
 
+    },
 
+    'audio.start': function( tId ) {
+      chrome.sendRequest( 'initShortcut', {
+        data: {
+          trackId: tId
+        }
+      } );
+    },
 
-	events.bind( {
+    'audio.globalStart': function() {
+      initPlayer = true;
+    },
 
-		'audio.pause': function() {
+    'globalKey': function( data ) {
+      if ( initPlayer && ( data.res.trackId === audioPlayer.id ) ) {
+        events.trigger( 'globalKey.' + data.command );
+      }
+    },
 
-		},
+    'globalKey.play-pause-track': function() {
 
-		'audio.start': function( tId ) {
+      if ( audioPlayer.player.paused() ) {
+        audioPlayer.playTrack();
+      } else {
+        audioPlayer.pauseTrack();
+      }
+    },
 
-			chrome.sendRequest( 'initShortcut', {
-				data: {
-					trackId: tId
-				}
-			} )
-		},
+    'globalKey.next-track': function() {
+      audioPlayer.nextTrack();
+    },
 
-		'audio.globalStart': function() {
-			initPlayer = true;
-		},
-
-		'globalKey': function( data ) {
-
-			if ( initPlayer && ( data.res.trackId === audioPlayer.id ) )
-				events.trigger( 'globalKey.' + data.command )
-		},
-
-		'globalKey.play-pause-track': function() {
-
-			if ( audioPlayer.player.paused() )
-				audioPlayer.playTrack();
-			else
-				audioPlayer.pauseTrack();
-		},
-
-		'globalKey.next-track': function() {
-			audioPlayer.nextTrack();
-		},
-
-		'globalKey.prev-track': function() {
-			audioPlayer.prevTrack();
-		}
-	} );
-
-
+    'globalKey.prev-track': function() {
+      audioPlayer.prevTrack();
+    }
+  } );
 
 } );

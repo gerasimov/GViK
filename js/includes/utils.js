@@ -6,139 +6,126 @@
  
  */
 
-
 GViK( function( gvik, require, Add ) {
 
+  'use strict';
 
-    "use strict";
+  var core = require( 'core' );
+  var dom = require( 'dom' );
+  var chrome = require( 'chrome' );
+  var cache = require( 'cache' );
+  var events = require( 'events' );
+  var helpers = require( 'helpers' );
+  var constants = require( 'constants' );
 
-    var
-        core = require( 'core' ),
-        dom = require( 'dom' ),
-        chrome = require( 'chrome' ),
-        cache = require( 'cache' ),
-        events = require( 'events' ),
-        global = require( 'global' ),
-        constants = require( 'constants' ),
+  var rId = /^audio|\_pad$/gi;
 
-        rId = /^audio|\_pad$/gi;
+  helpers.CLEAN_ID = function( id ) {
+    return id.replace( rId, '' );
+  };
 
-    global.VARS.CLEAN_ID = function( id ) {
-        return id.replace( rId, '' );
+  helpers.PARSE_AUDIO_DATA = function( el, id ) {
+
+    var act = dom.byClass( 'actions', el )[ 0 ];
+    var input;
+    var url;
+    var dur;
+    var data;
+    var parsedData;
+
+    if ( !id ) {
+      id = helpers.CLEAN_ID( el.id );
+    }
+
+    if ( ( data = cache.get( id ) ) ) {
+      url = data.url;
+      dur = data.dur;
+    } else {
+      input = dom.byTag( 'input', el )[ 0 ];
+      parsedData = input.value.split( ',' );
+
+      url = parsedData[ 0 ];
+      dur = parsedData[ 1 ];
+    }
+
+    return {
+      id: id,
+      act: act,
+      url: url,
+      dur: dur
     };
+  };
 
-    global.VARS.PARSE_AUDIO_DATA = function( el, id ) {
+  helpers.PARSE_AUDIO = function( el ) {
 
-        var act = dom.byClass( 'actions', el )[ 0 ],
-            input, url, dur, data, parsedData;
+    var id = helpers.CLEAN_ID( el.id );
 
+    if ( dom.is( el, '#audio_global' ) ) {
+      id = window.audioPlayer.id;
+    }
 
-        if ( !id )
-            id = global.VARS.CLEAN_ID( el.id );
+    if ( window.audioPlaylist && window.audioPlaylist[ id ] ) {
+      return window.audioPlaylist[ id ];
+    }
 
-        if ( ( data = cache.get( id ) ) ) {
-            url = data.url;
-            dur = data.dur;
-        } else {
-            input = dom.byTag( 'input', el )[ 0 ];
-            parsedData = input.value.split( ',' );
+    var infoEl = dom.byClass( 'info', el ).item( 0 );
+    var artistEl = dom.byTag( 'b', infoEl ).item( 0 );
+    var titleEl = artistEl.nextElementSibling;
+    var input = dom.byTag( 'input', el ).item( 0 );
+    var parsedData = input.value.split( ',' );
 
-            url = parsedData[ 0 ];
-            dur = parsedData[ 1 ];
-        }
+    var splitedId = id.split( '_' );
 
-        return {
-            id: id,
-            act: act,
-            url: url,
-            dur: dur
-        };
-    };
+    return [
+      splitedId[ 0 ],
+      splitedId[ 1 ],
+      parsedData[ 0 ],
+      parsedData[ 1 ],
+      helpers.FORMAT_TIME( parsedData[ 1 ] ),
+      artistEl.innerText,
+      titleEl.innerText,
+      0,
+      0,
+      1
+    ];
+  };
 
+  helpers.FORMAT_TIME = function( sec ) {
+    var result = [];
+    var hours = ( '00' + ( ( sec / 3600 % 3600 ) | 0 ) )
+      .slice( -2 );
+    var mins = ( '00' + ( ( ( sec / 60 ) % 60 ) | 0 ) )
+      .slice( -2 );
+    var secs = ( '00' + ( sec % 60 ) )
+      .slice( -2 );
 
-    global.VARS.PARSE_AUDIO = function( el ) {
+    if ( hours !== '00' ) {
+      result.push( hours );
+    }
+    result.push( mins );
+    result.push( secs );
 
-        var id = global.VARS.CLEAN_ID( el.id );
+    return result.join( ':' );
+  };
 
-        if ( dom.is( el, '#audio_global' ) ) {
-            id = window.audioPlayer.id;
-        }
+  helpers.GET_FILE_SIZE = function( url, callback ) {
+    chrome.getHead( url, 'content-length', function( contentLenght ) {
+        callback( contentLenght );
+      },
+      function() {
+        callback( 0 );
+      } );
 
+  };
 
-        if ( window.audioPlaylist && window.audioPlaylist[ id ] ) {
-            return window.audioPlaylist[ id ];
-        }
+  helpers.LOG = function() {
+    if ( constants.get( 'DEBUG' ) ) {
+      console.log.apply( window.console, arguments );
+    }
+  };
 
-
-
-        var infoEl = dom.byClass( 'info', el ).item( 0 ),
-            artistEl = dom.byTag( 'b', infoEl ).item( 0 ),
-
-            titleEl = artistEl.nextElementSibling,
-
-            input = dom.byTag( 'input', el ).item( 0 ),
-            parsedData = input.value.split( ',' ),
-
-            splitedId = id.split( '_' );
-
-
-        return [
-            splitedId[ 0 ],
-            splitedId[ 1 ],
-            parsedData[ 0 ],
-            parsedData[ 1 ],
-            global.VARS.FORMAT_TIME( parsedData[ 1 ] ),
-            artistEl.innerText,
-            titleEl.innerText,
-            0,
-            0,
-            1
-        ]
-    };
-
-
-    global.VARS.FORMAT_TIME = function( sec ) {
-        var result = [],
-
-            hours = ( '00' + ( ( sec / 3600 % 3600 ) | 0 ) )
-            .slice( -2 ),
-            mins = ( '00' + ( ( ( sec / 60 ) % 60 ) | 0 ) )
-            .slice( -2 ),
-            secs = ( '00' + ( sec % 60 ) )
-            .slice( -2 );
-
-        if ( hours !== '00' ) {
-            result.push( hours );
-        }
-        result.push( mins );
-        result.push( secs );
-
-        return result.join( ':' );
-    };
-
-
-
-    global.VARS.GET_FILE_SIZE = function( url, callback ) {
-        chrome.ajax( {
-                type: 'HEAD',
-                url: url,
-                getheader: 'Content-Length'
-            }, function( contentLenght ) {
-                callback( contentLenght );
-            },
-            function() {
-                callback( 0 );
-            }, false );
-    };
-
-
-    global.VARS.LOG = function() {
-        if ( constants.get( 'DEBUG' ) )
-            console.log.apply( window.console, arguments );
-    };
-
-    var TMPL = {
-        audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
+  var TMPL = {
+    audio: '<div class="audio fl_l" id="audio%audio_id%" onmouseover="addClass(this, \'over \');" onmouseout="removeClass(this, \'over\');">\
                   <a name="%audio_id%"></a>\
                   <div class="area clear_fix" onclick="if (cur.cancelClick){ cur.cancelClick = false; return;} %onclick%">\
                     <div class="play_btn fl_l">\
@@ -155,36 +142,34 @@ GViK( function( gvik, require, Add ) {
                   </div>\
                   <div id="lyrics%audio_id%" class="lyrics" nosorthandle="1"></div>\
                 </div>'
-    };
+  };
 
+  helpers._DRAW_AUDIO = function( audio ) {
 
-    global.VARS._DRAW_AUDIO = function( audio ) {
+    return core.tmpl3( TMPL.audio, {
+      audio_id: audio[ 0 ] + '_' + audio[ 1 ],
+      performer: audio[ 5 ],
+      title: audio[ 6 ],
+      url: audio[ 2 ],
+      playtime: audio[ 3 ],
+      duration: audio[ 4 ]
+    } );
+  }
 
-        return core.tmpl3( TMPL.audio, {
-            audio_id: audio[ 0 ] + '_' + audio[ 1 ],
-            performer: audio[ 5 ],
-            title: audio[ 6 ],
-            url: audio[ 2 ],
-            playtime: audio[ 3 ],
-            duration: audio[ 4 ]
-        } );
-    }
+  helpers.DRAW_AUDIO = function( audio, callback ) {
 
-
-    global.VARS.DRAW_AUDIO = function( audio, callback ) {
-
-        return global.VARS._DRAW_AUDIO( [
-            audio.owner_id,
-            audio.id,
-            audio.url,
-            audio.duration,
-            global.VARS.FORMAT_TIME( audio.duration ),
-            audio.artist,
-            audio.title,
-            0,
-            0,
-            1
-        ] );
-    }
+    return helpers._DRAW_AUDIO( [
+      audio.owner_id,
+      audio.id,
+      audio.url,
+      audio.duration,
+      helpers.FORMAT_TIME( audio.duration ),
+      audio.artist,
+      audio.title,
+      0,
+      0,
+      1
+    ] );
+  };
 
 } );

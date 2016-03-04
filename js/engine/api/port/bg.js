@@ -4,42 +4,36 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK(function(gvik, require, Add) {
 
-GViK( function( gvik, require, Add ) {
+  'use strict';
 
-    "use strict";
+  var core = require('core');
 
+  chrome[ CONFIG.sender ].onConnect.addListener(function(port) {
 
-    var core = require( 'core' );
+    port.onMessage.addListener(function(data) {
+      var params = data.params;
+      var method = methods[ params.method ];
 
-    chrome[ CONFIG.sender ].onConnect.addListener( function( port ) {
+      if (port.sender.tab) {
+        params.tabId = port.sender.tab.id;
+        params.winId = port.sender.tab.windowId;
+      }
 
-        port.onMessage.addListener( function( data ) {
-            var params = data.params,
-                method = methods[ params.method ];
-
-
-            if ( port.sender.tab ) {
-                params.tabId = port.sender.tab.id;
-                params.winId = port.sender.tab.windowId;
-            }
- 
-
-            if ( method )
-                method( data.data, params, function() {
-                    port.postMessage( {
-                        arg: core.toArray( arguments ),
-                        callback: params.callback
-                    } );
-                }, function() {
-                    port.postMessage( {
-                        arg: core.toArray( arguments ),
-                        callback: params.error
-                    } );
-                } );
-        } );
-
-    } );
-
-
-} );
+      if (method) {
+        method(data.data, params, function() {
+          port.postMessage({
+            arg: core.toArray(arguments),
+            callback: params.callback
+          });
+        }, function() {
+          port.postMessage({
+            arg: core.toArray(arguments),
+            callback: params.error
+          });
+        });
+      }
+    });
+  });
+});

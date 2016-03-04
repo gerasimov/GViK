@@ -4,92 +4,89 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK({
+  'groups': 'fast-exit'
+}, function(gvik, require, add) {
 
+  'use strict';
 
-GViK( {
-    'groups': 'fast-exit'
-}, function( gvik, require, Add ) {
+  var options = require('options');
+  var dom = require('dom');
+  var chrome = require('chrome');
+  var vkapi = require('vkapi');
+  var events = require('events');
+  var core = require('core');
 
-    'use strict';
+  vkapi.pushPermission('groups');
 
-    var options = require( 'options' ),
-        dom = require( 'dom' ),
-        chrome = require( 'chrome' ),
-        vkapi = require( 'vkapi' ),
-        events = require( 'events' ),
-        core = require( 'core' );
+  events.bind('groups', function() {
 
+    var el = dom.byId('groups_list_summary');
 
-    vkapi.pushPermission( 'groups' );
+    if (!el) {
+      return;
+    }
 
+    dom.append(el, [
 
-    events.bind( 'groups', function() {
+            dom.create('span', {
+              prop: {
+                className: 'divider',
+                innerText: '|'
+              }
+            }),
 
-        var el = dom.byId( 'groups_list_summary' );
-
-        if ( !el )
-            return;
-
-        dom.append( el, [
-
-            dom.create( 'span', {
+            dom.create('span', {
+              append: dom.create('a', {
                 prop: {
-                    className: 'divider',
-                    innerText: '|'
-                }
-            } ),
+                  innerText: 'Выйти из всех групп'
+                },
 
-            dom.create( 'span', {
-                append: dom.create( 'a', {
-                    prop: {
-                        innerText: 'Выйти из всех групп'
-                    },
+                events: {
+                  click: function() {
+                    var key = 'gvik';
 
-                    events: {
-                        click: function() {
-                            var key = "gvik";
-
-
-                            if ( ( prompt( "Введите слово \"" + key + "\", чтобы подтвердить действие." ) || '' ).toLowerCase().trim() === key )
-                                vkapi.call( 'execute.allGroupsLeave' );
-                        }
+                    if ((prompt('Введите слово "' + key +
+                                '", чтобы подтвердить действие.') || '')
+                        .toLowerCase().trim() === key) {
+                      vkapi.call('execute.allGroupsLeave');
                     }
-                } )
-            } )
-        ] );
-
-
-    }, true );
-
-    dom.setDelegate( document, '.group_list_row:not([data-gvik])', 'mouseover', function( el ) {
-
-        el.setAttribute( 'data-gvik', 'true' );
-
-        var child,
-            infRow,
-            but;
-
-        if ( !( infRow = el.querySelector( '.group_row_info' ) ) ) {
-            return;
-        }
-
-        dom.after( infRow, dom.create( 'span', {
-            prop: {
-                className: 'gvik-exit-group'
-            },
-            events: {
-                click: function() {
-                    vkapi.call( 'execute.groupLeave', {
-                        gid: ( /\d+/.exec( el.id )[ 0 ] )
-                    }, function() {
-                        el.parentNode.removeChild( el );
-                    } );
+                  }
                 }
-            }
-        } ) );
+              })
+            })
+        ]);
 
-    } );
+  }, true);
 
- 
+  dom.setDelegate(document,
+    '.group_list_row:not([data-gvik])', 'mouseover', function(el) {
 
-} );
+      el.setAttribute('data-gvik', 'true');
+
+      var child;
+      var infRow;
+      var but;
+
+      if (!(infRow = el.querySelector('.group_row_info'))) {
+        return;
+      }
+
+      dom.after(infRow, dom.create('span', {
+      prop: {
+        className: 'gvik-exit-group'
+      },
+      events: {
+        click: function() {
+          vkapi.call('execute.groupLeave', {
+            gid: (/\d+/.exec(el.id)[ 0 ])
+          }, function() {
+            el.parentNode.removeChild(el);
+          });
+        }
+      }
+    }));
+
+    });
+
+});

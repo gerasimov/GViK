@@ -5,30 +5,29 @@
 
 */
 
+GViK(function(gvik, require, add) {
 
-GViK( function( gvik, require, Add ) {
+  'use strict';
 
-	'use strict';
+  var options = require('options');
+  var events = require('events');
+  var CNFS = options.get('im');
 
-	var options = require( 'options' ),
-		events = require( 'events' ),
+  events.bind('IM', function(e) {
 
-		CNFS = options.get( 'im' );
+    if (!window.IM) {
+      return;
+    }
 
-	events.bind( 'IM', function( e ) {
+    if (CNFS.get('mark-read')) {
+      IM.markRead = function(uid, msgIds) {};
+      IM.markPeer = function() {};
+    }
 
-		if ( !window.IM )
-			return;
+    if (CNFS.get('send-notify')) {
+      IM.onMyTyping = function(uid) {};
+    }
 
-		if ( CNFS.get( 'mark-read' ) ) {
-			IM.markRead = function( uid, msgIds ) {};
-			IM.markPeer = function() {};
-		}
+  }, true);
 
-		if ( CNFS.get( 'send-notify' ) )
-			IM.onMyTyping = function( uid ) {};
-
-	}, true );
-
-
-} );
+});

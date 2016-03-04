@@ -1,0 +1,14 @@
+/*
+
+*/
+
+(function () {
+
+	function GViK() {
+
+	}
+
+
+	
+	
+}());

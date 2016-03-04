@@ -331,26 +331,26 @@ body:not([data-gvik-options*='_hide-bit_']) .audio.over .gvik-bitrate
 body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate].over .title_wrap,
 body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate] .title_wrap
 {
-    width: -webkit-calc(100% - 95px) !important;
+    width: -webkit-calc(100% - 125px) !important;
 }
 body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate-filesize].over .title_wrap,
 body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize] .title_wrap
 {
-    width: -webkit-calc(100% - 150px) !important;
+    width: -webkit-calc(100% - 170px) !important;
 }
 .audio[data-gvik-download] .title_wrap
 {
-    width: -webkit-calc(100% - 85px) !important;
+    width: -webkit-calc(100% - 105px) !important;
 }
 body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate][data-gvik-download].over .title_wrap,
 body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate][data-gvik-download] .title_wrap
 {
-    width: -webkit-calc(100% - 125px) !important;
+    width: -webkit-calc(100% - 145px) !important;
 }
 body:not([data-gvik-options*='_hide-bit_']) .audio[data-gvik-bitrate-filesize][data-gvik-download].over .title_wrap,
 body[data-gvik-options*='_hide-bit_'] .audio[data-gvik-bitrate-filesize][data-gvik-download] .title_wrap
 {
-    width: -webkit-calc(100% - 150px) !important;
+    width: -webkit-calc(100% - 170px) !important;
 }
 #results .audio  .title_wrap
 {

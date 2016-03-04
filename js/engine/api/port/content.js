@@ -4,95 +4,89 @@
  * Copyright 2013 Gerasimov Ruslan. All rights reserved.
  */
 
+GViK(function(gvik, require, Add) {
 
-GViK( function( gvik, require, Add ) {
+  'use strict';
 
-    "use strict";
+  var core = require('core');
+  var events = require('events');
+  var constants = require('constants');
+  var dom = require('dom');
 
-    var
-
-        core = require( 'core' ),
-        events = require( 'events' ),
-        constants = require( 'constants' ),
-        dom = require( 'dom' ),
-
-        syncMethods = {
-            lang: function( e ) {
-                return chrome.i18n.getMessage( e );
-            }
-        };
-
-    var port = chrome[ CONFIG.sender ].connect();
-
-
-    function trigger( evName, data ) {
-        document.dispatchEvent(
-            new CustomEvent( evName, {
-                detail: {
-                    data: data
-                }
-            } )
-        );
+  var syncMethods = {
+    lang: function(e) {
+      return chrome.i18n.getMessage(e);
     }
+  };
 
+  var port = chrome[ CONFIG.sender ].connect();
 
+  function trigger(evName, data) {
+    document.dispatchEvent(
+            new CustomEvent(evName, {
+              detail: {
+                data: data
+              }
+            })
+    );
+  }
 
-    var _disc = false;
+  var _disc = false;
 
-    function processResponse( data ) {
-        trigger( constants.get( "CHROME_RESPONSE" ), data );
-    }
+  function processResponse(data) {
+    trigger(constants.get('CHROME_RESPONSE'), data);
+  }
 
-    port.onMessage.addListener( processResponse );
-    chrome[ CONFIG.sender ].onMessage.addListener( processResponse );
+  port.onMessage.addListener(processResponse);
+  chrome[ CONFIG.sender ].onMessage.addListener(processResponse);
 
-    port.onDisconnect.addListener( function() {
-        trigger( constants.get( "CHROME_DISCONNECT" ), {} );
-        _disc = true;
-    } );
+  port.onDisconnect.addListener(function() {
+    trigger(constants.get('CHROME_DISCONNECT'), {});
+    _disc = true;
+  });
 
+  function connect(name, fn) {
+    document.addEventListener(name, function(e) {
+      fn(e.detail || {});
+    }, false);
+  }
 
-    function connect( name, fn ) {
-        document.addEventListener( name, function( e ) {
-            fn( e.detail || {} );
-        }, false );
-    }
+  connect(constants.get('CHROME_REQUEST_SYNC'), function(data) {
+    var responseName = constants.get('CHROME_CS_RESPONSE_NAME');
+    sessionStorage[ responseName ] = syncMethods[ data.method ](data.arg);
+  });
 
-    connect( constants.get( "CHROME_REQUEST_SYNC" ), function( data ) {
-        sessionStorage[ constants.get( "CHROME_CS_RESPONSE_NAME" ) ] = syncMethods[ data.method ]( data.arg );
-    } );
+  function csRequest(data) {
+    var params = data.params;
+    var method = methods[ params.method ];
 
-
-    function cs_request( data ) {
-        var params = data.params,
-            method = methods[ params.method ];
-
-        if ( method )
-            method( data.data, params, function() {
-                processResponse( {
-                    arg: core.toArray( arguments ),
-                    callback: params.callback
-                } );
+    if (method) {
+      method(data.data, params, function() {
+              processResponse({
+                arg: core.toArray(arguments),
+                callback: params.callback
+              });
             }, function() {
-                processResponse( {
-                    arg: core.toArray( arguments ),
-                    callback: params.error
-                } );
-            } );
+              processResponse({
+                arg: core.toArray(arguments),
+                callback: params.error
+              });
+            });
+    }
+  }
+
+  connect(constants.get('CHROME_REQUEST'), function(data) {
+
+    var params = data.params;
+    var method = methods[ params.method ];
+
+    if (_disc || method) {
+      return csRequest(data);
     }
 
-    connect( constants.get( "CHROME_REQUEST" ), function( data ) {
+    port.postMessage(data);
+  });
 
-        var params = data.params,
-            method = methods[ params.method ];
+  connect(constants.get('CHROME_CSREQUEST'), csRequest);
 
-        if ( _disc || method )
-            return cs_request( data );
-
-        port.postMessage( data );
-    } );
-
-    connect( constants.get( "CHROME_CSREQUEST" ), cs_request );
-
-
-} );
+});
