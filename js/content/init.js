@@ -11,7 +11,10 @@ GViK(function(gvik, require, Add) {
   var dom = require('dom');
   var core = require('core');
   var constants = require('constants');
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
   var appPath = chrome.extension.getURL('');
   var risEngine = /^js\/engine\//;
   var rIsIncludes = /^js\/(?:includes|lib)\//;
@@ -22,7 +25,10 @@ GViK(function(gvik, require, Add) {
     var engineJSList = [];
 
     core.each(manifest.web_accessible_resources, function(fileName) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
       if (rIsIncludes.test(fileName)) {
         includesJSList.push(fileName);
       } else if (risEngine.test(fileName)) {
@@ -54,5 +60,8 @@ GViK(function(gvik, require, Add) {
       __init(JSON.parse(res));
     });
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 });

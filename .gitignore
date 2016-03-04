@@ -1,7 +1,13 @@
 node_modules/
+<<<<<<< HEAD
 
 
 
+=======
+bower_compnents/
+
+*.swp
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 
 
 # Windows image file caches

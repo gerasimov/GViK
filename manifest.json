@@ -94,7 +94,11 @@
                 "mac": "Command+Shift+2"
             },
             "description": "Предыдущая аудиозапись"
+<<<<<<< HEAD
         }
+=======
+          }
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 
     },
 
@@ -119,6 +123,10 @@
 
         "js/lib/md5.js",
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 
         "js/includes/utils.js",
         "js/includes/customEvents.js",
@@ -130,10 +138,14 @@
         "js/engine/options.js",
 
         "js/includes/ui/contextMenu.js",
+<<<<<<< HEAD
         "js/includes/ui/sidebar.js",
         "js/includes/ui/pager.js",
 
         "js/includes/plugin/profiles/antilove.js",
+=======
+        "js/includes/ui/pager.js",
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 
         "js/includes/plugin/lastfm/api.js",
         "js/includes/plugin/vkapi/api.js",
@@ -160,13 +172,23 @@
 
         "js/includes/plugin/audio/finder.js",
 
+
         "js/includes/plugin/sidebar/friends.js",
+<<<<<<< HEAD
         /*
                 "js/includes/plugin/sidebar/lastfm.js",*/
 
         "js/includes/plugin/sidebar/lastfm.new.js",
 
         "js/includes/plugin/contextMenu/queque.js",
+=======
+        "js/includes/plugin/sidebar/lastfm.js",
+
+        "js/includes/plugin/sidebar/lastfm.new.js",
+
+        "js/includes/plugin/audio/queque.js",
+
+>>>>>>> 2ef21ba6fd9d858273a7b0b05fc6778e3cc132bd
 
 
         "js/includes/common.js",
